@@ -3901,9 +3901,16 @@
         // 添加加载状态
         const loadingWrapper = document.createElement("div");
         loadingWrapper.className = "loading-wrapper";
+
+        // 检查是否在Pi Browser中来显示不同的提示
+        const isInPiBrowser = isPiAvailable();
+        const loadingText = isInPiBrowser
+          ? "正在连接Pi Network..."
+          : "正在进入游戏...";
+
         loadingWrapper.innerHTML = `
                 <div class="spinner"></div>
-                <span>正在连接...</span>
+                <span>${loadingText}</span>
             `;
         loginBtn.appendChild(loadingWrapper);
 
@@ -3914,10 +3921,20 @@
           if (isPiAvailable()) {
             // 真实的Pi Network登录
             const scopes = ["username", "payments"];
-            const authResult = await Pi.authenticate(
+
+            // 设置超时机制，避免无限等待
+            const authPromise = Pi.authenticate(
               scopes,
               onIncompletePaymentFound
             );
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Pi Network连接超时")), 10000)
+            );
+
+            const authResult = await Promise.race([
+              authPromise,
+              timeoutPromise,
+            ]);
 
             if (authResult.accessToken) {
               currentUser = authResult.user;
@@ -3930,12 +3947,13 @@
               showError("Pi Network 登录失败");
             }
           } else {
-            // 模拟登录（用于测试）
+            // 模拟登录（用于测试）- 减少等待时间
             await simulateLogin();
           }
         } catch (error) {
           console.error("Sign in failed:", error);
-          // 如果Pi登录失败，尝试模拟登录
+          // 如果Pi登录失败，自动切换到模拟登录
+          console.log("切换到模拟登录模式...");
           try {
             await simulateLogin();
           } catch (simError) {
@@ -3993,7 +4011,7 @@
               showGameScreen();
               resolve();
             });
-          }, 1000); // 模拟网络延迟
+          }, 300); // 减少模拟网络延迟到300ms
         });
       }
 
