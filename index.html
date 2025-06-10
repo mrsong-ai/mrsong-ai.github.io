@@ -15,13 +15,11 @@
     <!-- Pi Network SDK -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <script>
-      // 初始化Pi SDK - 根据环境自动选择
+      // 初始化Pi SDK - 使用正式App ID
       Pi.init({
         version: "2.0",
-        sandbox:
-          window.location.hostname === "localhost" ||
-          window.location.hostname.includes("127.0.0.1") ||
-          window.location.hostname.includes("sandbox.minepi.com"),
+        sandbox: false, // 使用正式环境
+        appId: "gomoku-5d5b20e8b1d13f8", // 你的App ID
       });
     </script>
 
