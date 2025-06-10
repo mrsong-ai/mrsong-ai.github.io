@@ -16,7 +16,8 @@
         version: "2.0",
         sandbox:
           window.location.hostname === "localhost" ||
-          window.location.hostname.includes("127.0.0.1"),
+          window.location.hostname.includes("127.0.0.1") ||
+          window.location.hostname.includes("sandbox.minepi.com"),
       });
     </script>
 
@@ -1208,7 +1209,7 @@
 
       /* 语言切换器样式 */
       .language-selector {
-        position: absolute;
+        position: fixed;
         top: 15px;
         right: 15px;
         z-index: 1000;
@@ -1223,6 +1224,7 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         min-width: auto;
         width: auto;
+        max-width: 120px;
       }
       .language-selector select {
         background: transparent;
@@ -1279,12 +1281,13 @@
           padding: 3px 6px;
           border-radius: 15px;
           gap: 3px;
+          max-width: 100px;
         }
         .language-selector select {
           font-size: 11px;
           padding: 1px 3px;
           min-width: 60px;
-          max-width: 75px;
+          max-width: 70px;
         }
         .language-selector .globe-icon {
           font-size: 12px;
