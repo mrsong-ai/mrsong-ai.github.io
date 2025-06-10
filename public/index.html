@@ -1209,7 +1209,7 @@
 
       /* 语言切换器样式 */
       .language-selector {
-        position: fixed;
+        position: absolute;
         top: 15px;
         right: 15px;
         z-index: 1000;
@@ -1225,6 +1225,11 @@
         min-width: auto;
         width: auto;
         max-width: 120px;
+      }
+
+      /* 确保父容器有相对定位 */
+      .login-card {
+        position: relative;
       }
       .language-selector select {
         background: transparent;
@@ -7365,9 +7370,25 @@
         }
       }
 
+      // 检测iframe环境并调整语言选择器位置
+      function adjustLanguageSelectorForIframe() {
+        const isInIframe = window.self !== window.top;
+        const languageSelector = document.querySelector(".language-selector");
+
+        if (isInIframe && languageSelector) {
+          // 在iframe中使用固定定位相对于iframe视口
+          languageSelector.style.position = "fixed";
+          languageSelector.style.top = "15px";
+          languageSelector.style.right = "15px";
+        }
+      }
+
       // 页面加载完成后初始化
       document.addEventListener("DOMContentLoaded", function () {
         initializePage();
+
+        // 调整语言选择器位置
+        adjustLanguageSelectorForIframe();
 
         // 手机端阴影清除
         clearAllStoneShadows();
