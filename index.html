@@ -177,14 +177,14 @@
         border-radius: var(--radius-md);
         cursor: pointer;
         display: inline-flex;
-        font-size: 16px;
+        font-size: 17px;
         font-size: var(--text-base);
         font-weight: 500;
         gap: 8px;
         gap: var(--spacing-sm);
         justify-content: center;
-        min-height: 44px;
-        padding: 8px 16px;
+        min-height: 50px;
+        padding: 12px 20px;
         padding: var(--spacing-sm) var(--spacing-md);
         text-decoration: none;
         transition: all 0.2s ease;
@@ -653,9 +653,10 @@
           padding: var(--spacing-md);
         }
         .btn {
-          font-size: 16px;
+          font-size: 18px;
           font-size: var(--text-base);
-          min-height: 48px;
+          min-height: 52px;
+          padding: 14px 22px;
         }
 
         /* 手机端专用 - 彻底清除棋子阴影问题 */
@@ -714,19 +715,19 @@
         display: flex;
         justify-content: center;
         min-height: 100vh;
-        padding: 16px 0 0 0;
+        padding: 16px 0 16px 0;
       }
       .login-content {
-        max-width: 500px !important;
-        width: 95% !important;
+        max-width: 420px !important;
+        width: 90% !important;
         margin: 0 auto !important;
         box-sizing: border-box !important;
       }
 
       /* 强制修复布局的专用类 */
       .login-content-fixed {
-        max-width: 500px !important;
-        width: 95% !important;
+        max-width: 420px !important;
+        width: 90% !important;
         margin: 0 auto !important;
         box-sizing: border-box !important;
         display: block !important;
@@ -1173,8 +1174,8 @@
           height: 90vh;
           display: flex;
           flex-direction: column;
-          max-width: 500px !important;
-          width: 95% !important;
+          max-width: 420px !important;
+          width: 90% !important;
           margin: 0 auto !important;
           box-sizing: border-box !important;
         }
@@ -1186,7 +1187,7 @@
           padding: var(--spacing-lg);
         }
         .login-screen {
-          padding: 8px 0 0 0;
+          padding: 8px 0 8px 0;
         }
         /* 调整移动端内容间距 */
         .game-subtitle {
@@ -5615,8 +5616,8 @@
                     <div style="
                         background: white;
                         border-radius: 12px;
-                        max-width: 500px;
-                        width: 100%;
+                        max-width: 420px;
+                        width: 90%;
                         max-height: 90vh;
                         overflow: hidden;
                         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -7600,8 +7601,8 @@
           const loginContent = document.querySelector(".login-content");
           if (loginContent) {
             // 强制重置CSS属性
-            loginContent.style.maxWidth = "500px";
-            loginContent.style.width = "95%";
+            loginContent.style.maxWidth = "420px";
+            loginContent.style.width = "90%";
             loginContent.style.margin = "0 auto";
             loginContent.style.boxSizing = "border-box";
 
@@ -7625,8 +7626,8 @@
           // 再次确保布局正确
           setTimeout(() => {
             if (loginContent) {
-              loginContent.style.maxWidth = "500px";
-              loginContent.style.width = "95%";
+              loginContent.style.maxWidth = "420px";
+              loginContent.style.width = "90%";
               loginContent.style.margin = "0 auto";
             }
 
