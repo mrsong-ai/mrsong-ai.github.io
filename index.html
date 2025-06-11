@@ -3869,8 +3869,32 @@
         // 添加钱包地址输入验证
         setupWalletAddressValidation();
 
+        // 检查并恢复登录状态
+        checkAndRestoreLoginState();
+
         // 注释掉测试数据创建，使用真实数据
         // 如果需要测试，可以在浏览器控制台手动设置数据
+      }
+
+      // 检查并恢复登录状态
+      async function checkAndRestoreLoginState() {
+        const restored = restoreLoginState();
+        if (restored) {
+          // 如果成功恢复登录状态，自动进入游戏界面
+          try {
+            // 尝试刷新后端数据（如果可用）
+            if (currentUser.accessToken) {
+              await authenticateWithBackend(currentUser.accessToken);
+            }
+
+            // 显示游戏界面
+            showGameScreen();
+          } catch (error) {
+            console.error("自动登录时后端验证失败:", error);
+            // 即使后端失败，也保持登录状态，使用本地数据
+            showGameScreen();
+          }
+        }
       }
 
       // 设置钱包地址输入验证
@@ -3972,6 +3996,9 @@
             if (authResult.accessToken) {
               currentUser = authResult.user;
               currentUser.accessToken = authResult.accessToken; // 保存访问令牌
+
+              // 保存登录状态到本地存储
+              saveLoginState(currentUser);
 
               // 向后端验证用户并获取统计数据
               await authenticateWithBackend(authResult.accessToken);
@@ -4128,6 +4155,52 @@
         localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
       }
 
+      // 保存登录状态到本地存储
+      function saveLoginState(user) {
+        const loginState = {
+          user: user,
+          timestamp: Date.now(),
+          expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7天过期
+        };
+        localStorage.setItem("piGomokuLoginState", JSON.stringify(loginState));
+      }
+
+      // 恢复登录状态
+      function restoreLoginState() {
+        try {
+          const savedState = localStorage.getItem("piGomokuLoginState");
+          if (!savedState) return false;
+
+          const loginState = JSON.parse(savedState);
+
+          // 检查是否过期
+          if (Date.now() > loginState.expiresAt) {
+            localStorage.removeItem("piGomokuLoginState");
+            return false;
+          }
+
+          // 恢复用户状态
+          currentUser = loginState.user;
+
+          // 恢复用户数据
+          const restored = restoreUserGameData();
+          if (!restored) {
+            createDefaultUserStats();
+          }
+
+          return true;
+        } catch (error) {
+          console.error("恢复登录状态失败:", error);
+          localStorage.removeItem("piGomokuLoginState");
+          return false;
+        }
+      }
+
+      // 清除登录状态
+      function clearLoginState() {
+        localStorage.removeItem("piGomokuLoginState");
+      }
+
       // 模拟登录功能（用于测试）
       async function simulateLogin() {
         return new Promise((resolve) => {
@@ -4140,6 +4213,9 @@
               username: "测试玩家" + Math.floor(Math.random() * 1000),
               accessToken: "mock_token_" + Date.now(),
             };
+
+            // 保存登录状态到本地存储
+            saveLoginState(currentUser);
 
             // 使用后端认证获取真实数据，如果失败则使用本地数据
             authenticateWithBackend(currentUser.accessToken).then(() => {
@@ -5200,6 +5276,9 @@
             localStorage.removeItem("userWalletAddress");
             localStorage.removeItem("piGomokuLeaderboard");
             // 注意：不删除 piGomokuGameStats，改为用户专属存储
+
+            // 清除登录状态
+            clearLoginState();
 
             // 清除内存中的用户状态
             currentUser = null;
