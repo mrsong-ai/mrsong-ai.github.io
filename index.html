@@ -5685,7 +5685,7 @@
 
         try {
           const response = await fetch(
-            `${API_BASE_URL}/api/users/${currentUser.uid}/stats`
+            `${API_BASE_URL}/api/users/stats?uid=${currentUser.uid}`
           );
           if (response.ok) {
             const data = await response.json();
@@ -5735,7 +5735,7 @@
           });
 
           const response = await fetch(
-            `${API_BASE_URL}/api/users/${currentUser.piUserId}/stats`
+            `${API_BASE_URL}/api/users/stats?uid=${currentUser.piUserId}`
           );
 
           if (response.ok) {
