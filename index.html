@@ -1652,6 +1652,13 @@
           // 排行榜和统计
           current_ranking: "🎯 当前排名：{0}名 | ({1}胜{2}负) | 胜率：{3}%",
           leaderboard_update_tip: "排行榜实时更新，继续游戏提升您的排名！",
+          ranking_header_rank: "排名",
+          ranking_header_nickname: "昵称",
+          ranking_header_games: "总对局",
+          ranking_header_winrate: "胜率",
+          current_rank_not_listed: "当前排名：未上榜",
+          current_rank_label: "当前排名",
+          not_listed: "未上榜",
 
           // 个人中心详细内容
           personal_profile: "个人档案",
@@ -2104,6 +2111,13 @@
             "🎯 Current Rank: #{0} | ({1}W {2}L) | Win Rate: {3}%",
           leaderboard_update_tip:
             "Leaderboard updates in real-time, keep playing to improve your ranking!",
+          ranking_header_rank: "Rank",
+          ranking_header_nickname: "Nickname",
+          ranking_header_games: "Total Games",
+          ranking_header_winrate: "Win Rate",
+          current_rank_not_listed: "Current Rank: Not Listed",
+          current_rank_label: "Current Rank",
+          not_listed: "Not Listed",
 
           // 个人中心详细内容
           personal_profile: "Personal Profile",
@@ -2748,6 +2762,9 @@
           ranking_header_nickname: "닉네임",
           ranking_header_games: "총 게임",
           ranking_header_winrate: "승률",
+          current_rank_not_listed: "현재 순위: 미등재",
+          current_rank_label: "현재 순위",
+          not_listed: "미등재",
 
           // 개인 센터 상세 라벨
           personal_profile_section: "개인 프로필",
@@ -3177,6 +3194,9 @@
           ranking_header_nickname: "ニックネーム",
           ranking_header_games: "総ゲーム数",
           ranking_header_winrate: "勝率",
+          current_rank_not_listed: "現在のランク：未掲載",
+          current_rank_label: "現在のランク",
+          not_listed: "未掲載",
 
           // 個人センター詳細ラベル
           personal_profile_section: "個人プロフィール",
@@ -3618,6 +3638,9 @@
           ranking_header_nickname: "Biệt danh",
           ranking_header_games: "Tổng trận",
           ranking_header_winrate: "Tỷ lệ thắng",
+          current_rank_not_listed: "Xếp hạng hiện tại: Chưa có",
+          current_rank_label: "Xếp hạng hiện tại",
+          not_listed: "Chưa có",
 
           // Nhãn chi tiết trung tâm cá nhân
           personal_profile_section: "Hồ sơ cá nhân",
@@ -4642,10 +4665,10 @@
 
                     <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 2px solid #e9ecef; font-weight: bold; color: #495057;">
-                            <span>排名</span>
-                            <span>昵称</span>
-                            <span>总对局</span>
-                            <span>胜率</span>
+                            <span>${t("ranking_header_rank")}</span>
+                            <span>${t("ranking_header_nickname")}</span>
+                            <span>${t("ranking_header_games")}</span>
+                            <span>${t("ranking_header_winrate")}</span>
                         </div>
                         ${leaderboardHTML}
                     </div>
@@ -5891,8 +5914,10 @@
 
                         <div style="text-align: center; padding-top: 15px; border-top: 1px solid #e9ecef;">
                             <div style="color: #666; font-size: 0.9em;">
-                                总对局: ${stats.totalGames} | 当前排名: ${
-                            stats.rank > 0 ? `第${stats.rank}名` : "未上榜"
+                                ${t("ranking_header_games")}: ${
+                            stats.totalGames
+                          } | ${t("current_rank_label")}: ${
+                            stats.rank > 0 ? `${stats.rank}` : t("not_listed")
                           }
                             </div>
                         </div>
