@@ -4954,13 +4954,19 @@
         debugLog("currentUser:", currentUser);
         debugLog("userStats:", userStats);
 
-        // 如果用户已登录，先刷新用户数据
-        if (currentUser && currentUser.piUserId) {
+        // 如果用户已登录，确保有piUserId并刷新数据
+        if (currentUser) {
+          // 确保有piUserId
+          if (!currentUser.piUserId) {
+            currentUser.piUserId = currentUser.uid;
+            debugLog("自动设置piUserId", { piUserId: currentUser.piUserId });
+          }
+
           debugLog("用户已登录，刷新数据...");
           await refreshUserStats();
           debugLog("刷新后的userStats:", userStats);
         } else {
-          debugLog("用户未登录或缺少piUserId");
+          debugLog("用户未登录");
         }
 
         const stats = userStats || {
