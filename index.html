@@ -7053,10 +7053,23 @@
           timeoutReason: "player_timeout", // 玩家超时
         };
 
-        // 静默记录游戏结果，不显示弹窗
-        if (currentUser && userStats) {
-          recordGameResultSilent("loss", gameData);
-        }
+        // 延迟一下显示结果，让用户看到超时提示
+        setTimeout(() => {
+          if (currentUser && userStats) {
+            if (isInGameScreen) {
+              // 用户在游戏界面，显示正常的游戏结果弹窗
+              recordGameResult("loss", gameData);
+            } else {
+              // 用户已离开游戏界面，静默记录不显示弹窗
+              recordGameResultSilent("loss", gameData);
+            }
+          } else {
+            // 未登录用户，只在游戏界面显示提示
+            if (isInGameScreen) {
+              showCustomAlert(t("game_over"), t("timeout_game_over"));
+            }
+          }
+        }, 1500);
       }
 
       // 结束游戏
@@ -7474,6 +7487,9 @@
       async function recordGameResultSilent(result, gameData = {}) {
         if (!currentUser || !userStats) return;
 
+        // 先更新本地数据
+        updateLocalGameStats(result);
+
         try {
           const response = await fetch(`${API_BASE_URL}/api/games/record`, {
             method: "POST",
@@ -7498,9 +7514,13 @@
             userStats = data.userStats; // 更新本地统计数据
           } else {
             console.error("记录游戏结果失败:", response.statusText);
+            // 如果后端失败，至少保存本地数据
+            saveUserGameData();
           }
         } catch (error) {
           console.error("记录游戏结果失败:", error);
+          // 如果后端失败，至少保存本地数据
+          saveUserGameData();
         }
       }
 
