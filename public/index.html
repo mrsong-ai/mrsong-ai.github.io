@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache buster: 2024-12-28-17:45 - AI图标Unicode修复 -->
+<!-- Cache buster: 2024-12-28-16:15 -->
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -1392,36 +1392,6 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
-
-      /* 图标统一样式 - 确保跨设备一致性 */
-      .ai-icon,
-      .victory-icon,
-      .defeat-icon,
-      .draw-icon {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
-          "Android Emoji", sans-serif;
-        font-style: normal;
-        font-variant: normal;
-        text-rendering: auto;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        display: inline-block;
-        vertical-align: middle;
-      }
-
-      /* AI图标特殊处理 */
-      .ai-icon {
-        font-size: 1.1em;
-        margin-right: 0.3em;
-      }
-
-      /* 游戏结果图标 */
-      .victory-icon,
-      .defeat-icon,
-      .draw-icon {
-        font-size: 1.2em;
-        margin-right: 0.3em;
-      }
     </style>
   </head>
   <body>
@@ -1482,7 +1452,7 @@
                       class="game-mode-btn ai-mode"
                       onclick="handleAIGame()"
                     >
-                      <span class="mode-icon">&#x1F916;</span>
+                      <span class="mode-icon">🤖</span>
                       <span class="mode-text" data-i18n="ai_battle"
                         >AI对战</span
                       >
@@ -7115,7 +7085,7 @@
                                                 )}</span>
                                             </button>
                                             <button class="game-mode-btn ai-mode" onclick="handleAIGame()">
-                                                <span class="mode-icon">&#x1F916;</span>
+                                                <span class="mode-icon">🤖</span>
                                                 <span class="mode-text" data-i18n="ai_battle">${t(
                                                   "ai_battle"
                                                 )}</span>
