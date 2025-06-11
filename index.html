@@ -1561,6 +1561,7 @@
           close: "关闭",
           save: "保存",
           update: "更新",
+          enter_game: "进入游戏",
 
           // 个人中心
           personal_info: "个人信息",
@@ -1603,6 +1604,8 @@
           please_wait: "请稍候...",
           success: "成功",
           failed: "失败",
+          connecting_pi_network: "正在连接Pi Network...",
+          entering_game: "正在进入游戏...",
 
           // 弹窗和提示
           hint: "提示",
@@ -1659,6 +1662,8 @@
           current_rank_not_listed: "当前排名：未上榜",
           current_rank_label: "当前排名",
           not_listed: "未上榜",
+          play_one_game_to_rank:
+            "🎮 完成1局游戏即可上榜！开始您的五子棋之旅吧！",
 
           // 个人中心详细内容
           personal_profile: "个人档案",
@@ -2012,6 +2017,7 @@
           close: "Close",
           save: "Save",
           update: "Update",
+          enter_game: "Enter Game",
 
           // 个人中心
           personal_info: "Personal Info",
@@ -2055,6 +2061,8 @@
           please_wait: "Please wait...",
           success: "Success",
           failed: "Failed",
+          connecting_pi_network: "Connecting to Pi Network...",
+          entering_game: "Entering game...",
 
           // 弹窗和提示
           hint: "Hint",
@@ -2118,6 +2126,8 @@
           current_rank_not_listed: "Current Rank: Not Listed",
           current_rank_label: "Current Rank",
           not_listed: "Not Listed",
+          play_one_game_to_rank:
+            "🎮 Complete 1 game to get on the leaderboard! Start your Gomoku journey!",
 
           // 个人中心详细内容
           personal_profile: "Personal Profile",
@@ -2512,6 +2522,7 @@
           close: "닫기",
           save: "저장",
           update: "업데이트",
+          enter_game: "게임 시작",
 
           // 개인 센터
           personal_info: "개인 정보",
@@ -2554,6 +2565,8 @@
           please_wait: "잠시 기다려 주세요...",
           success: "성공",
           failed: "실패",
+          connecting_pi_network: "Pi Network 연결 중...",
+          entering_game: "게임 진입 중...",
 
           // 팝업 및 알림
           hint: "힌트",
@@ -2765,6 +2778,8 @@
           current_rank_not_listed: "현재 순위: 미등재",
           current_rank_label: "현재 순위",
           not_listed: "미등재",
+          play_one_game_to_rank:
+            "🎮 1게임 완료하면 순위표에 등재됩니다! 오목 여행을 시작하세요!",
 
           // 개인 센터 상세 라벨
           personal_profile_section: "개인 프로필",
@@ -2940,6 +2955,7 @@
           close: "閉じる",
           save: "保存",
           update: "更新",
+          enter_game: "ゲーム開始",
 
           // 個人センター
           personal_info: "個人情報",
@@ -2982,6 +2998,8 @@
           please_wait: "お待ちください...",
           success: "成功",
           failed: "失敗",
+          connecting_pi_network: "Pi Networkに接続中...",
+          entering_game: "ゲーム開始中...",
 
           // ポップアップと通知
           hint: "ヒント",
@@ -3197,6 +3215,8 @@
           current_rank_not_listed: "現在のランク：未掲載",
           current_rank_label: "現在のランク",
           not_listed: "未掲載",
+          play_one_game_to_rank:
+            "🎮 1ゲーム完了でランキング掲載！五目並べの旅を始めましょう！",
 
           // 個人センター詳細ラベル
           personal_profile_section: "個人プロフィール",
@@ -3372,6 +3392,7 @@
           close: "Đóng",
           save: "Lưu",
           update: "Cập Nhật",
+          enter_game: "Vào Game",
 
           // Trung tâm cá nhân
           personal_info: "Thông Tin Cá Nhân",
@@ -3414,6 +3435,8 @@
           please_wait: "Vui lòng đợi...",
           success: "Thành Công",
           failed: "Thất Bại",
+          connecting_pi_network: "Đang kết nối Pi Network...",
+          entering_game: "Đang vào game...",
 
           // Popup và thông báo
           hint: "Gợi Ý",
@@ -3641,6 +3664,8 @@
           current_rank_not_listed: "Xếp hạng hiện tại: Chưa có",
           current_rank_label: "Xếp hạng hiện tại",
           not_listed: "Chưa có",
+          play_one_game_to_rank:
+            "🎮 Hoàn thành 1 trận để lên bảng xếp hạng! Bắt đầu hành trình Cờ Carô của bạn!",
 
           // Nhãn chi tiết trung tâm cá nhân
           personal_profile_section: "Hồ sơ cá nhân",
@@ -4003,8 +4028,8 @@
         // 检查是否在Pi Browser中来显示不同的提示
         const isInPiBrowser = isPiAvailable();
         const loadingText = isInPiBrowser
-          ? "正在连接Pi Network..."
-          : "正在进入游戏...";
+          ? t("connecting_pi_network")
+          : t("entering_game");
 
         loadingWrapper.innerHTML = `
                 <div class="spinner"></div>
@@ -4276,7 +4301,7 @@
           // 已登录状态：显示"进入游戏"按钮
           loginBtn.innerHTML = `
             <span class="pi-icon">🎮</span>
-            <span>进入游戏</span>
+            <span>${t("enter_game")}</span>
           `;
           loginBtn.onclick = () => showSimpleGameScreen();
         } else {
@@ -4654,13 +4679,17 @@
         }
 
         showCustomModal(
-          "全球排行榜",
+          t("global_ranking_title"),
           `
                 <div style="text-align: center;">
                     <div style="margin-bottom: 20px;">
                         <span style="font-size: 3em; margin-bottom: 10px; display: block;">🏆</span>
-                        <h3 style="color: #333; margin-bottom: 20px;">全球排行榜</h3>
-                        <p style="color: #666; font-size: 0.9em; margin: 0 0 15px 0;">基于月度积分的排名</p>
+                        <h3 style="color: #333; margin-bottom: 20px;">${t(
+                          "global_ranking_title"
+                        )}</h3>
+                        <p style="color: #666; font-size: 0.9em; margin: 0 0 15px 0;">${t(
+                          "ranking_subtitle"
+                        )}</p>
                     </div>
 
                     <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
@@ -4678,13 +4707,15 @@
                         ? `
                         <div style="background: #e3f2fd; border-radius: 8px; padding: 8px; margin-bottom: 10px; margin-top: 0px;">
                             <p style="margin: 0; color: #1976d2; font-weight: 500; text-align: center;">
-                                🎯 当前排名：${userRank}名 | (${
-                            userStats ? userStats.wins : 0
-                          }胜${
-                            userStats
-                              ? userStats.totalGames - userStats.wins
-                              : 0
-                          }负) | 胜率：${userStats ? userStats.winRate : 0}%
+                                ${t(
+                                  "current_ranking",
+                                  userRank,
+                                  userStats ? userStats.wins : 0,
+                                  userStats
+                                    ? userStats.totalGames - userStats.wins
+                                    : 0,
+                                  userStats ? userStats.winRate : 0
+                                )}
                             </p>
                         </div>
                     `
@@ -4692,7 +4723,7 @@
                         ? `
                         <div style="background: #fff3cd; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
                             <p style="margin: 0; color: #856404; font-weight: 500;">
-                                🎮 完成1局游戏即可上榜！开始您的五子棋之旅吧！
+                                ${t("play_one_game_to_rank")}
                             </p>
                         </div>
                     `
@@ -4700,7 +4731,7 @@
                     }
 
                     <p style="color: #666; font-size: 0.9em; margin: 0;">
-                        排行榜实时更新，继续游戏提升您的排名！
+                        ${t("leaderboard_update_tip")}
                     </p>
                 </div>
             `
