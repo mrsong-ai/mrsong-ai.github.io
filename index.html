@@ -1392,6 +1392,36 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
+
+      /* 图标统一样式 - 确保跨设备一致性 */
+      .ai-icon,
+      .victory-icon,
+      .defeat-icon,
+      .draw-icon {
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+          "Android Emoji", sans-serif;
+        font-style: normal;
+        font-variant: normal;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      /* AI图标特殊处理 */
+      .ai-icon {
+        font-size: 1.1em;
+        margin-right: 0.3em;
+      }
+
+      /* 游戏结果图标 */
+      .victory-icon,
+      .defeat-icon,
+      .draw-icon {
+        font-size: 1.2em;
+        margin-right: 0.3em;
+      }
     </style>
   </head>
   <body>
@@ -1535,16 +1565,16 @@
           // 游戏相关
           current_player: "当前玩家",
           your_turn: "轮到我方落子",
-          ai_thinking: "🤖 AI正在思考中...",
+          ai_thinking: '<span class="ai-icon">🤖</span> AI正在思考中...',
           thinking_time: "⏱️ 思考时间：{0}秒",
           remaining_time: "⚠️ 剩余时间：{0}秒",
           timeout_warning: "🚨 即将超时：{0}秒",
           timeout: "⏰ 思考超时",
 
           // 游戏结果
-          you_win: "🎉 恭喜您获胜！",
-          you_lose: "😔 很遗憾，您败了",
-          draw: "🤝 平局",
+          you_win: '<span class="victory-icon">🎉</span> 恭喜您获胜！',
+          you_lose: '<span class="defeat-icon">😔</span> 很遗憾，您败了',
+          draw: '<span class="draw-icon">🤝</span> 平局',
           game_over: "游戏结束",
 
           // 按钮和操作
@@ -1760,9 +1790,10 @@
 
           // 游戏结果相关
           game_result: "游戏结果",
-          congratulations_win: "🎉 恭喜获胜！",
-          sorry_lose: "😔 很遗憾失败了",
-          draw_result: "🤝 平局",
+          congratulations_win:
+            '<span class="victory-icon">🎉</span> 恭喜获胜！',
+          sorry_lose: '<span class="defeat-icon">😔</span> 很遗憾失败了',
+          draw_result: '<span class="draw-icon">🤝</span> 平局',
           current_score: "当前积分",
           win_rate_display: "胜率",
           total_games_display: "总对局",
@@ -1782,7 +1813,7 @@
           // 游戏界面
           return_to_menu: "返回",
           guest_mode_short: "🎮 游客模式",
-          ai_battle_title: "🤖 AI对战",
+          ai_battle_title: '<span class="ai-icon">🤖</span> AI对战',
           player_label: "玩家",
           ai_label: "AI",
           vs_label: "VS",
@@ -1978,7 +2009,7 @@
           // 游戏相关
           current_player: "Current Player",
           your_turn: "Your Turn",
-          ai_thinking: "🤖 AI is thinking...",
+          ai_thinking: '<span class="ai-icon">🤖</span> AI is thinking...',
           thinking_time: "⏱️ Thinking time: {0}s",
           remaining_time: "⚠️ Time remaining: {0}s",
           timeout_warning: "🚨 Timeout warning: {0}s",
@@ -2255,7 +2286,7 @@
           // 游戏界面
           return_to_menu: "Return",
           guest_mode_short: "🎮 Guest Mode",
-          ai_battle_title: "🤖 AI Battle",
+          ai_battle_title: '<span class="ai-icon">🤖</span> AI Battle',
           player_label: "Player",
           ai_label: "AI",
           vs_label: "VS",
@@ -2470,7 +2501,7 @@
           // 게임 관련
           current_player: "현재 플레이어",
           your_turn: "당신의 차례",
-          ai_thinking: "🤖 AI가 생각 중...",
+          ai_thinking: '<span class="ai-icon">🤖</span> AI가 생각 중...',
           thinking_time: "⏱️ 생각 시간: {0}초",
           remaining_time: "⚠️ 남은 시간: {0}초",
           timeout_warning: "🚨 시간 초과 경고: {0}초",
@@ -2687,7 +2718,7 @@
           // 게임 인터페이스
           return_to_menu: "돌아가기",
           guest_mode_short: "🎮 게스트 모드",
-          ai_battle_title: "🤖 AI 대전",
+          ai_battle_title: '<span class="ai-icon">🤖</span> AI 대전',
           player_label: "플레이어",
           ai_label: "AI",
           vs_label: "VS",
@@ -2894,7 +2925,7 @@
           // ゲーム関連
           current_player: "現在のプレイヤー",
           your_turn: "あなたの番",
-          ai_thinking: "🤖 AIが考え中...",
+          ai_thinking: '<span class="ai-icon">🤖</span> AIが考え中...',
           thinking_time: "⏱️ 思考時間: {0}秒",
           remaining_time: "⚠️ 残り時間: {0}秒",
           timeout_warning: "🚨 タイムアウト警告: {0}秒",
@@ -3114,7 +3145,7 @@
           // ゲームインターフェース
           return_to_menu: "戻る",
           guest_mode_short: "🎮 ゲストモード",
-          ai_battle_title: "🤖 AI対戦",
+          ai_battle_title: '<span class="ai-icon">🤖</span> AI対戦',
           player_label: "プレイヤー",
           ai_label: "AI",
           vs_label: "VS",
@@ -3322,7 +3353,7 @@
           // Liên quan đến trò chơi
           current_player: "Người Chơi Hiện Tại",
           your_turn: "Lượt Của Bạn",
-          ai_thinking: "🤖 AI đang suy nghĩ...",
+          ai_thinking: '<span class="ai-icon">🤖</span> AI đang suy nghĩ...',
           thinking_time: "⏱️ Thời gian suy nghĩ: {0}s",
           remaining_time: "⚠️ Thời gian còn lại: {0}s",
           timeout_warning: "🚨 Cảnh báo hết thời gian: {0}s",
@@ -3551,7 +3582,7 @@
           // Giao diện trò chơi
           return_to_menu: "Quay Lại",
           guest_mode_short: "🎮 Chế Độ Khách",
-          ai_battle_title: "🤖 Đấu Với AI",
+          ai_battle_title: '<span class="ai-icon">🤖</span> Đấu Với AI',
           player_label: "Người Chơi",
           ai_label: "AI",
           vs_label: "VS",
@@ -6618,13 +6649,15 @@
           timerDisplay.style.opacity = "1";
           if (winner === "black") {
             timerDisplay.style.color = "#28a745";
-            timerDisplay.innerHTML = "🎉 恭喜获胜！";
+            timerDisplay.innerHTML =
+              '<span class="victory-icon">🎉</span> 恭喜获胜！';
           } else if (winner === "white") {
             timerDisplay.style.color = "#dc3545";
-            timerDisplay.innerHTML = "😔 AI获胜";
+            timerDisplay.innerHTML =
+              '<span class="defeat-icon">😔</span> AI获胜';
           } else {
             timerDisplay.style.color = "#ffc107";
-            timerDisplay.innerHTML = "🤝 平局";
+            timerDisplay.innerHTML = '<span class="draw-icon">🤝</span> 平局';
           }
         }
 
