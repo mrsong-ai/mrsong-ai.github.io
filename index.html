@@ -1535,6 +1535,7 @@
           // 游戏相关
           current_player: "当前玩家",
           your_turn: "轮到我方落子",
+          opponent_turn: "轮到对方落子",
           ai_thinking: "🤖 AI正在思考中...",
           thinking_time: "⏱️ 思考时间：{0}秒",
           remaining_time: "⚠️ 剩余时间：{0}秒",
@@ -1978,6 +1979,7 @@
           // 游戏相关
           current_player: "Current Player",
           your_turn: "Your Turn",
+          opponent_turn: "Opponent's Turn",
           ai_thinking: "🤖 AI is thinking...",
           thinking_time: "⏱️ Thinking time: {0}s",
           remaining_time: "⚠️ Time remaining: {0}s",
@@ -2470,6 +2472,7 @@
           // 게임 관련
           current_player: "현재 플레이어",
           your_turn: "당신의 차례",
+          opponent_turn: "상대방의 차례",
           ai_thinking: "🤖 AI가 생각 중...",
           thinking_time: "⏱️ 생각 시간: {0}초",
           remaining_time: "⚠️ 남은 시간: {0}초",
@@ -2894,6 +2897,7 @@
           // ゲーム関連
           current_player: "現在のプレイヤー",
           your_turn: "あなたの番",
+          opponent_turn: "相手の番",
           ai_thinking: "🤖 AIが考え中...",
           thinking_time: "⏱️ 思考時間: {0}秒",
           remaining_time: "⚠️ 残り時間: {0}秒",
@@ -3322,6 +3326,7 @@
           // Liên quan đến trò chơi
           current_player: "Người Chơi Hiện Tại",
           your_turn: "Lượt Của Bạn",
+          opponent_turn: "Lượt Của Đối Thủ",
           ai_thinking: "🤖 AI đang suy nghĩ...",
           thinking_time: "⏱️ Thời gian suy nghĩ: {0}s",
           remaining_time: "⚠️ Thời gian còn lại: {0}s",
@@ -5537,17 +5542,10 @@
         root.innerHTML = `
                 <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; padding: 2px; box-sizing: border-box; overflow: hidden;" class="game-container">
                     <!-- 游戏头部 - 极度紧凑布局 -->
-                    <header style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px;">
-                        <button onclick="backToLogin()" class="btn btn-outline btn-sm">
+                    <header style="width: 100%; display: flex; justify-content: flex-start; align-items: center; margin-bottom: 1px;">
+                        <button onclick="backToLogin()" class="btn btn-outline btn-sm" style="height: auto; min-height: auto; padding: 4px 8px; line-height: 1.2; font-size: 14px;">
                             ${t("return_to_menu")}
                         </button>
-                        <div style="color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                            ${
-                              currentUser && userStats
-                                ? `🔐 ${userStats.username}`
-                                : t("guest_mode_short")
-                            }
-                        </div>
                     </header>
 
                     <!-- 游戏标题 - 极度紧凑 -->
@@ -5968,7 +5966,7 @@
           "current-player-display"
         );
         if (currentPlayerDisplay) {
-          currentPlayerDisplay.textContent = t("ai_thinking");
+          currentPlayerDisplay.textContent = t("opponent_turn");
         }
 
         // AI延迟下棋（给用户一些反应时间）
@@ -6477,7 +6475,7 @@
             currentPlayerDisplay.textContent = t("your_turn");
             startTurnTimer(); // 开始玩家回合计时
           } else {
-            currentPlayerDisplay.textContent = t("ai_thinking");
+            currentPlayerDisplay.textContent = t("opponent_turn");
             stopTurnTimer(); // 停止计时器（AI回合）
           }
         }
