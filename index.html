@@ -3906,8 +3906,11 @@
       let isLoading = false;
       let currentGame = null;
 
-      // 后端API配置 - Vercel自动检测
-      const API_BASE_URL = window.location.origin; // Vercel会自动使用当前域名
+      // 后端API配置 - 根据环境自动检测
+      const API_BASE_URL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3001" // 本地开发环境
+          : "https://pi-gomoku-backend.onrender.com"; // 生产环境后端服务器
 
       // 用户统计数据
       let userStats = null;
