@@ -3872,8 +3872,10 @@
         // 检查并恢复登录状态
         checkAndRestoreLoginState();
 
-        // 更新主页按钮状态
-        updateMainPageButtonState();
+        // 延迟更新主页按钮状态，确保DOM完全加载
+        setTimeout(() => {
+          updateMainPageButtonState();
+        }, 200);
 
         // 注释掉测试数据创建，使用真实数据
         // 如果需要测试，可以在浏览器控制台手动设置数据
@@ -3883,24 +3885,21 @@
       async function checkAndRestoreLoginState() {
         const restored = restoreLoginState();
         if (restored) {
-          // 如果成功恢复登录状态，自动进入游戏界面
+          // 如果成功恢复登录状态，只更新按钮状态，不自动进入游戏
           try {
             // 尝试刷新后端数据（如果可用）
             if (currentUser.accessToken) {
               await authenticateWithBackend(currentUser.accessToken);
             }
-
-            // 更新主页按钮状态
-            updateMainPageButtonState();
-
-            // 自动登录时直接进入游戏，不显示登录成功提示
-            showSimpleGameScreen();
           } catch (error) {
             console.error("自动登录时后端验证失败:", error);
             // 即使后端失败，也保持登录状态，使用本地数据
-            updateMainPageButtonState();
-            showSimpleGameScreen();
           }
+
+          // 延迟更新按钮状态，确保DOM已加载
+          setTimeout(() => {
+            updateMainPageButtonState();
+          }, 100);
         }
       }
 
@@ -4221,10 +4220,20 @@
       // 更新主页按钮显示状态
       function updateMainPageButtonState() {
         const loginBtn = document.getElementById("login-btn");
-        if (!loginBtn) return;
+        console.log("updateMainPageButtonState 被调用:", {
+          loginBtn: !!loginBtn,
+          currentUser: !!currentUser,
+          username: currentUser?.username,
+        });
+
+        if (!loginBtn) {
+          console.log("找不到 login-btn 元素");
+          return;
+        }
 
         if (currentUser) {
           // 已登录状态：显示"进入游戏"按钮
+          console.log("设置为已登录状态按钮");
           loginBtn.innerHTML = `
             <span class="pi-icon">🎮</span>
             <span>进入游戏</span>
@@ -4232,6 +4241,7 @@
           loginBtn.onclick = () => showSimpleGameScreen();
         } else {
           // 未登录状态：显示"登录"按钮
+          console.log("设置为未登录状态按钮");
           loginBtn.innerHTML = `
             <span class="pi-icon">π</span>
             <span data-i18n="login_with_pi">${t("login_with_pi")}</span>
@@ -7619,6 +7629,9 @@
               loginContent.style.width = "100%";
               loginContent.style.margin = "0 auto";
             }
+
+            // 确保按钮状态正确更新
+            updateMainPageButtonState();
           }, 50);
         }, 100); // 增加延迟确保DOM完全渲染
       }
