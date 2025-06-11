@@ -4012,16 +4012,34 @@
           if (response.ok) {
             const data = await response.json();
             userStats = data.user.stats;
+            // 保存用户ID用于后续API调用
+            currentUser.piUserId = data.user.piUserId;
             console.log("后端认证成功:", data);
           } else {
             console.error("后端认证失败:", response.statusText);
-            // 如果后端认证失败，使用本地模拟数据
-            await loadMockUserStats();
+            // 如果后端认证失败，使用默认0数据
+            userStats = {
+              username: currentUser.username || "Pi用户",
+              totalGames: 0,
+              wins: 0,
+              losses: 0,
+              winRate: 0,
+              score: 100,
+              rank: 0,
+            };
           }
         } catch (error) {
           console.error("后端连接失败:", error);
-          // 如果后端连接失败，使用本地模拟数据
-          await loadMockUserStats();
+          // 如果后端连接失败，使用默认0数据
+          userStats = {
+            username: currentUser.username || "Pi用户",
+            totalGames: 0,
+            wins: 0,
+            losses: 0,
+            winRate: 0,
+            score: 100,
+            rank: 0,
+          };
         }
       }
 
@@ -4030,37 +4048,21 @@
         return new Promise((resolve) => {
           setTimeout(() => {
             // 创建模拟用户
+            const userId = "test_user_" + Date.now();
             currentUser = {
-              uid: "test_user_" + Date.now(),
+              uid: userId,
+              piUserId: userId,
               username: "测试玩家" + Math.floor(Math.random() * 1000),
               accessToken: "mock_token_" + Date.now(),
             };
 
-            // 加载模拟用户统计数据
-            loadMockUserStats().then(() => {
+            // 使用后端认证获取真实数据（0数据）
+            authenticateWithBackend(currentUser.accessToken).then(() => {
               showGameScreen();
               resolve();
             });
           }, 300); // 减少模拟网络延迟到300ms
         });
-      }
-
-      // 加载模拟用户统计数据
-      async function loadMockUserStats() {
-        userStats = {
-          username: currentUser.username,
-          totalGames: Math.floor(Math.random() * 50),
-          wins: Math.floor(Math.random() * 30),
-          losses: Math.floor(Math.random() * 20),
-          draws: Math.floor(Math.random() * 5),
-          winRate: 0,
-          score: Math.floor(Math.random() * 1000),
-          rank: Math.floor(Math.random() * 100) + 1,
-        };
-        userStats.winRate =
-          userStats.totalGames > 0
-            ? Math.round((userStats.wins / userStats.totalGames) * 100)
-            : 0;
       }
 
       // 处理未完成的支付
@@ -5341,7 +5343,7 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              userId: currentUser.uid,
+              userId: currentUser.piUserId || currentUser.uid,
               username: userStats.username,
               gameResult: result, // 'win', 'loss', 'draw'
               gameData: {
