@@ -4062,7 +4062,8 @@
           score: 100,
           rank: 0,
         };
-        console.log("创建默认用户数据:", userStats);
+        // 立即保存到本地存储
+        localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
       }
 
       // 模拟登录功能（用于测试）
@@ -4905,42 +4906,7 @@
                         </div>
                     </div>
 
-                    ${
-                      window.location.hostname === "mrsong-ai.github.io" ||
-                      window.location.hostname === "localhost"
-                        ? `
-                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: left;">
-                        <h5 style="color: #495057; margin: 0 0 10px 0; font-size: 14px;">🔧 调试信息</h5>
-                        <div style="font-size: 12px; color: #6c757d; font-family: monospace;">
-                            <div>用户登录状态: ${
-                              currentUser ? "已登录" : "未登录"
-                            }</div>
-                            <div>用户名: ${
-                              currentUser ? currentUser.username : "无"
-                            }</div>
-                            <div>用户ID: ${
-                              currentUser
-                                ? currentUser.piUserId || currentUser.uid
-                                : "无"
-                            }</div>
-                            <div>userStats存在: ${userStats ? "是" : "否"}</div>
-                            <div>本地存储数据: ${
-                              localStorage.getItem("piGomokuGameStats")
-                                ? "存在"
-                                : "不存在"
-                            }</div>
-                            ${
-                              localStorage.getItem("piGomokuGameStats")
-                                ? `<div>本地数据内容: ${localStorage.getItem(
-                                    "piGomokuGameStats"
-                                  )}</div>`
-                                : ""
-                            }
-                        </div>
-                    </div>
-                    `
-                        : ""
-                    }
+
 
                     <div style="text-align: center; margin-top: 6px;">
                         ${
@@ -5577,25 +5543,19 @@
 
       // 记录游戏结果
       async function recordGameResult(result, gameData = {}) {
-        console.log("recordGameResult 被调用:", result, currentUser, userStats);
-
         if (!currentUser) {
-          console.log("currentUser 不存在，无法记录游戏结果");
           return;
         }
 
         // 如果 userStats 不存在，先初始化
         if (!userStats) {
-          console.log("userStats 不存在，尝试初始化");
           initializeUserStatsFromLocal();
           if (!userStats) {
-            console.log("userStats 初始化失败，创建默认数据");
             createDefaultUserStats();
           }
         }
 
         // 先更新本地数据
-        console.log("更新本地游戏数据");
         updateLocalGameStats(result);
 
         try {
@@ -5638,17 +5598,12 @@
 
       // 更新本地游戏统计数据
       function updateLocalGameStats(result) {
-        console.log("updateLocalGameStats 被调用:", result);
-        console.log("更新前的 userStats:", userStats);
-
         if (!userStats) {
-          console.log("userStats 不存在，无法更新本地数据");
           return;
         }
 
         // 更新统计数据
-        const oldTotalGames = userStats.totalGames || 0;
-        userStats.totalGames = oldTotalGames + 1;
+        userStats.totalGames = (userStats.totalGames || 0) + 1;
 
         if (result === "win") {
           userStats.wins = (userStats.wins || 0) + 1;
@@ -5676,8 +5631,6 @@
 
         // 保存到本地存储
         localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
-        console.log("本地游戏数据已更新:", userStats);
-        console.log("总对局从", oldTotalGames, "增加到", userStats.totalGames);
       }
 
       // 显示游戏结果统计
@@ -5776,18 +5729,7 @@
                     `
                     }
 
-                    ${
-                      window.debugInfo &&
-                      (window.location.hostname === "mrsong-ai.github.io" ||
-                        window.location.hostname === "localhost")
-                        ? `
-                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: left;">
-                        <h5 style="color: #495057; margin: 0 0 10px 0; font-size: 14px;">🔧 调试信息</h5>
-                        <pre style="font-size: 12px; color: #6c757d; margin: 0; white-space: pre-wrap; font-family: monospace;">${window.debugInfo}</pre>
-                    </div>
-                    `
-                        : ""
-                    }
+
 
                     <div style="display: flex; gap: 10px; justify-content: center;">
                         <button onclick="closeNewModal(); resetAIGame()" style="background: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer;">
@@ -6937,45 +6879,15 @@
           duration: Date.now() - (window.gameStartTime || Date.now()),
         };
 
-        // 调试信息
-        console.log("游戏结束调试信息:");
-        console.log("currentUser:", currentUser);
-        console.log("userStats:", userStats);
-        console.log("gameResult:", gameResult);
-
-        // 临时调试弹窗（帮助用户诊断问题）
-        const debugInfo = `
-调试信息：
-- 用户登录状态: ${currentUser ? "已登录" : "未登录"}
-- 用户名: ${currentUser ? currentUser.username : "无"}
-- 用户ID: ${currentUser ? currentUser.piUserId || currentUser.uid : "无"}
-- userStats存在: ${userStats ? "是" : "否"}
-- 游戏结果: ${gameResult}
-- 总对局数: ${userStats ? userStats.totalGames : "无数据"}
-        `;
-
-        // 显示调试信息（仅在开发阶段）
-        if (
-          window.location.hostname === "mrsong-ai.github.io" ||
-          window.location.hostname === "localhost"
-        ) {
-          // 创建调试信息显示区域
-          window.debugInfo = debugInfo;
-        }
-
         // 如果用户已登录，记录游戏结果
         if (currentUser && userStats) {
-          console.log("用户已登录，记录游戏结果");
           recordGameResult(gameResult, gameData);
         } else {
-          console.log("用户未登录或数据缺失，显示简单结果");
           // 如果用户已登录但userStats为空，尝试初始化
           if (currentUser && !userStats) {
-            console.log("用户已登录但userStats为空，尝试初始化数据");
             initializeUserStatsFromLocal();
             // 重新检查并记录
             if (userStats) {
-              console.log("数据初始化成功，记录游戏结果");
               recordGameResult(gameResult, gameData);
               return;
             }
