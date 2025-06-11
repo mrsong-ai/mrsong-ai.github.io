@@ -717,7 +717,7 @@
         padding: 16px 0 0 0;
       }
       .login-content {
-        max-width: 400px !important;
+        max-width: 90% !important;
         width: 100% !important;
         margin: 0 auto !important;
         box-sizing: border-box !important;
@@ -725,7 +725,7 @@
 
       /* 强制修复布局的专用类 */
       .login-content-fixed {
-        max-width: 400px !important;
+        max-width: 90% !important;
         width: 100% !important;
         margin: 0 auto !important;
         box-sizing: border-box !important;
@@ -1173,7 +1173,7 @@
           height: 90vh;
           display: flex;
           flex-direction: column;
-          max-width: 400px !important;
+          max-width: 90% !important;
           width: 100% !important;
           margin: 0 auto !important;
           box-sizing: border-box !important;
@@ -7600,7 +7600,7 @@
           const loginContent = document.querySelector(".login-content");
           if (loginContent) {
             // 强制重置CSS属性
-            loginContent.style.maxWidth = "400px";
+            loginContent.style.maxWidth = "90%";
             loginContent.style.width = "100%";
             loginContent.style.margin = "0 auto";
             loginContent.style.boxSizing = "border-box";
@@ -7625,7 +7625,7 @@
           // 再次确保布局正确
           setTimeout(() => {
             if (loginContent) {
-              loginContent.style.maxWidth = "400px";
+              loginContent.style.maxWidth = "90%";
               loginContent.style.width = "100%";
               loginContent.style.margin = "0 auto";
             }
