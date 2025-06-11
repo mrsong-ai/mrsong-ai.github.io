@@ -4014,23 +4014,33 @@
 
           if (response.ok) {
             const data = await response.json();
-            userStats = data.user.stats;
             // 保存用户ID用于后续API调用
             currentUser.piUserId = data.user.piUserId;
 
-            // 登录成功后，恢复用户专属的游戏数据
+            // 先尝试恢复用户专属的游戏数据
             restoreUserGameData();
+
+            // 如果没有本地数据，才使用后端返回的初始数据
+            if (!userStats || userStats.totalGames === 0) {
+              userStats = data.user.stats;
+            }
           } else {
             console.error("后端认证失败:", response.statusText);
-            // 如果后端认证失败，尝试使用本地存储的数据
-            initializeUserStatsFromLocal();
-            restoreUserGameData();
+            // 如果后端认证失败，尝试恢复本地数据
+            const restored = restoreUserGameData();
+            if (!restored) {
+              // 如果没有可恢复的数据，创建默认数据
+              createDefaultUserStats();
+            }
           }
         } catch (error) {
           console.error("后端连接失败:", error);
-          // 如果后端连接失败，尝试使用本地存储的数据
-          initializeUserStatsFromLocal();
-          restoreUserGameData();
+          // 如果后端连接失败，尝试恢复本地数据
+          const restored = restoreUserGameData();
+          if (!restored) {
+            // 如果没有可恢复的数据，创建默认数据
+            createDefaultUserStats();
+          }
         }
       }
 
@@ -4057,16 +4067,30 @@
                 "piGomokuGameStats",
                 JSON.stringify(userStats)
               );
+              return true; // 表示成功恢复了数据
             }
           } catch (error) {
             console.error("恢复用户数据失败:", error);
           }
         }
 
-        // 如果没有找到用户专属数据，但userStats为空，则初始化
-        if (!userStats) {
-          initializeUserStatsFromLocal();
+        // 如果没有找到用户专属数据，尝试从通用存储恢复
+        const generalStats = localStorage.getItem("piGomokuGameStats");
+        if (generalStats) {
+          try {
+            const stats = JSON.parse(generalStats);
+            if (stats && stats.totalGames > 0) {
+              userStats = stats;
+              userStats.username =
+                currentUser.username || userStats.username || "Pi用户";
+              return true; // 表示成功恢复了数据
+            }
+          } catch (error) {
+            console.error("恢复通用数据失败:", error);
+          }
         }
+
+        return false; // 表示没有找到可恢复的数据
       }
 
       // 从本地存储初始化用户数据
