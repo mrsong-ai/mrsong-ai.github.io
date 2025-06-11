@@ -642,11 +642,10 @@
 
       @media (max-width: 768px) {
         .login-screen {
-          padding: 0;
+          padding: 8px;
         }
         .container {
-          padding: 0 8px;
-          padding: 0 var(--spacing-sm);
+          padding: 0;
         }
         .card {
           padding: 16px;
@@ -715,20 +714,20 @@
         display: flex;
         justify-content: center;
         min-height: 100vh;
-        padding: 16px 0 16px 0;
+        padding: 16px;
       }
       .login-content {
-        max-width: 600px !important;
-        width: 90% !important;
-        margin: 0 auto !important;
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
         box-sizing: border-box !important;
       }
 
       /* 强制修复布局的专用类 */
       .login-content-fixed {
-        max-width: 600px !important;
-        width: 90% !important;
-        margin: 0 auto !important;
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
         box-sizing: border-box !important;
         display: block !important;
       }
@@ -1171,23 +1170,23 @@
         }
         /* 移动端卡片高度优化 */
         .login-content {
-          height: 90vh;
+          height: calc(100vh - 16px);
           display: flex;
           flex-direction: column;
-          max-width: 600px !important;
-          width: 90% !important;
-          margin: 0 auto !important;
+          max-width: none !important;
+          width: 100% !important;
+          margin: 0 !important;
           box-sizing: border-box !important;
         }
         .card {
-          height: 90vh;
+          height: 100%;
           display: flex;
           flex-direction: column;
           overflow-y: auto;
           padding: var(--spacing-lg);
         }
         .login-screen {
-          padding: 8px 0 8px 0;
+          padding: 8px;
         }
         /* 调整移动端内容间距 */
         .game-subtitle {
@@ -7593,17 +7592,17 @@
           // 强制重置容器样式
           const container = document.querySelector(".container");
           if (container) {
-            container.style.padding = "0 8px";
-            container.style.maxWidth = "1200px";
+            container.style.padding = "0";
+            container.style.maxWidth = "none";
             container.style.width = "100%";
           }
 
           const loginContent = document.querySelector(".login-content");
           if (loginContent) {
             // 强制重置CSS属性
-            loginContent.style.maxWidth = "600px";
-            loginContent.style.width = "90%";
-            loginContent.style.margin = "0 auto";
+            loginContent.style.maxWidth = "none";
+            loginContent.style.width = "100%";
+            loginContent.style.margin = "0";
             loginContent.style.boxSizing = "border-box";
 
             // 强制重新计算布局
@@ -7626,9 +7625,9 @@
           // 再次确保布局正确
           setTimeout(() => {
             if (loginContent) {
-              loginContent.style.maxWidth = "600px";
-              loginContent.style.width = "90%";
-              loginContent.style.margin = "0 auto";
+              loginContent.style.maxWidth = "none";
+              loginContent.style.width = "100%";
+              loginContent.style.margin = "0";
             }
 
             // 确保按钮状态正确更新
