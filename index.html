@@ -116,7 +116,7 @@
 
       .container {
         margin: 0 auto;
-        max-width: 400px;
+        max-width: 360px;
         padding: 0;
       }
       .flex {
@@ -641,11 +641,12 @@
 
       @media (max-width: 768px) {
         .login-screen {
-          padding: 16px;
+          padding: 8px;
         }
         .container {
           padding: 0;
           max-width: none;
+          width: 100%;
         }
         .card {
           padding: 16px;
@@ -1184,9 +1185,11 @@
           flex-direction: column;
           overflow-y: auto;
           padding: var(--spacing-lg);
+          max-width: none;
+          width: 100%;
         }
         .login-screen {
-          padding: 16px;
+          padding: 8px;
         }
         /* 调整移动端内容间距 */
         .game-subtitle {
@@ -7626,7 +7629,7 @@
             // 强制重置卡片样式
             card.style.position = "relative";
             card.style.width = "100%";
-            card.style.maxWidth = "400px";
+            card.style.maxWidth = "none";
             card.style.boxSizing = "border-box";
           }
 
