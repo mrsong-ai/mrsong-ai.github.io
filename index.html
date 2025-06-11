@@ -1402,6 +1402,62 @@
       >您需要启用JavaScript才能运行此应用程序。</noscript
     >
 
+    <!-- 调试信息面板 -->
+    <div
+      id="debug-panel"
+      style="
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px;
+        max-height: 200px;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        font-size: 10px;
+        padding: 5px;
+        overflow-y: auto;
+        z-index: 9999;
+        display: none;
+        border: 1px solid #ccc;
+      "
+    >
+      <div style="text-align: right; margin-bottom: 5px">
+        <button
+          onclick="clearDebugLog()"
+          style="font-size: 10px; padding: 2px 5px"
+        >
+          清除
+        </button>
+        <button
+          onclick="toggleDebugPanel()"
+          style="font-size: 10px; padding: 2px 5px"
+        >
+          隐藏
+        </button>
+      </div>
+      <div id="debug-log"></div>
+    </div>
+
+    <!-- 调试按钮 -->
+    <button
+      id="debug-toggle"
+      onclick="toggleDebugPanel()"
+      style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 10000;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        font-size: 12px;
+      "
+    >
+      调试
+    </button>
+
     <div id="root">
       <!-- 登录界面 -->
       <div class="login-screen">
@@ -4858,17 +4914,17 @@
 
       // 显示个人中心
       async function showPersonalCenter() {
-        console.log("=== 显示个人中心 ===");
-        console.log("currentUser:", currentUser);
-        console.log("userStats:", userStats);
+        debugLog("=== 显示个人中心 ===");
+        debugLog("currentUser:", currentUser);
+        debugLog("userStats:", userStats);
 
         // 如果用户已登录，先刷新用户数据
         if (currentUser && currentUser.piUserId) {
-          console.log("用户已登录，刷新数据...");
+          debugLog("用户已登录，刷新数据...");
           await refreshUserStats();
-          console.log("刷新后的userStats:", userStats);
+          debugLog("刷新后的userStats:", userStats);
         } else {
-          console.log("用户未登录或缺少piUserId");
+          debugLog("用户未登录或缺少piUserId");
         }
 
         const stats = userStats || {
@@ -5738,7 +5794,7 @@
 
         try {
           const apiUrl = `${API_BASE_URL}/api/users/stats?uid=${currentUser.piUserId}`;
-          console.log("正在刷新用户数据...", {
+          debugLog("正在刷新用户数据...", {
             userId: currentUser.piUserId,
             currentUserStats: userStats,
             apiUrl: apiUrl,
@@ -5748,9 +5804,9 @@
 
           if (response.ok) {
             const data = await response.json();
-            console.log("从后端获取的数据:", data);
+            debugLog("从后端获取的数据:", data);
             userStats = data.stats;
-            console.log("用户数据刷新成功:", userStats);
+            debugLog("用户数据刷新成功:", userStats);
 
             // 保存到本地存储
             localStorage.setItem(
@@ -5797,7 +5853,7 @@
         try {
           const userId = currentUser.piUserId || currentUser.uid;
           const apiUrl = `${API_BASE_URL}/api/games/record`;
-          console.log("正在记录游戏结果到后端...", {
+          debugLog("正在记录游戏结果到后端...", {
             userId: userId,
             username: userStats.username,
             gameResult: result,
@@ -5825,10 +5881,10 @@
 
           if (response.ok) {
             const data = await response.json();
-            console.log("游戏记录已保存到后端:", data);
-            console.log("更新前的userStats:", userStats);
+            debugLog("游戏记录已保存到后端:", data);
+            debugLog("更新前的userStats:", userStats);
             userStats = data.userStats; // 更新本地统计数据
-            console.log("更新后的userStats:", userStats);
+            debugLog("更新后的userStats:", userStats);
 
             // 保存到本地存储
             localStorage.setItem(
@@ -7940,6 +7996,50 @@
           if (isPiNetwork) {
             document.body.classList.add("pi-network-iframe");
           }
+        }
+      }
+
+      // 调试功能
+      function debugLog(message, data = null) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logElement = document.getElementById("debug-log");
+        if (logElement) {
+          const logEntry = document.createElement("div");
+          logEntry.style.marginBottom = "2px";
+          logEntry.style.borderBottom = "1px solid #333";
+          logEntry.style.paddingBottom = "2px";
+
+          let logText = `[${timestamp}] ${message}`;
+          if (data) {
+            logText += `\n${JSON.stringify(data, null, 2)}`;
+          }
+
+          logEntry.textContent = logText;
+          logElement.appendChild(logEntry);
+          logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // 同时输出到控制台
+        if (data) {
+          console.log(message, data);
+        } else {
+          console.log(message);
+        }
+      }
+
+      function toggleDebugPanel() {
+        const panel = document.getElementById("debug-panel");
+        if (panel.style.display === "none") {
+          panel.style.display = "block";
+        } else {
+          panel.style.display = "none";
+        }
+      }
+
+      function clearDebugLog() {
+        const logElement = document.getElementById("debug-log");
+        if (logElement) {
+          logElement.innerHTML = "";
         }
       }
 
