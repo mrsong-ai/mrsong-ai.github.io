@@ -7011,12 +7011,22 @@
 
       // 处理玩家超时
       function handlePlayerTimeout() {
+        console.log("handlePlayerTimeout called", {
+          turnTimer: !!turnTimer,
+          aiGameActive: aiGameActive,
+          currentUser: !!currentUser,
+          userStats: !!userStats,
+        });
+
         if (turnTimer) {
           clearInterval(turnTimer);
           turnTimer = null;
         }
 
-        if (!aiGameActive) return;
+        if (!aiGameActive) {
+          console.log("Game not active, returning");
+          return;
+        }
 
         // 结束游戏，记录为失败
         aiGameActive = false;
@@ -7055,18 +7065,33 @@
 
         // 延迟一下显示结果，让用户看到超时提示
         setTimeout(() => {
+          // 重新检查用户是否还在游戏界面（因为可能在1.5秒内离开了）
+          const stillInGameScreen =
+            document.getElementById("current-player-display") !== null;
+
+          console.log("Timeout processing", {
+            currentUser: !!currentUser,
+            userStats: !!userStats,
+            stillInGameScreen: stillInGameScreen,
+          });
+
           if (currentUser && userStats) {
-            if (isInGameScreen) {
+            if (stillInGameScreen) {
               // 用户在游戏界面，显示正常的游戏结果弹窗
+              console.log("Recording timeout loss with popup");
               recordGameResult("loss", gameData);
             } else {
               // 用户已离开游戏界面，静默记录不显示弹窗
+              console.log("Recording timeout loss silently");
               recordGameResultSilent("loss", gameData);
             }
           } else {
             // 未登录用户，只在游戏界面显示提示
-            if (isInGameScreen) {
+            if (stillInGameScreen) {
+              console.log("Showing timeout alert for guest user");
               showCustomAlert(t("game_over"), t("timeout_game_over"));
+            } else {
+              console.log("Guest user timeout, no action needed");
             }
           }
         }, 1500);
