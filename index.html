@@ -4114,6 +4114,10 @@
       // 后端认证函数
       async function authenticateWithBackend(accessToken) {
         try {
+          debugLog("尝试后端认证", {
+            accessToken: accessToken.substring(0, 10) + "...",
+          });
+
           const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: "POST",
             headers: {
@@ -4122,8 +4126,14 @@
             body: JSON.stringify({ accessToken }),
           });
 
+          debugLog("后端认证响应", {
+            status: response.status,
+            ok: response.ok,
+          });
+
           if (response.ok) {
             const data = await response.json();
+            debugLog("后端认证成功", data);
             // 保存用户ID用于后续API调用
             currentUser.piUserId = data.user.piUserId;
 
@@ -4135,8 +4145,15 @@
               userStats = data.user.stats;
             }
           } else {
-            console.error("后端认证失败:", response.statusText);
-            // 如果后端认证失败，尝试恢复本地数据
+            debugLog("后端认证失败", {
+              status: response.status,
+              statusText: response.statusText,
+            });
+            // 如果后端认证失败，使用uid作为piUserId
+            currentUser.piUserId = currentUser.uid;
+            debugLog("使用uid作为piUserId", { piUserId: currentUser.piUserId });
+
+            // 尝试恢复本地数据
             const restored = restoreUserGameData();
             if (!restored) {
               // 如果没有可恢复的数据，创建默认数据
@@ -4144,8 +4161,14 @@
             }
           }
         } catch (error) {
-          console.error("后端连接失败:", error);
-          // 如果后端连接失败，尝试恢复本地数据
+          debugLog("后端连接失败", error);
+          // 如果后端连接失败，使用uid作为piUserId
+          currentUser.piUserId = currentUser.uid;
+          debugLog("网络错误，使用uid作为piUserId", {
+            piUserId: currentUser.piUserId,
+          });
+
+          // 尝试恢复本地数据
           const restored = restoreUserGameData();
           if (!restored) {
             // 如果没有可恢复的数据，创建默认数据
@@ -5798,7 +5821,13 @@
 
       // 刷新用户统计数据（用于个人中心）
       async function refreshUserStats() {
-        if (!currentUser || !currentUser.piUserId) return;
+        if (!currentUser) return;
+
+        // 确保有piUserId，如果没有则使用uid
+        if (!currentUser.piUserId) {
+          currentUser.piUserId = currentUser.uid;
+          debugLog("自动设置piUserId", { piUserId: currentUser.piUserId });
+        }
 
         try {
           const apiUrl = `${API_BASE_URL}/api/users/stats?uid=${currentUser.piUserId}`;
