@@ -4138,7 +4138,9 @@
             const data = await response.json();
             debugLog("后端认证成功", data);
             // 保存用户ID用于后续API调用
-            currentUser.piUserId = data.user.piUserId;
+            currentUser.piUserId =
+              data.user.piUserId || data.user.uid || currentUser.uid;
+            debugLog("设置piUserId", { piUserId: currentUser.piUserId });
 
             // 先尝试恢复用户专属的游戏数据
             restoreUserGameData();
