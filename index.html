@@ -1417,7 +1417,7 @@
         padding: 5px;
         overflow-y: auto;
         z-index: 9999;
-        display: none;
+        display: block;
         border: 1px solid #ccc;
       "
     >
@@ -1438,25 +1438,28 @@
       <div id="debug-log"></div>
     </div>
 
-    <!-- 调试按钮 -->
-    <button
+    <!-- 调试按钮 - 更明显的样式 -->
+    <div
       id="debug-toggle"
       onclick="toggleDebugPanel()"
       style="
         position: fixed;
-        top: 10px;
-        right: 10px;
+        top: 5px;
+        right: 5px;
         z-index: 10000;
-        background: #007bff;
+        background: #ff4444;
         color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-size: 12px;
+        border: 2px solid white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
       "
     >
-      调试
-    </button>
+      🔧 调试
+    </div>
 
     <div id="root">
       <!-- 登录界面 -->
@@ -4014,10 +4017,13 @@
 
       // Pi Network 登录处理
       async function handleSignIn() {
+        debugLog("=== 开始登录流程 ===");
+
         if (isLoading) return;
 
         // 如果已经登录，直接进入游戏
         if (currentUser) {
+          debugLog("用户已登录，直接进入游戏", currentUser);
           showSimpleGameScreen();
           return;
         }
@@ -4065,6 +4071,7 @@
             ]);
 
             if (authResult.accessToken) {
+              debugLog("Pi认证成功", authResult.user);
               currentUser = authResult.user;
               currentUser.accessToken = authResult.accessToken; // 保存访问令牌
 
@@ -4072,6 +4079,7 @@
               saveLoginState(currentUser);
 
               // 向后端验证用户并获取统计数据
+              debugLog("开始后端认证...");
               await authenticateWithBackend(authResult.accessToken);
 
               // 更新主页按钮状态
@@ -8045,6 +8053,11 @@
 
       // 页面加载完成后初始化
       document.addEventListener("DOMContentLoaded", function () {
+        // 立即显示调试信息
+        debugLog("=== 页面加载完成 ===");
+        debugLog("API_BASE_URL:", API_BASE_URL);
+        debugLog("当前时间:", new Date().toLocaleString());
+
         initializePage();
 
         // 强力修复语言选择器位置
