@@ -4858,9 +4858,17 @@
 
       // 显示个人中心
       async function showPersonalCenter() {
+        console.log("=== 显示个人中心 ===");
+        console.log("currentUser:", currentUser);
+        console.log("userStats:", userStats);
+
         // 如果用户已登录，先刷新用户数据
         if (currentUser && currentUser.piUserId) {
+          console.log("用户已登录，刷新数据...");
           await refreshUserStats();
+          console.log("刷新后的userStats:", userStats);
+        } else {
+          console.log("用户未登录或缺少piUserId");
         }
 
         const stats = userStats || {
@@ -5729,14 +5737,14 @@
         if (!currentUser || !currentUser.piUserId) return;
 
         try {
+          const apiUrl = `${API_BASE_URL}/api/users/stats?uid=${currentUser.piUserId}`;
           console.log("正在刷新用户数据...", {
             userId: currentUser.piUserId,
             currentUserStats: userStats,
+            apiUrl: apiUrl,
           });
 
-          const response = await fetch(
-            `${API_BASE_URL}/api/users/stats?uid=${currentUser.piUserId}`
-          );
+          const response = await fetch(apiUrl);
 
           if (response.ok) {
             const data = await response.json();
@@ -5787,14 +5795,17 @@
         updateLocalGameStats(result);
 
         try {
+          const userId = currentUser.piUserId || currentUser.uid;
+          const apiUrl = `${API_BASE_URL}/api/games/record`;
           console.log("正在记录游戏结果到后端...", {
-            userId: currentUser.piUserId || currentUser.uid,
+            userId: userId,
             username: userStats.username,
             gameResult: result,
             currentStats: userStats,
+            apiUrl: apiUrl,
           });
 
-          const response = await fetch(`${API_BASE_URL}/api/games/record`, {
+          const response = await fetch(apiUrl, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
