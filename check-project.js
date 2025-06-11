@@ -12,7 +12,7 @@ const path = require("path");
 const coreFiles = [
   "public/index.html", // 📄 主游戏页面
   "package.json", // 📦 项目配置和依赖
-  "vercel.json", // 🚀 Vercel部署配置
+  ".github/workflows/deploy.yml", // 🚀 GitHub Pages部署配置
   ".gitignore", // 🚫 Git忽略文件配置
   "项目说明.md", // 📚 项目说明文档
   "部署指南.md", // 🚀 部署指南
@@ -95,10 +95,10 @@ try {
     allGood = false;
   }
 
-  if (packageJson.scripts && packageJson.scripts.deploy) {
-    console.log("✅ 部署脚本已配置");
+  if (packageJson.scripts && packageJson.scripts.start) {
+    console.log("✅ 启动脚本已配置");
   } else {
-    console.log("⚠️  建议添加部署脚本");
+    console.log("⚠️  建议添加启动脚本");
     warnings++;
   }
 } catch (error) {
@@ -106,26 +106,26 @@ try {
   allGood = false;
 }
 
-// 检查vercel.json配置
-console.log("\n🌐 检查Vercel配置:");
+// 检查项目配置
+console.log("\n🌐 检查项目配置:");
 try {
-  const vercelJson = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
+  const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
-  if (vercelJson.version === 2) {
-    console.log("✅ Vercel版本配置正确");
+  if (packageJson.scripts && packageJson.scripts.start) {
+    console.log("✅ 启动脚本已配置");
   } else {
-    console.log("⚠️  建议使用Vercel版本2");
+    console.log("⚠️  建议配置启动脚本");
     warnings++;
   }
 
-  if (vercelJson.builds) {
-    console.log("✅ 构建配置已设置");
+  if (packageJson.dependencies) {
+    console.log("✅ 依赖配置已设置");
   } else {
-    console.log("❌ 缺少构建配置");
+    console.log("❌ 缺少依赖配置");
     allGood = false;
   }
 } catch (error) {
-  console.log("❌ vercel.json格式错误");
+  console.log("❌ package.json格式错误");
   allGood = false;
 }
 

@@ -17,7 +17,7 @@
     "payments": "处理游戏内购买和奖励分发"
   },
   "urls": {
-    "production": "https://your-domain.vercel.app",
+    "production": "https://your-username.github.io/pi-gomoku-game",
     "development": "http://localhost:3000"
   },
   "icons": {
@@ -36,8 +36,8 @@
   },
   "support": {
     "email": "support@your-domain.com",
-    "documentation": "https://your-domain.vercel.app/help"
+    "documentation": "https://your-username.github.io/pi-gomoku-game/help"
   },
-  "privacy_policy": "https://your-domain.vercel.app/privacy",
-  "terms_of_service": "https://your-domain.vercel.app/terms"
+  "privacy_policy": "https://your-username.github.io/pi-gomoku-game/privacy",
+  "terms_of_service": "https://your-username.github.io/pi-gomoku-game/terms"
 }

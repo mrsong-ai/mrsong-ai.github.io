@@ -32,15 +32,18 @@ fi
 echo "⬆️ 推送到GitHub..."
 git push -u origin main
 
-# 部署到Vercel
-echo "🌐 部署到Vercel..."
-if command -v vercel &> /dev/null; then
-    vercel --prod
+# 部署到GitHub Pages
+echo "🌐 部署到GitHub Pages..."
+if command -v npm &> /dev/null; then
+    echo "📦 安装依赖..."
+    npm install
+    echo "🚀 部署到GitHub Pages..."
+    npm run deploy
 else
-    echo "❌ Vercel CLI未安装"
-    echo "请运行: npm install -g vercel"
-    echo "然后重新运行此脚本"
+    echo "❌ npm未安装"
+    echo "请先安装Node.js和npm"
 fi
 
 echo "✅ 部署完成！"
-echo "🎮 你的游戏现在可以在Vercel提供的URL上访问了"
+echo "🎮 你的游戏现在可以在GitHub Pages上访问了"
+echo "📍 访问地址: https://your-username.github.io/pi-gomoku-game"

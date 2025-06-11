@@ -3,17 +3,16 @@
   "version": "1.0.0",
   "description": "Pi Network五子棋游戏 - 运行在Pi Network区块链上的多语言五子棋游戏",
   "main": "public/index.html",
-  "homepage": "https://your-domain.vercel.app",
+  "homepage": "https://your-username.github.io/pi-gomoku-game",
   "repository": {
     "type": "git",
     "url": "https://github.com/your-username/pi-gomoku-game.git"
   },
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "npx http-server public -p 3000",
     "build": "echo 'Static site - no build step required'",
-    "start": "vercel dev",
-    "deploy": "vercel --prod",
-    "preview": "vercel",
+    "start": "npx http-server public -p 3000",
+    "deploy": "gh-pages -d public",
     "check": "node check-project.js",
     "setup": "npm install && npm run check"
   },
@@ -24,7 +23,7 @@
     "五子棋",
     "blockchain",
     "game",
-    "vercel",
+    "github-pages",
     "multilingual",
     "ai-game",
     "web3"
@@ -38,7 +37,8 @@
     "axios": "^1.6.0"
   },
   "devDependencies": {
-    "vercel": "^32.0.0"
+    "http-server": "^14.1.1",
+    "gh-pages": "^6.1.0"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -5,8 +5,8 @@ node_modules/
 .env
 .env.local
 
-# Vercel
-.vercel
+# GitHub Pages
+.gh-pages
 
 # Logs
 *.log
