@@ -5729,15 +5729,26 @@
         if (!currentUser || !currentUser.piUserId) return;
 
         try {
-          console.log("正在刷新用户数据...");
+          console.log("正在刷新用户数据...", {
+            userId: currentUser.piUserId,
+            currentUserStats: userStats,
+          });
+
           const response = await fetch(
             `${API_BASE_URL}/api/users/${currentUser.piUserId}/stats`
           );
 
           if (response.ok) {
             const data = await response.json();
+            console.log("从后端获取的数据:", data);
             userStats = data.stats;
             console.log("用户数据刷新成功:", userStats);
+
+            // 保存到本地存储
+            localStorage.setItem(
+              "piGomokuGameStats",
+              JSON.stringify(userStats)
+            );
           } else {
             console.error("刷新用户数据失败:", response.status);
             // 尝试使用本地存储的数据
@@ -5776,6 +5787,13 @@
         updateLocalGameStats(result);
 
         try {
+          console.log("正在记录游戏结果到后端...", {
+            userId: currentUser.piUserId || currentUser.uid,
+            username: userStats.username,
+            gameResult: result,
+            currentStats: userStats,
+          });
+
           const response = await fetch(`${API_BASE_URL}/api/games/record`, {
             method: "POST",
             headers: {
@@ -5796,8 +5814,16 @@
 
           if (response.ok) {
             const data = await response.json();
-            userStats = data.userStats; // 更新本地统计数据
             console.log("游戏记录已保存到后端:", data);
+            console.log("更新前的userStats:", userStats);
+            userStats = data.userStats; // 更新本地统计数据
+            console.log("更新后的userStats:", userStats);
+
+            // 保存到本地存储
+            localStorage.setItem(
+              "piGomokuGameStats",
+              JSON.stringify(userStats)
+            );
 
             // 显示游戏结果统计
             showGameResultStats(result, data.userStats);
