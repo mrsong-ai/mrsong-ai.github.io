@@ -4507,8 +4507,22 @@
         // 获取保存的用户信息
         const savedWalletAddress =
           localStorage.getItem("userWalletAddress") || "";
-        const savedAvatar = localStorage.getItem("userAvatar") || "👤";
         const savedNickname = localStorage.getItem("userNickname") || "";
+
+        // 判断登录状态和昵称显示逻辑
+        let displayNickname = "";
+        let nicknameEditable = true;
+
+        if (currentUser && userStats) {
+          // Pi登录状态：显示Pi用户名，不可编辑
+          displayNickname =
+            userStats.username || currentUser.username || "Pi用户";
+          nicknameEditable = false;
+        } else {
+          // 未登录状态：显示本地昵称，可编辑
+          displayNickname = savedNickname || t("click_to_set_nickname");
+          nicknameEditable = true;
+        }
 
         showCustomModal(
           t("personal_center_title"),
@@ -4517,79 +4531,25 @@
                     <!-- 个人档案编辑 -->
                     <div style="margin-bottom: 8px;">
                         <div style="background: #f8f9fa; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
-                            <!-- 头像和昵称编辑 -->
+                            <!-- 昵称显示 -->
                             <div style="background: white; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
                                 <div style="margin-bottom: 5px;">
-                                    <div
-                                        style="font-size: 2em; margin-bottom: 4px; cursor: pointer; transition: transform 0.2s;"
-                                        id="user-avatar-display"
-                                        onclick="toggleAvatarEdit()"
-                                        onmouseover="this.style.transform='scale(1.1)'"
-                                        onmouseout="this.style.transform='scale(1)'"
-                                    >${savedAvatar}</div>
-                                    <div style="margin-bottom: 5px; display: none;" id="avatar-edit-section">
-                                        <input
-                                            type="text"
-                                            id="avatar-input"
-                                            placeholder="${t(
-                                              "enter_avatar_emoji"
-                                            )}"
-                                            value="${savedAvatar}"
-                                            style="
-                                                width: 100px;
-                                                padding: 8px;
-                                                border: 2px solid #e9ecef;
-                                                border-radius: 6px;
-                                                font-size: 16px;
-                                                text-align: center;
-                                                box-sizing: border-box;
-                                            "
-                                            maxlength="2"
-                                        />
-                                        <button
-                                            onclick="updateAvatar()"
-                                            style="
-                                                background: #17a2b8;
-                                                color: white;
-                                                border: none;
-                                                border-radius: 6px;
-                                                padding: 8px 12px;
-                                                cursor: pointer;
-                                                font-size: 12px;
-                                                margin-left: 5px;
-                                            "
-                                        >
-                                            ✓
-                                        </button>
-                                        <button
-                                            onclick="toggleAvatarEdit()"
-                                            style="
-                                                background: #6c757d;
-                                                color: white;
-                                                border: none;
-                                                border-radius: 6px;
-                                                padding: 8px 12px;
-                                                cursor: pointer;
-                                                font-size: 12px;
-                                                margin-left: 5px;
-                                            "
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div style="margin-bottom: 5px;">
                                     <h4
-                                        style="margin: 0 0 4px 0; color: #333; cursor: pointer; transition: color 0.2s; font-size: 1em;"
+                                        style="margin: 0 0 4px 0; color: #333; ${
+                                          nicknameEditable
+                                            ? "cursor: pointer; transition: color 0.2s;"
+                                            : "cursor: default;"
+                                        } font-size: 1.2em;"
                                         id="user-nickname-display"
-                                        onclick="toggleNicknameEdit()"
-                                        onmouseover="this.style.color='#007bff'"
-                                        onmouseout="this.style.color='#333'"
-                                    >${
-                                      savedNickname ||
-                                      t("click_to_set_nickname")
-                                    }</h4>
+                                        ${
+                                          nicknameEditable
+                                            ? 'onclick="toggleNicknameEdit()" onmouseover="this.style.color=\'#007bff\'" onmouseout="this.style.color=\'#333\'"'
+                                            : ""
+                                        }
+                                    >${displayNickname}</h4>
+                                    ${
+                                      nicknameEditable
+                                        ? `
                                     <div style="display: none;" id="nickname-edit-section">
                                         <input
                                             type="text"
@@ -4640,6 +4600,9 @@
                                             ✕
                                         </button>
                                     </div>
+                                    `
+                                        : ""
+                                    }
                                 </div>
                             </div>
 
@@ -4769,6 +4732,9 @@
                     </div>
 
                     <div style="text-align: center; margin-top: 6px;">
+                        ${
+                          currentUser && userStats
+                            ? `
                         <button
                             onclick="logoutUser()"
                             style="
@@ -4787,6 +4753,28 @@
                         >
                             ${t("logout_account_text")}
                         </button>
+                        `
+                            : `
+                        <button
+                            onclick="handlePersonalCenterLogin()"
+                            style="
+                                background: #7b2cbf;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                padding: 8px 16px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 500;
+                                transition: background 0.2s;
+                            "
+                            onmouseover="this.style.background='#5a189a'"
+                            onmouseout="this.style.background='#7b2cbf'"
+                        >
+                            ${t("login_with_pi")}
+                        </button>
+                        `
+                        }
                     </div>
                 </div>
             `
@@ -4820,19 +4808,20 @@
         }
       }
 
-      // 切换头像编辑模式
-      function toggleAvatarEdit() {
-        const editSection = document.getElementById("avatar-edit-section");
-        const isVisible = editSection.style.display !== "none";
+      // 个人中心登录处理
+      async function handlePersonalCenterLogin() {
+        // 关闭个人中心弹窗
+        closePersonalCenter();
 
-        if (isVisible) {
-          editSection.style.display = "none";
-        } else {
-          editSection.style.display = "block";
-          // 聚焦到输入框
-          setTimeout(() => {
-            document.getElementById("avatar-input").focus();
-          }, 100);
+        // 调用主页登录逻辑
+        await handleSignIn();
+      }
+
+      // 关闭个人中心弹窗
+      function closePersonalCenter() {
+        const modal = document.querySelector(".custom-modal");
+        if (modal) {
+          modal.remove();
         }
       }
 
@@ -4850,35 +4839,6 @@
             document.getElementById("nickname-input").focus();
           }, 100);
         }
-      }
-
-      // 更新用户头像
-      function updateAvatar() {
-        const avatarInput = document.getElementById("avatar-input");
-        const avatarDisplay = document.getElementById("user-avatar-display");
-        const newAvatar = avatarInput.value.trim();
-
-        if (!newAvatar) {
-          showCustomAlert(t("hint"), t("enter_avatar_hint"));
-          return;
-        }
-
-        // 检查是否为emoji（简单验证）
-        if (newAvatar.length > 2) {
-          showCustomAlert(t("hint"), t("single_emoji_hint"));
-          return;
-        }
-
-        // 保存到本地存储
-        localStorage.setItem("userAvatar", newAvatar);
-
-        // 更新显示
-        avatarDisplay.textContent = newAvatar;
-
-        // 隐藏编辑区域
-        document.getElementById("avatar-edit-section").style.display = "none";
-
-        showCustomAlert(t("success_title"), t("avatar_updated"));
       }
 
       // 更新用户昵称
@@ -4983,7 +4943,7 @@
           () => {
             // 清除所有本地存储的数据
             localStorage.removeItem("piGomokuNickname");
-            localStorage.removeItem("piGomokuAvatar");
+            localStorage.removeItem("userAvatar"); // 清除头像数据
             localStorage.removeItem("userWalletAddress");
             localStorage.removeItem("piGomokuGameStats");
             localStorage.removeItem("piGomokuLeaderboard");
