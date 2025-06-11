@@ -4185,6 +4185,17 @@
         localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
       }
 
+      // 获取当前显示的用户名（与个人中心保持一致）
+      function getCurrentDisplayUsername() {
+        if (currentUser && userStats) {
+          // Pi登录状态：优先使用Pi用户名，然后是userStats中的用户名
+          return currentUser.username || userStats.username || "Pi用户";
+        } else {
+          // 未登录状态：使用本地昵称
+          return localStorage.getItem("userNickname") || "游客";
+        }
+      }
+
       // 保存登录状态到本地存储
       function saveLoginState(user) {
         const loginState = {
@@ -5720,6 +5731,14 @@
           const userId = currentUser.piUserId || currentUser.uid;
           const apiUrl = `${API_BASE_URL}/api/games/record`;
 
+          // 确保使用与个人中心一致的用户名
+          const displayUsername = getCurrentDisplayUsername();
+
+          // 同步更新本地userStats的用户名
+          if (userStats) {
+            userStats.username = displayUsername;
+          }
+
           const response = await fetch(apiUrl, {
             method: "POST",
             headers: {
@@ -5727,7 +5746,7 @@
             },
             body: JSON.stringify({
               userId: currentUser.piUserId || currentUser.uid,
-              username: userStats.username,
+              username: displayUsername,
               gameResult: result, // 'win', 'loss', 'draw'
               gameData: {
                 ...gameData,
@@ -7419,6 +7438,14 @@
         updateLocalGameStats(result);
 
         try {
+          // 确保使用与个人中心一致的用户名
+          const displayUsername = getCurrentDisplayUsername();
+
+          // 同步更新本地userStats的用户名
+          if (userStats) {
+            userStats.username = displayUsername;
+          }
+
           const response = await fetch(`${API_BASE_URL}/api/games/record`, {
             method: "POST",
             headers: {
@@ -7426,7 +7453,7 @@
             },
             body: JSON.stringify({
               userId: currentUser.piUserId || currentUser.uid,
-              username: userStats.username,
+              username: displayUsername,
               gameResult: result, // 'win', 'loss', 'draw'
               gameData: {
                 ...gameData,
