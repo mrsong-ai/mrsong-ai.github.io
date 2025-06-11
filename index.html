@@ -1610,7 +1610,7 @@
           nickname_too_long: "昵称不能超过20个字符",
           nickname_forbidden: "昵称包含敏感词，请重新输入",
           logout_confirm: "退出确认",
-          logout_message: "确定要退出账户吗？这将清除所有本地保存的数据。",
+          logout_message: "确定要退出账户吗？您的游戏数据将被保留。",
           logout_success: "退出成功",
           logout_success_message: "已成功退出账户！",
           please_login_first: "请先登录",
@@ -4017,15 +4017,54 @@
             userStats = data.user.stats;
             // 保存用户ID用于后续API调用
             currentUser.piUserId = data.user.piUserId;
-            console.log("后端认证成功:", data);
+
+            // 登录成功后，恢复用户专属的游戏数据
+            restoreUserGameData();
           } else {
             console.error("后端认证失败:", response.statusText);
             // 如果后端认证失败，尝试使用本地存储的数据
             initializeUserStatsFromLocal();
+            restoreUserGameData();
           }
         } catch (error) {
           console.error("后端连接失败:", error);
           // 如果后端连接失败，尝试使用本地存储的数据
+          initializeUserStatsFromLocal();
+          restoreUserGameData();
+        }
+      }
+
+      // 恢复用户专属的游戏数据
+      function restoreUserGameData() {
+        if (!currentUser) return;
+
+        const userId = currentUser.piUserId || currentUser.uid;
+        const userDataKey = `piGomokuUserData_${userId}`;
+        const savedUserData = localStorage.getItem(userDataKey);
+
+        if (savedUserData) {
+          try {
+            const userData = JSON.parse(savedUserData);
+            // 如果找到用户专属数据，使用它
+            if (userData.gameStats) {
+              userStats = userData.gameStats;
+              // 更新用户名为最新的
+              userStats.username =
+                currentUser.username || userStats.username || "Pi用户";
+
+              // 同时更新通用存储，保持兼容性
+              localStorage.setItem(
+                "piGomokuGameStats",
+                JSON.stringify(userStats)
+              );
+            }
+          } catch (error) {
+            console.error("恢复用户数据失败:", error);
+          }
+        }
+
+        // 如果没有找到用户专属数据，但userStats为空，则初始化
+        if (!userStats) {
           initializeUserStatsFromLocal();
         }
       }
@@ -4040,7 +4079,6 @@
             // 确保用户名是最新的
             userStats.username =
               currentUser.username || userStats.username || "Pi用户";
-            console.log("从本地存储加载用户数据:", userStats);
           } catch (error) {
             console.error("解析本地数据失败:", error);
             createDefaultUserStats();
@@ -5118,12 +5156,30 @@
           t("logout_confirm"),
           t("logout_message"),
           () => {
-            // 清除所有本地存储的数据
+            // 保存当前用户的游戏数据到用户专属存储
+            if (currentUser && userStats) {
+              const userGameData = {
+                userId: currentUser.piUserId || currentUser.uid,
+                username: currentUser.username,
+                gameStats: userStats,
+                lastUpdated: new Date().toISOString(),
+              };
+              localStorage.setItem(
+                `piGomokuUserData_${currentUser.piUserId || currentUser.uid}`,
+                JSON.stringify(userGameData)
+              );
+            }
+
+            // 只清除会话相关的数据，保留游戏统计数据
             localStorage.removeItem("piGomokuNickname");
-            localStorage.removeItem("userAvatar"); // 清除头像数据
+            localStorage.removeItem("userAvatar");
             localStorage.removeItem("userWalletAddress");
-            localStorage.removeItem("piGomokuGameStats");
             localStorage.removeItem("piGomokuLeaderboard");
+            // 注意：不删除 piGomokuGameStats，改为用户专属存储
+
+            // 清除内存中的用户状态
+            currentUser = null;
+            userStats = null;
 
             // 显示退出成功消息
             showCustomAlert(t("logout_success"), t("logout_success_message"));
