@@ -7425,7 +7425,7 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              userId: currentUser.uid,
+              userId: currentUser.piUserId || currentUser.uid,
               username: userStats.username,
               gameResult: result, // 'win', 'loss', 'draw'
               gameData: {
