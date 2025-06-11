@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache buster: 2024-12-28-16:15 -->
+<!-- Cache buster: 2025-06-11-22:30 -->
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -7912,8 +7912,29 @@
         }
       }
 
+      // 强制刷新缓存检查
+      function checkCacheVersion() {
+        const currentVersion = "2025-06-11-22:30";
+        const cachedVersion = localStorage.getItem("appVersion");
+
+        if (cachedVersion !== currentVersion) {
+          localStorage.setItem("appVersion", currentVersion);
+          // 如果版本不匹配，强制刷新
+          if (cachedVersion && "serviceWorker" in navigator) {
+            navigator.serviceWorker
+              .getRegistrations()
+              .then(function (registrations) {
+                for (let registration of registrations) {
+                  registration.unregister();
+                }
+              });
+          }
+        }
+      }
+
       // 页面加载完成后初始化
       document.addEventListener("DOMContentLoaded", function () {
+        checkCacheVersion();
         initializePage();
 
         // 强力修复语言选择器位置
@@ -7949,6 +7970,43 @@
             clearAllStoneShadows();
           }, 200);
         });
+      });
+
+      // 强制刷新缓存检查
+      function checkCacheVersion() {
+        const currentVersion = "2025-06-11-22:30";
+        const cachedVersion = localStorage.getItem("appVersion");
+
+        if (cachedVersion !== currentVersion) {
+          localStorage.setItem("appVersion", currentVersion);
+          // 如果版本不匹配，强制刷新
+          if (cachedVersion && "serviceWorker" in navigator) {
+            navigator.serviceWorker
+              .getRegistrations()
+              .then(function (registrations) {
+                for (let registration of registrations) {
+                  registration.unregister();
+                }
+              });
+          }
+        }
+      }
+
+      // 页面加载完成后初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        checkCacheVersion();
+        initializePage();
+
+        // 强力修复语言选择器位置
+        forceFixLanguageSelectorPosition();
+
+        // 更新主页按钮状态
+        updateMainPageButtonState();
+
+        // 清除所有棋子阴影
+        setTimeout(() => {
+          clearAllStoneShadows();
+        }, 200);
       });
     </script>
   </body>
