@@ -3868,6 +3868,9 @@
 
         // 添加钱包地址输入验证
         setupWalletAddressValidation();
+
+        // 注释掉测试数据创建，使用真实数据
+        // 如果需要测试，可以在浏览器控制台手动设置数据
       }
 
       // 设置钱包地址输入验证
@@ -4017,30 +4020,49 @@
             console.log("后端认证成功:", data);
           } else {
             console.error("后端认证失败:", response.statusText);
-            // 如果后端认证失败，使用默认0数据
-            userStats = {
-              username: currentUser.username || "Pi用户",
-              totalGames: 0,
-              wins: 0,
-              losses: 0,
-              winRate: 0,
-              score: 100,
-              rank: 0,
-            };
+            // 如果后端认证失败，尝试使用本地存储的数据
+            initializeUserStatsFromLocal();
           }
         } catch (error) {
           console.error("后端连接失败:", error);
-          // 如果后端连接失败，使用默认0数据
-          userStats = {
-            username: currentUser.username || "Pi用户",
-            totalGames: 0,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            score: 100,
-            rank: 0,
-          };
+          // 如果后端连接失败，尝试使用本地存储的数据
+          initializeUserStatsFromLocal();
         }
+      }
+
+      // 从本地存储初始化用户数据
+      function initializeUserStatsFromLocal() {
+        const localStats = localStorage.getItem("piGomokuGameStats");
+
+        if (localStats) {
+          try {
+            userStats = JSON.parse(localStats);
+            // 确保用户名是最新的
+            userStats.username =
+              currentUser.username || userStats.username || "Pi用户";
+            console.log("从本地存储加载用户数据:", userStats);
+          } catch (error) {
+            console.error("解析本地数据失败:", error);
+            createDefaultUserStats();
+          }
+        } else {
+          createDefaultUserStats();
+        }
+      }
+
+      // 创建默认用户统计数据
+      function createDefaultUserStats() {
+        userStats = {
+          username: currentUser.username || "Pi用户",
+          totalGames: 0,
+          wins: 0,
+          losses: 0,
+          draws: 0,
+          winRate: 0,
+          score: 100,
+          rank: 0,
+        };
+        console.log("创建默认用户数据:", userStats);
       }
 
       // 模拟登录功能（用于测试）
@@ -4056,7 +4078,7 @@
               accessToken: "mock_token_" + Date.now(),
             };
 
-            // 使用后端认证获取真实数据（0数据）
+            // 使用后端认证获取真实数据，如果失败则使用本地数据
             authenticateWithBackend(currentUser.accessToken).then(() => {
               showGameScreen();
               resolve();
@@ -4641,7 +4663,12 @@
       }
 
       // 显示个人中心
-      function showPersonalCenter() {
+      async function showPersonalCenter() {
+        // 如果用户已登录，先刷新用户数据
+        if (currentUser && currentUser.piUserId) {
+          await refreshUserStats();
+        }
+
         const stats = userStats || {
           totalGames: 0,
           wins: 0,
@@ -5477,9 +5504,46 @@
         }
       }
 
+      // 刷新用户统计数据（用于个人中心）
+      async function refreshUserStats() {
+        if (!currentUser || !currentUser.piUserId) return;
+
+        try {
+          console.log("正在刷新用户数据...");
+          const response = await fetch(
+            `${API_BASE_URL}/api/users/${currentUser.piUserId}/stats`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            userStats = data.stats;
+            console.log("用户数据刷新成功:", userStats);
+          } else {
+            console.error("刷新用户数据失败:", response.status);
+            // 尝试使用本地存储的数据
+            const localStats = localStorage.getItem("piGomokuGameStats");
+            if (localStats) {
+              userStats = JSON.parse(localStats);
+              console.log("使用本地存储的数据:", userStats);
+            }
+          }
+        } catch (error) {
+          console.error("刷新用户数据错误:", error);
+          // 尝试使用本地存储的数据
+          const localStats = localStorage.getItem("piGomokuGameStats");
+          if (localStats) {
+            userStats = JSON.parse(localStats);
+            console.log("网络错误，使用本地存储的数据:", userStats);
+          }
+        }
+      }
+
       // 记录游戏结果
       async function recordGameResult(result, gameData = {}) {
         if (!currentUser || !userStats) return;
+
+        // 先更新本地数据
+        updateLocalGameStats(result);
 
         try {
           const response = await fetch(`${API_BASE_URL}/api/games/record`, {
@@ -5503,16 +5567,56 @@
           if (response.ok) {
             const data = await response.json();
             userStats = data.userStats; // 更新本地统计数据
-            console.log("游戏记录已保存:", data);
+            console.log("游戏记录已保存到后端:", data);
 
             // 显示游戏结果统计
             showGameResultStats(result, data.userStats);
           } else {
-            console.error("记录游戏结果失败:", response.statusText);
+            console.error("记录游戏结果到后端失败:", response.statusText);
+            // 后端失败时，使用本地数据显示结果
+            showGameResultStats(result, userStats);
           }
         } catch (error) {
           console.error("记录游戏结果失败:", error);
+          // 网络错误时，使用本地数据显示结果
+          showGameResultStats(result, userStats);
         }
+      }
+
+      // 更新本地游戏统计数据
+      function updateLocalGameStats(result) {
+        if (!userStats) return;
+
+        // 更新统计数据
+        userStats.totalGames = (userStats.totalGames || 0) + 1;
+
+        if (result === "win") {
+          userStats.wins = (userStats.wins || 0) + 1;
+        } else if (result === "loss") {
+          userStats.losses = (userStats.losses || 0) + 1;
+        } else if (result === "draw") {
+          userStats.draws = (userStats.draws || 0) + 1;
+        }
+
+        // 重新计算胜率
+        if (userStats.totalGames > 0) {
+          userStats.winRate = Math.round(
+            (userStats.wins / userStats.totalGames) * 100
+          );
+        }
+
+        // 更新积分（简单算法：胜利+2分，平局+1分，失败-1分，最低100分）
+        if (result === "win") {
+          userStats.score = (userStats.score || 100) + 2;
+        } else if (result === "draw") {
+          userStats.score = (userStats.score || 100) + 1;
+        } else if (result === "loss") {
+          userStats.score = Math.max((userStats.score || 100) - 1, 100);
+        }
+
+        // 保存到本地存储
+        localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
+        console.log("本地游戏数据已更新:", userStats);
       }
 
       // 显示游戏结果统计
