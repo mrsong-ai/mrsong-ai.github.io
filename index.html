@@ -116,7 +116,7 @@
 
       .container {
         margin: 0 auto;
-        max-width: none;
+        max-width: 400px;
         padding: 0;
       }
       .flex {
@@ -641,10 +641,11 @@
 
       @media (max-width: 768px) {
         .login-screen {
-          padding: 1vw;
+          padding: 16px;
         }
         .container {
           padding: 0;
+          max-width: none;
         }
         .card {
           padding: 16px;
@@ -713,22 +714,22 @@
         display: flex;
         justify-content: center;
         min-height: 100vh;
-        padding: 1vw;
+        padding: 20px;
       }
       .login-content {
-        max-width: none !important;
-        width: 100% !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
       }
 
       /* 强制修复布局的专用类 */
       .login-content-fixed {
-        max-width: none !important;
-        width: 100% !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-        display: block !important;
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
+        display: block;
       }
       .game-title {
         -webkit-text-fill-color: #0000;
@@ -1169,13 +1170,13 @@
         }
         /* 移动端卡片高度优化 */
         .login-content {
-          height: calc(100vh - 16px);
+          height: calc(100vh - 32px);
           display: flex;
           flex-direction: column;
-          max-width: none !important;
-          width: 100% !important;
-          margin: 0 !important;
-          box-sizing: border-box !important;
+          max-width: none;
+          width: 100%;
+          margin: 0;
+          box-sizing: border-box;
         }
         .card {
           height: 100%;
@@ -1185,7 +1186,7 @@
           padding: var(--spacing-lg);
         }
         .login-screen {
-          padding: 1vw;
+          padding: 16px;
         }
         /* 调整移动端内容间距 */
         .game-subtitle {
@@ -7598,10 +7599,20 @@
 
           const loginContent = document.querySelector(".login-content");
           if (loginContent) {
-            // 强制重置CSS属性
-            loginContent.style.maxWidth = "none";
-            loginContent.style.width = "100%";
-            loginContent.style.margin = "0";
+            // 检查是否为移动端
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+              // 移动端使用全宽
+              loginContent.style.maxWidth = "none";
+              loginContent.style.width = "100%";
+              loginContent.style.margin = "0";
+            } else {
+              // 桌面端使用固定宽度
+              loginContent.style.maxWidth = "400px";
+              loginContent.style.width = "100%";
+              loginContent.style.margin = "0 auto";
+            }
             loginContent.style.boxSizing = "border-box";
 
             // 强制重新计算布局
@@ -7615,7 +7626,7 @@
             // 强制重置卡片样式
             card.style.position = "relative";
             card.style.width = "100%";
-            card.style.maxWidth = "none";
+            card.style.maxWidth = "400px";
             card.style.boxSizing = "border-box";
           }
 
@@ -7624,9 +7635,16 @@
           // 再次确保布局正确
           setTimeout(() => {
             if (loginContent) {
-              loginContent.style.maxWidth = "none";
-              loginContent.style.width = "100%";
-              loginContent.style.margin = "0";
+              const isMobile = window.innerWidth <= 768;
+              if (isMobile) {
+                loginContent.style.maxWidth = "none";
+                loginContent.style.width = "100%";
+                loginContent.style.margin = "0";
+              } else {
+                loginContent.style.maxWidth = "400px";
+                loginContent.style.width = "100%";
+                loginContent.style.margin = "0 auto";
+              }
             }
 
             // 确保按钮状态正确更新
