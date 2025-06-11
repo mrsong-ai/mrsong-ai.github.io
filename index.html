@@ -4024,7 +4024,11 @@
               // 更新主页按钮状态
               updateMainPageButtonState();
 
-              showGameScreen();
+              // 登录成功后保持在当前界面，不自动跳转到游戏
+              showCustomAlert(
+                t("login_success"),
+                t("welcome_user", currentUser.username)
+              );
             } else {
               showError("Pi Network 登录失败");
             }
@@ -4272,7 +4276,11 @@
               // 更新主页按钮状态
               updateMainPageButtonState();
 
-              showGameScreen();
+              // 登录成功后保持在当前界面，不自动跳转到游戏
+              showCustomAlert(
+                t("login_success"),
+                t("welcome_user", currentUser.username)
+              );
               resolve();
             });
           }, 300); // 减少模拟网络延迟到300ms
@@ -5174,11 +5182,21 @@
 
       // 个人中心登录处理
       async function handlePersonalCenterLogin() {
+        // 保存当前在个人中心的状态
+        const wasInPersonalCenter = true;
+
         // 关闭个人中心弹窗
         closePersonalCenter();
 
         // 调用主页登录逻辑
         await handleSignIn();
+
+        // 登录成功后重新打开个人中心
+        if (currentUser) {
+          setTimeout(() => {
+            showPersonalCenter();
+          }, 1000); // 等待登录成功提示显示后再打开个人中心
+        }
       }
 
       // 关闭个人中心弹窗
@@ -5975,19 +5993,6 @@
                     </div>
                 </div>
             `
-        );
-      }
-
-      // 显示游戏界面
-      function showGameScreen() {
-        // 显示登录成功提示，然后进入游戏
-        showCustomAlert(
-          t("login_success"),
-          t("welcome_user", currentUser.username),
-          () => {
-            // 提示关闭后，显示游戏界面
-            showSimpleGameScreen();
-          }
         );
       }
 
@@ -7015,20 +7020,28 @@
 
         // 结束游戏，记录为失败
         aiGameActive = false;
-        const currentPlayerDisplay = document.getElementById(
-          "current-player-display"
-        );
-        if (currentPlayerDisplay) {
-          currentPlayerDisplay.textContent = t("timeout");
-        }
 
-        // 显示超时信息
-        const timerDisplay = document.getElementById("turn-timer-display");
-        if (timerDisplay) {
-          timerDisplay.style.display = "block";
-          timerDisplay.style.color = "#dc3545";
-          timerDisplay.style.opacity = "1";
-          timerDisplay.innerHTML = t("timeout");
+        // 检查用户是否还在游戏界面
+        const isInGameScreen =
+          document.getElementById("current-player-display") !== null;
+
+        if (isInGameScreen) {
+          // 用户还在游戏界面，显示超时信息
+          const currentPlayerDisplay = document.getElementById(
+            "current-player-display"
+          );
+          if (currentPlayerDisplay) {
+            currentPlayerDisplay.textContent = t("timeout");
+          }
+
+          // 显示超时信息
+          const timerDisplay = document.getElementById("turn-timer-display");
+          if (timerDisplay) {
+            timerDisplay.style.display = "block";
+            timerDisplay.style.color = "#dc3545";
+            timerDisplay.style.opacity = "1";
+            timerDisplay.innerHTML = t("timeout");
+          }
         }
 
         // 记录超时失败
@@ -7040,14 +7053,10 @@
           timeoutReason: "player_timeout", // 玩家超时
         };
 
-        // 延迟一下显示结果，让用户看到超时提示
-        setTimeout(() => {
-          if (currentUser && userStats) {
-            recordGameResult("loss", gameData);
-          } else {
-            showCustomAlert(t("game_over"), t("timeout_game_over"));
-          }
-        }, 1500);
+        // 静默记录游戏结果，不显示弹窗
+        if (currentUser && userStats) {
+          recordGameResultSilent("loss", gameData);
+        }
       }
 
       // 结束游戏
