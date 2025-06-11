@@ -5843,6 +5843,10 @@
           });
 
           const response = await fetch(apiUrl);
+          debugLog("后端响应状态", {
+            status: response.status,
+            ok: response.ok,
+          });
 
           if (response.ok) {
             const data = await response.json();
@@ -5856,21 +5860,24 @@
               JSON.stringify(userStats)
             );
           } else {
-            console.error("刷新用户数据失败:", response.status);
+            debugLog("刷新用户数据失败", {
+              status: response.status,
+              statusText: response.statusText,
+            });
             // 尝试使用本地存储的数据
             const localStats = localStorage.getItem("piGomokuGameStats");
             if (localStats) {
               userStats = JSON.parse(localStats);
-              console.log("使用本地存储的数据:", userStats);
+              debugLog("使用本地存储的数据:", userStats);
             }
           }
         } catch (error) {
-          console.error("刷新用户数据错误:", error);
+          debugLog("刷新用户数据错误:", error);
           // 尝试使用本地存储的数据
           const localStats = localStorage.getItem("piGomokuGameStats");
           if (localStats) {
             userStats = JSON.parse(localStats);
-            console.log("网络错误，使用本地存储的数据:", userStats);
+            debugLog("网络错误，使用本地存储的数据:", userStats);
           }
         }
       }
