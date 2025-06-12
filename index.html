@@ -1826,6 +1826,8 @@
           play_again: "再来一局",
           view_leaderboard: "查看排行榜",
           login_now: "立即登录",
+          monthly_games: "本月对局",
+          rank_position: "第{0}名",
 
           // 游戏界面
           return_to_menu: "返回",
@@ -2515,6 +2517,19 @@
 
           // 胜负显示格式
           wins_losses_format: "({0}W {1}L)",
+          monthly_games: "Monthly Games",
+          play_again: "Play Again",
+          view_leaderboard: "View Leaderboard",
+          login_now: "Login Now",
+          guest_mode: "Guest Mode",
+          guest_mode_desc:
+            "You are currently playing as a guest, game results will not be recorded on the leaderboard.",
+          login_benefits: "Benefits after login:",
+          benefit_stats: "• 📊 Game statistics",
+          benefit_leaderboard: "• 🏆 Participate in leaderboard competition",
+          benefit_pi_service: "• 💰 Pi coin value-added services",
+          benefit_monthly_rewards: "• 🎁 Monthly reward activities",
+          rank_position: "#{0}",
         },
 
         ko: {
@@ -2971,6 +2986,19 @@
 
           // 승부 표시 형식
           wins_losses_format: "({0}승{1}패)",
+          monthly_games: "월간 게임",
+          play_again: "다시 플레이",
+          view_leaderboard: "순위표 보기",
+          login_now: "지금 로그인",
+          guest_mode: "게스트 모드",
+          guest_mode_desc:
+            "현재 게스트로 게임 중이며, 게임 결과는 순위표에 기록되지 않습니다.",
+          login_benefits: "로그인 후 혜택:",
+          benefit_stats: "• 📊 게임 통계",
+          benefit_leaderboard: "• 🏆 순위표 경쟁 참여",
+          benefit_pi_service: "• 💰 Pi 코인 부가가치 서비스",
+          benefit_monthly_rewards: "• 🎁 월간 보상 활동",
+          rank_position: "#{0}위",
         },
 
         ja: {
@@ -3419,6 +3447,19 @@
 
           // 勝敗表示形式
           wins_losses_format: "({0}勝{1}敗)",
+          monthly_games: "月間ゲーム",
+          play_again: "もう一度プレイ",
+          view_leaderboard: "ランキングを見る",
+          login_now: "今すぐログイン",
+          guest_mode: "ゲストモード",
+          guest_mode_desc:
+            "現在ゲストとしてプレイしており、ゲーム結果はランキングに記録されません。",
+          login_benefits: "ログイン後の特典:",
+          benefit_stats: "• 📊 ゲーム統計",
+          benefit_leaderboard: "• 🏆 ランキング競争への参加",
+          benefit_pi_service: "• 💰 Piコイン付加価値サービス",
+          benefit_monthly_rewards: "• 🎁 月間報酬活動",
+          rank_position: "#{0}位",
         },
 
         vi: {
@@ -3879,6 +3920,19 @@
 
           // Định dạng hiển thị thắng thua
           wins_losses_format: "({0}T {1}B)",
+          monthly_games: "Trò chơi hàng tháng",
+          play_again: "Chơi lại",
+          view_leaderboard: "Xem bảng xếp hạng",
+          login_now: "Đăng nhập ngay",
+          guest_mode: "Chế độ khách",
+          guest_mode_desc:
+            "Bạn hiện đang chơi với tư cách khách, kết quả trò chơi sẽ không được ghi vào bảng xếp hạng.",
+          login_benefits: "Lợi ích sau khi đăng nhập:",
+          benefit_stats: "• 📊 Thống kê trò chơi",
+          benefit_leaderboard: "• 🏆 Tham gia cạnh tranh bảng xếp hạng",
+          benefit_pi_service: "• 💰 Dịch vụ giá trị gia tăng Pi coin",
+          benefit_monthly_rewards: "• 🎁 Hoạt động thưởng hàng tháng",
+          rank_position: "#{0}",
         },
       };
 
@@ -4771,9 +4825,11 @@
                             <span style="font-weight: 500; color: ${
                               isCurrentUser ? "#1976d2" : "#333"
                             };">${player.username}</span>
-                            <span style="color: #666; font-size: 0.9em;">(${
-                              player.wins
-                            }胜${player.totalGames - player.wins}负)</span>
+                            <span style="color: #666; font-size: 0.9em;">${t(
+                              "wins_losses_format",
+                              player.wins,
+                              player.totalGames - player.wins
+                            )}</span>
                             <span style="color: #28a745;">${
                               player.winRate
                             }%</span>
@@ -6108,7 +6164,7 @@
                                   "ranking_header_games"
                                 )}</div>
                                 <div style="color: #666; font-size: 0.8em;">
-                                    本月对局
+                                    ${t("monthly_games")}
                                 </div>
                             </div>
                         </div>
@@ -6117,7 +6173,7 @@
                             <div style="color: #666; font-size: 0.9em;">
                                 ${t("current_rank_label")}: ${
                             stats.rank > 0
-                              ? `第 ${stats.rank} 名`
+                              ? t("rank_position", stats.rank)
                               : t("not_listed")
                           }
                             </div>
@@ -6127,14 +6183,16 @@
                         : `
                     <div style="background: #fff3cd; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 2px solid #ffeaa7;">
                         <div style="font-size: 2em; margin-bottom: 10px;">🎮</div>
-                        <h4 style="color: #856404; margin-bottom: 15px;">游客模式</h4>
+                        <h4 style="color: #856404; margin-bottom: 15px;">${t(
+                          "guest_mode"
+                        )}</h4>
                         <p style="color: #856404; margin: 0; line-height: 1.6;">
-                            您当前以游客身份游戏，游戏结果不会记录到排行榜中。<br>
-                            <strong>登录后可享受：</strong><br>
-                            • 📊 游戏数据统计<br>
-                            • 🏆 参与排行榜竞争<br>
-                            • 💰 Pi币增值服务<br>
-                            • 🎁 月度奖励活动
+                            ${t("guest_mode_desc")}<br>
+                            <strong>${t("login_benefits")}</strong><br>
+                            ${t("benefit_stats")}<br>
+                            ${t("benefit_leaderboard")}<br>
+                            ${t("benefit_pi_service")}<br>
+                            ${t("benefit_monthly_rewards")}
                         </p>
                     </div>
                     `
@@ -6144,18 +6202,18 @@
 
                     <div style="display: flex; gap: 10px; justify-content: center;">
                         <button onclick="closeNewModal(); resetAIGame()" style="background: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer;">
-                            再来一局
+                            ${t("play_again")}
                         </button>
                         ${
                           isLoggedIn
                             ? `
                         <button onclick="closeNewModal(); showRealTimeLeaderboard()" style="background: #28a745; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer;">
-                            查看排行榜
+                            ${t("view_leaderboard")}
                         </button>
                         `
                             : `
                         <button onclick="closeNewModal(); handleSignIn()" style="background: #28a745; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer;">
-                            立即登录
+                            ${t("login_now")}
                         </button>
                         `
                         }
