@@ -4253,7 +4253,13 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ accessToken }),
+            body: JSON.stringify({
+              accessToken,
+              userInfo: {
+                uid: currentUser.uid,
+                username: currentUser.username,
+              },
+            }),
           });
 
           if (response.ok) {
