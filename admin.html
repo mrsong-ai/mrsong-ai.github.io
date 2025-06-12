@@ -382,10 +382,12 @@
 
           if (response.ok) {
             const data = await response.json();
+            console.log("管理员API返回数据:", data);
             if (data.success) {
               currentStats = data.stats;
               currentPage = page;
               currentLimit = limit;
+              console.log("显示统计数据:", data.stats);
               displayStats(data.stats);
               content.style.display = "block";
               return;
@@ -506,12 +508,24 @@
 
       // 显示统计数据
       function displayStats(stats) {
+        console.log("displayStats被调用，数据:", stats);
+
         // 基础统计
-        document.getElementById("totalUsers").textContent = stats.totalUsers;
-        document.getElementById("activeUsers").textContent = stats.activeUsers;
+        document.getElementById("totalUsers").textContent =
+          stats.totalUsers || 0;
+        document.getElementById("activeUsers").textContent =
+          stats.activeUsers || 0;
         document.getElementById("recentActiveUsers").textContent =
-          stats.recentActiveUsers;
-        document.getElementById("totalGames").textContent = stats.totalGames;
+          stats.recentActiveUsers || 0;
+        document.getElementById("totalGames").textContent =
+          stats.totalGames || 0;
+
+        console.log("基础统计已更新:", {
+          totalUsers: stats.totalUsers,
+          activeUsers: stats.activeUsers,
+          recentActiveUsers: stats.recentActiveUsers,
+          totalGames: stats.totalGames,
+        });
 
         // 更新分页用户列表
         if (stats.pagination) {
