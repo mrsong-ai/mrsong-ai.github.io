@@ -1735,6 +1735,10 @@
           connecting_text: "正在连接...",
           balance_query: "查询中...",
           balance_query_failed: "查询失败",
+          pi_login_failed: "Pi Network 登录失败",
+          login_error: "登录过程中发生错误",
+          pi_sdk_not_loaded: "Pi Network SDK未加载，无法使用支付功能",
+          create_payment_failed: "创建支付失败",
 
           // 游戏说明详细规则
           basic_rules_detail_1: "在15×15的棋盘上，玩家执黑子，AI执白子",
@@ -1766,7 +1770,7 @@
 
           // 月度排名规则
           monthly_ranking_rules: "🎯 月度排名规则：",
-          ranking_requirement: "• 需要至少60局对局才能参与排名",
+          ranking_requirement: "• 需要至少1局对局才能参与排名",
           ranking_criteria: "• 按剩余分数高低排名，分数相同按胜率排序",
           ranking_rewards: "• 月底根据排名发放奖励",
           anti_farming: "⚠️ 防刷分机制：不对局或对局太少的玩家不参与排名",
@@ -2206,6 +2210,11 @@
           connecting_text: "Connecting...",
           balance_query: "Querying...",
           balance_query_failed: "Query Failed",
+          pi_login_failed: "Pi Network login failed",
+          login_error: "Error occurred during login",
+          pi_sdk_not_loaded:
+            "Pi Network SDK not loaded, payment features unavailable",
+          create_payment_failed: "Failed to create payment",
 
           // 游戏说明详细规则
           basic_rules_detail_1:
@@ -2240,12 +2249,12 @@
           win_score: "Win: Improves win rate",
           draw_score: "Draw: Affects win rate",
           lose_score: "Loss: Reduces win rate",
-          quit_score: "Quit/Timeout: -1 point",
+          quit_score: "Quit/Timeout: Counts as loss",
 
           // 月度排名规则
           monthly_ranking_rules: "🎯 Monthly Ranking Rules:",
           ranking_requirement:
-            "• At least 60 games required to participate in ranking",
+            "• At least 1 game required to participate in ranking",
           ranking_criteria:
             "• Ranked by remaining points, same points sorted by win rate",
           ranking_rewards:
@@ -2374,7 +2383,7 @@
 
           // 全球排行榜
           global_ranking_title: "Global Ranking",
-          ranking_subtitle: "📊 Ranking based on monthly points",
+          ranking_subtitle: "📊 Ranking based on monthly win rate",
           ranking_header_rank: "Rank",
           ranking_header_nickname: "Nickname",
           ranking_header_games: "Total Games",
@@ -2655,6 +2664,24 @@
           item_vip: "VIP 멤버십",
           item_unknown: "알 수 없는 아이템",
 
+          // 순위표 및 통계
+          current_ranking: "🎯 현재 순위: #{0} | ({1}승{2}패) | 승률: {3}%",
+          leaderboard_update_tip:
+            "순위표가 실시간으로 업데이트됩니다. 계속 게임하여 순위를 올리세요!",
+
+          // 승률 순위 시스템
+          score_system: "🏆 승률 순위 시스템",
+          initial_score: "순위 기준: 승률 순으로 정렬",
+          win_score: "승리: 승률 향상",
+          draw_score: "무승부: 승률에 영향",
+          lose_score: "패배: 승률 감소",
+          quit_score: "포기/타임아웃: 패배로 기록",
+
+          // 월간 순위 규칙
+          monthly_ranking_rules: "🎯 월간 순위 규칙:",
+          ranking_requirement: "• 순위 참여에는 최소 1게임 필요",
+          ranking_criteria: "• 승률 순으로 순위 결정, 동률 시 승수로 정렬",
+
           // 게임 설명 상세 규칙
           basic_rules_detail_1:
             "15×15 바둑판에서 플레이어는 흑돌, AI는 백돌을 사용합니다",
@@ -2804,7 +2831,7 @@
 
           // 전역 순위표
           global_ranking_title: "글로벌 순위",
-          ranking_subtitle: "📊 월간 점수 기반 순위",
+          ranking_subtitle: "📊 월간 승률 기반 순위",
           ranking_header_rank: "순위",
           ranking_header_nickname: "닉네임",
           ranking_header_games: "총 게임",
@@ -2904,6 +2931,11 @@
           please_login_first: "먼저 로그인하세요",
           create_order_failed: "주문 생성 실패",
           network_error_retry: "네트워크 오류, 나중에 다시 시도하세요",
+          pi_login_failed: "Pi Network 로그인 실패",
+          login_error: "로그인 중 오류 발생",
+          pi_sdk_not_loaded:
+            "Pi Network SDK가 로드되지 않아 결제 기능을 사용할 수 없습니다",
+          create_payment_failed: "결제 생성 실패",
 
           // 결제 대화상자
           payment_method: "결제 방법",
@@ -3089,6 +3121,11 @@
           item_vip: "VIPメンバーシップ",
           item_unknown: "不明なアイテム",
 
+          // ランキングと統計
+          current_ranking: "🎯 現在のランク: #{0} | ({1}勝{2}敗) | 勝率: {3}%",
+          leaderboard_update_tip:
+            "ランキングはリアルタイムで更新されます。ゲームを続けてランクを上げましょう！",
+
           // ゲーム説明詳細ルール
           basic_rules_detail_1:
             "15×15の盤面で、プレイヤーは黒石、AIは白石を使用します",
@@ -3115,16 +3152,16 @@
           return_op: "戻る：ゲーム終了、進行中のゲームは敗北として記録",
 
           // スコアシステム
-          score_system: "🏆 100点ライフシステム",
-          initial_score: "初期スコア：100点",
-          win_score: "勝利：+1点",
-          draw_score: "引き分け：変化なし",
-          lose_score: "敗北：-1点（0点まで減点）",
-          quit_score: "放棄/タイムアウト：-1点",
+          score_system: "🏆 勝率ランキングシステム",
+          initial_score: "ランキング基準：勝率順でソート",
+          win_score: "勝利：勝率向上",
+          draw_score: "引き分け：勝率に影響",
+          lose_score: "敗北：勝率低下",
+          quit_score: "放棄/タイムアウト：敗北として記録",
 
           // 月間ランキングルール
           monthly_ranking_rules: "🎯 月間ランキングルール：",
-          ranking_requirement: "• ランキング参加には最低60ゲームが必要",
+          ranking_requirement: "• ランキング参加には最低1ゲームが必要",
           ranking_criteria:
             "• 残りポイント順でランキング決定、同点時は勝率でソート",
           ranking_rewards: "• 月末にランキングに応じて報酬配布",
@@ -3241,7 +3278,7 @@
 
           // グローバルランキング
           global_ranking_title: "グローバルランキング",
-          ranking_subtitle: "📊 月間ポイントに基づくランキング",
+          ranking_subtitle: "📊 月間勝率に基づくランキング",
           ranking_header_rank: "ランク",
           ranking_header_nickname: "ニックネーム",
           ranking_header_games: "総ゲーム数",
@@ -3341,6 +3378,11 @@
           please_login_first: "まずログインしてください",
           create_order_failed: "注文作成失敗",
           network_error_retry: "ネットワークエラー、後でもう一度お試しください",
+          pi_login_failed: "Pi Networkログイン失敗",
+          login_error: "ログイン中にエラーが発生しました",
+          pi_sdk_not_loaded:
+            "Pi Network SDKが読み込まれていないため、支払い機能が利用できません",
+          create_payment_failed: "支払い作成失敗",
 
           // 支払いダイアログ
           payment_method: "支払い方法",
@@ -3525,6 +3567,12 @@
           item_vip: "Thành Viên VIP",
           item_unknown: "Vật Phẩm Không Xác Định",
 
+          // Bảng xếp hạng và thống kê
+          current_ranking:
+            "🎯 Xếp hạng hiện tại: #{0} | ({1}T {2}B) | Tỷ lệ thắng: {3}%",
+          leaderboard_update_tip:
+            "Bảng xếp hạng cập nhật theo thời gian thực, tiếp tục chơi để cải thiện xếp hạng của bạn!",
+
           // Quy tắc chi tiết trò chơi
           basic_rules_detail_1:
             "Trên bàn cờ 15×15, người chơi dùng quân đen, AI dùng quân trắng",
@@ -3556,16 +3604,16 @@
             "Quay lại: Thoát trò chơi, trò chơi đang diễn ra sẽ được ghi là thua",
 
           // Hệ thống điểm số
-          score_system: "🏆 Hệ Thống 100 Điểm Sinh Mệnh",
-          initial_score: "Điểm ban đầu: 100 điểm",
-          win_score: "Thắng: +1 điểm",
-          draw_score: "Hòa: Không thay đổi",
-          lose_score: "Thua: -1 điểm (trừ đến hết)",
-          quit_score: "Bỏ cuộc/Hết thời gian: -1 điểm",
+          score_system: "🏆 Hệ Thống Xếp Hạng Tỷ Lệ Thắng",
+          initial_score: "Cơ sở xếp hạng: Sắp xếp theo tỷ lệ thắng",
+          win_score: "Thắng: Cải thiện tỷ lệ thắng",
+          draw_score: "Hòa: Ảnh hưởng tỷ lệ thắng",
+          lose_score: "Thua: Giảm tỷ lệ thắng",
+          quit_score: "Bỏ cuộc/Hết thời gian: Ghi nhận là thua",
 
           // Quy tắc xếp hạng hàng tháng
           monthly_ranking_rules: "🎯 Quy Tắc Xếp Hạng Hàng Tháng:",
-          ranking_requirement: "• Cần tối thiểu 60 trận để tham gia xếp hạng",
+          ranking_requirement: "• Cần tối thiểu 1 trận để tham gia xếp hạng",
           ranking_criteria:
             "• Xếp hạng theo điểm còn lại, điểm bằng nhau thì sắp xếp theo tỷ lệ thắng",
           ranking_rewards: "• Phát thưởng cuối tháng dựa trên xếp hạng",
@@ -3690,7 +3738,7 @@
 
           // Bảng xếp hạng toàn cầu
           global_ranking_title: "Bảng Xếp Hạng Toàn Cầu",
-          ranking_subtitle: "📊 Xếp hạng dựa trên điểm hàng tháng",
+          ranking_subtitle: "📊 Xếp hạng dựa trên tỷ lệ thắng hàng tháng",
           ranking_header_rank: "Hạng",
           ranking_header_nickname: "Biệt danh",
           ranking_header_games: "Tổng trận",
@@ -3790,6 +3838,11 @@
           please_login_first: "Vui lòng đăng nhập trước",
           create_order_failed: "Tạo đơn hàng thất bại",
           network_error_retry: "Lỗi mạng, vui lòng thử lại sau",
+          pi_login_failed: "Đăng nhập Pi Network thất bại",
+          login_error: "Lỗi xảy ra trong quá trình đăng nhập",
+          pi_sdk_not_loaded:
+            "Pi Network SDK chưa được tải, không thể sử dụng tính năng thanh toán",
+          create_payment_failed: "Tạo thanh toán thất bại",
 
           // Hộp thoại thanh toán
           payment_method: "Phương thức thanh toán",
@@ -4112,7 +4165,7 @@
                 t("welcome_user", currentUser.username)
               );
             } else {
-              showError("Pi Network 登录失败");
+              showError(t("pi_login_failed"));
             }
           } else {
             // 模拟登录（用于测试）- 减少等待时间
@@ -4124,7 +4177,7 @@
           try {
             await simulateLogin();
           } catch (simError) {
-            showError("登录过程中发生错误: " + error.message);
+            showError(t("login_error") + ": " + error.message);
           }
         } finally {
           isLoading = false;
@@ -4404,12 +4457,12 @@
       // Pi支付功能 - 购买道具
       async function buyItem(itemType, amount) {
         if (!currentUser) {
-          showError("请先登录Pi账户");
+          showError(t("please_login_first"));
           return;
         }
 
         if (!isPiAvailable()) {
-          showError("Pi Network SDK未加载，无法使用支付功能");
+          showError(t("pi_sdk_not_loaded"));
           return;
         }
 
@@ -4505,16 +4558,16 @@
             },
             onCancel: function (paymentId) {
               console.log("支付被取消:", paymentId);
-              showError("支付已取消");
+              showError(t("payment_cancelled"));
             },
             onError: function (error, payment) {
               console.error("支付错误:", error, payment);
-              showError("支付失败: " + error.message);
+              showError(t("payment_failed") + ": " + error.message);
             },
           });
         } catch (error) {
           console.error("创建支付失败:", error);
-          showError("创建支付失败: " + error.message);
+          showError(t("create_payment_failed") + ": " + error.message);
         }
       }
 
@@ -7210,13 +7263,13 @@
           timerDisplay.style.opacity = "1";
           if (winner === "black") {
             timerDisplay.style.color = "#28a745";
-            timerDisplay.innerHTML = "🎉 恭喜获胜！";
+            timerDisplay.innerHTML = t("you_win");
           } else if (winner === "white") {
             timerDisplay.style.color = "#dc3545";
-            timerDisplay.innerHTML = "😔 AI获胜";
+            timerDisplay.innerHTML = t("you_lose");
           } else {
             timerDisplay.style.color = "#ffc107";
-            timerDisplay.innerHTML = "🤝 平局";
+            timerDisplay.innerHTML = t("draw");
           }
         }
 
@@ -7429,10 +7482,8 @@
               if (balanceData.success && balanceData.balance.current >= 0.1) {
                 // 余额充足，显示确认对话框
                 showCustomConfirm(
-                  "重新开始游戏",
-                  `当前游戏正在进行中，重新开始需要消费 0.1 π 并记录为失败。\n当前余额：${balanceData.balance.current.toFixed(
-                    2
-                  )} π\n\n确定要重新开始吗？`,
+                  t("restart_game"),
+                  t("abandon_game_warning"),
                   async () => {
                     // 确认重新开始，扣费并执行
                     const consumeResponse = await fetch(
@@ -7461,15 +7512,16 @@
                       recordGameAbandon();
                       initAIGame();
                       showCustomAlert(
-                        "新游戏开始",
-                        `已消费 0.1 π，余额：${consumeData.newBalance.toFixed(
-                          2
-                        )} π`
+                        t("success"),
+                        t(
+                          "undo_success_detail",
+                          consumeData.newBalance.toFixed(2)
+                        )
                       );
                     } else {
                       showCustomAlert(
-                        "操作失败",
-                        consumeData.message || "扣费失败"
+                        t("error_title"),
+                        consumeData.message || t("undo_failed_message")
                       );
                     }
                   },
@@ -7483,20 +7535,15 @@
                   ? balanceData.balance.current.toFixed(2)
                   : "0.00";
                 showCustomConfirm(
-                  "余额不足",
-                  `重新开始游戏需要 0.1 π，您的当前余额为 ${currentBalance} π，余额不足。\n\n是否要进行充值？`,
+                  t("insufficient_balance_title"),
+                  t("insufficient_balance_undo", currentBalance),
                   () => {
                     // 用户选择充值
-                    showRechargeDialog(
-                      "为您的游戏账户充值Pi币，充值后即可使用重新开始功能！"
-                    );
+                    showRechargeDialog(t("recharge_prompt"));
                   },
                   () => {
                     // 用户选择不充值，继续游戏但不能重新开始
-                    showCustomAlert(
-                      "提示",
-                      "您可以继续当前游戏，但无法重新开始。充值后即可解锁此功能。"
-                    );
+                    showCustomAlert(t("hint"), t("continue_game_tip"));
                   }
                 );
               }
