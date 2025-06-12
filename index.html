@@ -4275,7 +4275,6 @@
           losses: 0,
           draws: 0,
           winRate: 0,
-          score: 100,
           rank: 0,
         };
         // 立即保存到本地存储
@@ -4908,7 +4907,6 @@
           wins: 0,
           losses: 0,
           winRate: 0,
-          score: 100,
           rank: 0,
         };
 
@@ -5752,7 +5750,6 @@
               losses: 0,
               draws: 0,
               winRate: 0,
-              score: 100,
               rank: 0,
             };
           }
@@ -5768,7 +5765,6 @@
             losses: 0,
             draws: 0,
             winRate: 0,
-            score: 100,
             rank: 0,
           };
         }
@@ -5974,11 +5970,6 @@
           userStats.winRate = Math.round(
             (userStats.wins / userStats.totalGames) * 100
           );
-        }
-
-        // 保持积分字段兼容性，但不再更新（使用胜率排行）
-        if (!userStats.score) {
-          userStats.score = 100; // 默认积分，仅用于兼容性
         }
 
         // 保存到本地存储
