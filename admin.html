@@ -151,6 +151,54 @@
         background: #e9ecef;
       }
 
+      .pagination-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+      }
+
+      .pagination-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .pagination-btn:hover {
+        background: #0056b3;
+      }
+
+      .pagination-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .pagination-info {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .user-limit-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+
+      .user-limit-control select {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
       @media (max-width: 768px) {
         .stats-grid {
           grid-template-columns: 1fr;
@@ -200,6 +248,65 @@
           </div>
         </div>
 
+        <!-- 用户列表（分页） -->
+        <div class="section">
+          <div class="section-header">👥 用户列表</div>
+          <div class="section-content">
+            <div class="user-limit-control">
+              <label>每页显示:</label>
+              <select id="userLimit" onchange="changeUserLimit()">
+                <option value="20">20个用户</option>
+                <option value="50" selected>50个用户</option>
+                <option value="100">100个用户</option>
+                <option value="all">全部用户</option>
+              </select>
+            </div>
+
+            <div class="pagination-controls" id="paginationTop">
+              <button
+                class="pagination-btn"
+                id="prevBtn"
+                onclick="changePage(-1)"
+              >
+                上一页
+              </button>
+              <span class="pagination-info" id="pageInfo"
+                >第 1 页，共 1 页</span
+              >
+              <button
+                class="pagination-btn"
+                id="nextBtn"
+                onclick="changePage(1)"
+              >
+                下一页
+              </button>
+            </div>
+
+            <div class="user-list">
+              <div class="user-item header">
+                <div>用户名</div>
+                <div>游戏数</div>
+                <div>胜场</div>
+                <div>胜率</div>
+                <div>最后登录</div>
+              </div>
+              <div id="paginatedUsersList"></div>
+            </div>
+
+            <div class="pagination-controls" id="paginationBottom">
+              <button class="pagination-btn" onclick="changePage(-1)">
+                上一页
+              </button>
+              <span class="pagination-info" id="pageInfoBottom"
+                >第 1 页，共 1 页</span
+              >
+              <button class="pagination-btn" onclick="changePage(1)">
+                下一页
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 最近登录用户 -->
         <div class="section">
           <div class="section-header">📱 最近登录用户 (最新10个)</div>
@@ -245,8 +352,14 @@
           ? "http://localhost:3001"
           : "https://pi-gomoku-backend.onrender.com";
 
+      // 分页状态
+      let currentPage = 1;
+      let currentLimit = 50;
+      let totalPages = 1;
+      let currentStats = null;
+
       // 加载统计数据
-      async function loadStats() {
+      async function loadStats(page = currentPage, limit = currentLimit) {
         const loading = document.getElementById("loading");
         const error = document.getElementById("error");
         const content = document.getElementById("content");
@@ -256,12 +369,23 @@
         content.style.display = "none";
 
         try {
+          // 构建查询参数
+          const params = new URLSearchParams({
+            page: page,
+            limit: limit === "all" ? "all" : limit,
+          });
+
           // 先尝试新的管理员接口
-          let response = await fetch(`${API_BASE_URL}/api/admin/stats`);
+          let response = await fetch(
+            `${API_BASE_URL}/api/admin/stats?${params}`
+          );
 
           if (response.ok) {
             const data = await response.json();
             if (data.success) {
+              currentStats = data.stats;
+              currentPage = page;
+              currentLimit = limit;
               displayStats(data.stats);
               content.style.display = "block";
               return;
@@ -338,6 +462,48 @@
         };
       }
 
+      // 分页控制函数
+      function changePage(direction) {
+        const newPage = currentPage + direction;
+        if (newPage >= 1 && newPage <= totalPages) {
+          loadStats(newPage, currentLimit);
+        }
+      }
+
+      function changeUserLimit() {
+        const select = document.getElementById("userLimit");
+        const newLimit = select.value;
+        currentPage = 1; // 重置到第一页
+        loadStats(1, newLimit);
+      }
+
+      function updatePaginationControls(pagination) {
+        if (!pagination) return;
+
+        totalPages = pagination.totalPages;
+
+        // 更新页面信息
+        const pageInfo = `第 ${pagination.currentPage} 页，共 ${pagination.totalPages} 页 (总计 ${pagination.totalUsers} 个用户)`;
+        document.getElementById("pageInfo").textContent = pageInfo;
+        document.getElementById("pageInfoBottom").textContent = pageInfo;
+
+        // 更新按钮状态
+        const prevBtns = document.querySelectorAll(
+          ".pagination-btn:first-child"
+        );
+        const nextBtns = document.querySelectorAll(
+          ".pagination-btn:last-child"
+        );
+
+        prevBtns.forEach((btn) => {
+          btn.disabled = !pagination.hasPrevPage;
+        });
+
+        nextBtns.forEach((btn) => {
+          btn.disabled = !pagination.hasNextPage;
+        });
+      }
+
       // 显示统计数据
       function displayStats(stats) {
         // 基础统计
@@ -346,6 +512,25 @@
         document.getElementById("recentActiveUsers").textContent =
           stats.recentActiveUsers;
         document.getElementById("totalGames").textContent = stats.totalGames;
+
+        // 更新分页用户列表
+        if (stats.pagination) {
+          updatePaginationControls(stats.pagination);
+          const paginatedList = document.getElementById("paginatedUsersList");
+          paginatedList.innerHTML = stats.pagination.users
+            .map(
+              (user) => `
+                  <div class="user-item">
+                      <div>${user.username}</div>
+                      <div>${user.totalGames}</div>
+                      <div>${user.wins}</div>
+                      <div>${user.winRate}%</div>
+                      <div>${formatTime(user.lastLoginAt)}</div>
+                  </div>
+              `
+            )
+            .join("");
+        }
 
         // 最近登录用户
         const recentList = document.getElementById("recentUsersList");
