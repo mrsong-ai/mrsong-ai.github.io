@@ -4679,9 +4679,9 @@
                             <span style="color: ${
                               index < 3 ? "#ffd700" : "#6c757d"
                             }; font-weight: bold;">${rankIcon}</span>
-                            <span style="font-weight: 500; ${
-                              isCurrentUser ? "color: #1976d2;" : ""
-                            }">${player.username}</span>
+                            <span style="font-weight: 500; color: ${
+                              isCurrentUser ? "#1976d2" : "#333"
+                            };">${player.username}</span>
                             <span style="color: #666; font-size: 0.9em;">(${
                               player.wins
                             }胜${player.totalGames - player.wins}负)</span>
