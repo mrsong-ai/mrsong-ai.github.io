@@ -3904,6 +3904,11 @@
       // 用户统计数据
       let userStats = null;
 
+      // 数据刷新相关变量
+      let leaderboardRefreshInterval = null;
+      let lastDataRefreshTime = 0;
+      const DATA_REFRESH_COOLDOWN = 5000; // 5秒冷却时间
+
       // 检查Pi SDK是否可用
       function isPiAvailable() {
         return typeof window.Pi !== "undefined";
@@ -4071,6 +4076,11 @@
 
               // 更新主页按钮状态
               updateMainPageButtonState();
+
+              // 触发数据刷新（延迟执行，确保后端数据已同步）
+              setTimeout(() => {
+                triggerDataRefresh();
+              }, 2000);
 
               // 登录成功后保持在当前界面，不自动跳转到游戏
               showCustomAlert(
@@ -4350,6 +4360,11 @@
               // 更新主页按钮状态
               updateMainPageButtonState();
 
+              // 触发数据刷新（延迟执行，确保后端数据已同步）
+              setTimeout(() => {
+                triggerDataRefresh();
+              }, 2000);
+
               // 登录成功后保持在当前界面，不自动跳转到游戏
               showCustomAlert(
                 t("login_success"),
@@ -4603,13 +4618,31 @@
       }
 
       // 加载排行榜数据
-      async function loadLeaderboard(sortBy = "score", limit = 100) {
+      async function loadLeaderboard(
+        sortBy = "score",
+        limit = 100,
+        forceRefresh = false
+      ) {
         try {
+          const now = Date.now();
+          const shouldRefresh =
+            forceRefresh || now - lastDataRefreshTime > DATA_REFRESH_COOLDOWN;
+
+          if (!shouldRefresh) {
+            console.log("[排行榜] 跳过刷新，冷却时间未到");
+            return [];
+          }
+
+          const refreshParam = forceRefresh ? "&refresh=true" : "";
           const response = await fetch(
-            `${API_BASE_URL}/api/leaderboard?limit=${limit}`
+            `${API_BASE_URL}/api/leaderboard?limit=${limit}${refreshParam}`
           );
           if (response.ok) {
             const data = await response.json();
+            lastDataRefreshTime = now;
+            console.log(
+              `[排行榜] 数据刷新成功，总用户数: ${data.totalUsers}, 排行榜条目: ${data.leaderboard.length}`
+            );
             return data.leaderboard || [];
           } else {
             console.error("获取排行榜失败:", response.status);
@@ -4640,14 +4673,17 @@
       }
 
       // 显示实时排行榜
-      async function showRealTimeLeaderboard() {
-        const leaderboard = await loadLeaderboard("score", 100);
+      async function showRealTimeLeaderboard(forceRefresh = false) {
+        const leaderboard = await loadLeaderboard("score", 100, forceRefresh);
 
         // 获取当前用户的真实排名
         let userRank = 0;
         if (currentUser && currentUser.piUserId) {
           userRank = await getUserRank(currentUser.piUserId);
         }
+
+        // 启动自动刷新
+        startLeaderboardAutoRefresh();
 
         let leaderboardHTML = "";
         if (leaderboard.length === 0) {
@@ -4751,6 +4787,58 @@
                 </div>
             `
         );
+      }
+
+      // 启动排行榜自动刷新
+      function startLeaderboardAutoRefresh() {
+        // 清除之前的定时器
+        if (leaderboardRefreshInterval) {
+          clearInterval(leaderboardRefreshInterval);
+        }
+
+        // 每30秒自动刷新一次排行榜
+        leaderboardRefreshInterval = setInterval(async () => {
+          console.log("[排行榜] 自动刷新数据...");
+          const currentModal = document.querySelector(".modal-overlay");
+          if (currentModal && currentModal.style.display !== "none") {
+            // 如果排行榜弹窗还在显示，则刷新数据
+            await showRealTimeLeaderboard(true);
+          } else {
+            // 如果弹窗已关闭，停止自动刷新
+            stopLeaderboardAutoRefresh();
+          }
+        }, 30000); // 30秒
+      }
+
+      // 停止排行榜自动刷新
+      function stopLeaderboardAutoRefresh() {
+        if (leaderboardRefreshInterval) {
+          clearInterval(leaderboardRefreshInterval);
+          leaderboardRefreshInterval = null;
+          console.log("[排行榜] 停止自动刷新");
+        }
+      }
+
+      // 触发数据刷新（用于新用户登录后）
+      function triggerDataRefresh() {
+        console.log("[数据刷新] 触发全局数据刷新");
+
+        // 重置刷新冷却时间，强制刷新
+        lastDataRefreshTime = 0;
+
+        // 如果排行榜弹窗正在显示，立即刷新
+        const currentModal = document.querySelector(".modal-overlay");
+        if (currentModal && currentModal.style.display !== "none") {
+          console.log("[数据刷新] 刷新排行榜数据");
+          showRealTimeLeaderboard(true);
+        }
+
+        // 刷新个人中心数据（如果正在显示）
+        const personalCenterModal = document.querySelector(".custom-modal");
+        if (personalCenterModal) {
+          console.log("[数据刷新] 刷新个人中心数据");
+          refreshUserStats();
+        }
       }
 
       // 显示全球排行榜 (使用真实数据)
@@ -5691,6 +5779,8 @@
         if (modal) {
           modal.remove();
         }
+        // 停止排行榜自动刷新
+        stopLeaderboardAutoRefresh();
       }
 
       // ==================== 游戏统计和排行榜功能 ====================
