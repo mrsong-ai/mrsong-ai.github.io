@@ -1730,13 +1730,13 @@
           new_game_op: "新游戏：重新开始，进行中的游戏记录为失败",
           return_op: "返回：退出游戏，进行中的游戏记录为失败",
 
-          // 积分系统
-          score_system: "🏆 100分生命值系统",
-          initial_score: "初始分数：100分",
-          win_score: "获胜：+1分",
-          draw_score: "平局：不加不减",
-          lose_score: "失败：-1分（扣完为止）",
-          quit_score: "放弃/超时：-1分",
+          // 胜率排行系统
+          score_system: "🏆 胜率排行系统",
+          initial_score: "排行依据：按胜率排序",
+          win_score: "获胜：提升胜率",
+          draw_score: "平局：影响胜率",
+          lose_score: "失败：降低胜率",
+          quit_score: "放弃/超时：记为失败",
 
           // 月度排名规则
           monthly_ranking_rules: "🎯 月度排名规则：",
@@ -1767,9 +1767,9 @@
 
           // 排行榜规则
           leaderboard_rules: "📊 排行榜规则",
-          ranking_condition: "上榜条件：完成60局游戏即可上榜",
-          ranking_basis: "排名依据：按累计积分排序",
-          data_statistics: "数据统计：基于历史累计数据",
+          ranking_condition: "上榜条件：完成1局游戏即可上榜",
+          ranking_basis: "排名依据：按胜率排序（胜率相同时按总局数排序）",
+          data_statistics: "数据统计：月度排行榜，每月1日重置",
           realtime_update: "实时更新：每局结束后立即更新",
 
           // 温馨提示
@@ -1831,9 +1831,15 @@
           monthly_reward_reminder: "🏆 月度奖励提醒",
           monthly_reward_desc: "每月利润的50%将分配给排名前三的玩家作为奖励",
 
+          // 月度重置系统
+          monthly_reset_system: "📅 月度重置系统",
+          monthly_reset_desc: "每月1日自动重置排行榜，开始新的月度竞赛",
+          historical_data_preserved: "历史总对局数据永久保存，不会清零",
+          monthly_ranking_only: "仅月度排行榜数据重置，个人历史记录保留",
+
           // 全球排行榜
           global_ranking_title: "全球排行",
-          ranking_subtitle: "📊 基于月度积分的排名",
+          ranking_subtitle: "📊 基于月度胜率的排名",
           ranking_header_rank: "排名",
           ranking_header_nickname: "昵称",
           ranking_header_games: "总对局",
@@ -2202,12 +2208,12 @@
           new_game_op: "New game: Restart, ongoing game recorded as loss",
           return_op: "Return: Exit game, ongoing game recorded as loss",
 
-          // 积分系统
-          score_system: "🏆 100-Point Life System",
-          initial_score: "Initial score: 100 points",
-          win_score: "Win: +1 point",
-          draw_score: "Draw: No change",
-          lose_score: "Loss: -1 point (deduct until zero)",
+          // 胜率排行系统
+          score_system: "🏆 Win Rate Ranking System",
+          initial_score: "Ranking basis: Sorted by win rate",
+          win_score: "Win: Improves win rate",
+          draw_score: "Draw: Affects win rate",
+          lose_score: "Loss: Reduces win rate",
           quit_score: "Quit/Timeout: -1 point",
 
           // 月度排名规则
@@ -5516,10 +5522,10 @@
                             <li><strong>${t("quit_score")}</strong></li>
                         </ul>
                         <div style="margin-top: 10px; padding: 8px; background: #c3e6cb; border-radius: 4px; font-size: 13px; color: #155724;">
-                            ${t("monthly_ranking_rules")}<br>
-                            ${t("ranking_requirement")}<br>
-                            ${t("ranking_criteria")}<br>
-                            ${t("ranking_rewards")}
+                            ${t("monthly_reset_system")}<br>
+                            ${t("monthly_reset_desc")}<br>
+                            ${t("historical_data_preserved")}<br>
+                            ${t("monthly_ranking_only")}
                         </div>
                         <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 13px; color: #856404;">
                             ${t("anti_farming")}
