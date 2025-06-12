@@ -4119,11 +4119,26 @@
               data.user.piUserId || data.user.uid || currentUser.uid;
 
             // 先尝试恢复用户专属的游戏数据
-            restoreUserGameData();
+            const hasLocalData = restoreUserGameData();
 
-            // 如果没有本地数据，才使用后端返回的初始数据
-            if (!userStats || userStats.totalGames === 0) {
-              userStats = data.user.stats;
+            // 数据完整性检查：比较本地数据和后端数据
+            const backendStats = data.user.stats;
+            if (
+              hasLocalData &&
+              userStats &&
+              userStats.totalGames > 0 &&
+              backendStats.totalGames === 0
+            ) {
+              console.log(
+                "[登录数据恢复] 检测到后端数据异常，保持使用本地数据"
+              );
+              // 异步同步本地数据到后端
+              setTimeout(() => {
+                syncLocalDataToBackend(userStats);
+              }, 1000);
+            } else if (!userStats || userStats.totalGames === 0) {
+              // 如果没有本地数据，才使用后端返回的初始数据
+              userStats = backendStats;
             }
           } else {
             // 如果后端认证失败，使用uid作为piUserId
@@ -5734,33 +5749,98 @@
           currentUser.piUserId = currentUser.uid;
         }
 
+        // 先获取本地数据作为备份
+        const localStats = localStorage.getItem("piGomokuGameStats");
+        let localUserStats = null;
+        if (localStats) {
+          try {
+            localUserStats = JSON.parse(localStats);
+          } catch (error) {
+            console.error("解析本地统计数据失败:", error);
+          }
+        }
+
         try {
           const apiUrl = `${API_BASE_URL}/api/users/stats?uid=${currentUser.piUserId}`;
-
           const response = await fetch(apiUrl);
 
           if (response.ok) {
             const data = await response.json();
-            userStats = data.stats;
+            const backendStats = data.stats;
 
-            // 保存到本地存储
-            localStorage.setItem(
-              "piGomokuGameStats",
-              JSON.stringify(userStats)
-            );
+            // 数据完整性检查：如果后端数据明显异常（总局数为0但本地有数据），优先使用本地数据
+            if (
+              localUserStats &&
+              localUserStats.totalGames > 0 &&
+              backendStats.totalGames === 0
+            ) {
+              console.log("[数据恢复] 检测到后端数据异常，使用本地数据");
+              userStats = localUserStats;
+
+              // 尝试将本地数据同步回后端（通过记录一个虚拟游戏来恢复数据）
+              try {
+                await syncLocalDataToBackend(localUserStats);
+              } catch (syncError) {
+                console.error("同步本地数据到后端失败:", syncError);
+              }
+            } else {
+              // 后端数据正常，使用后端数据
+              userStats = backendStats;
+
+              // 保存到本地存储
+              localStorage.setItem(
+                "piGomokuGameStats",
+                JSON.stringify(userStats)
+              );
+
+              // 同时保存到用户专属存储
+              saveUserGameDataToSpecificStorage();
+            }
           } else {
-            // 尝试使用本地存储的数据
-            const localStats = localStorage.getItem("piGomokuGameStats");
-            if (localStats) {
-              userStats = JSON.parse(localStats);
+            // 后端请求失败，使用本地数据
+            if (localUserStats) {
+              console.log("[数据恢复] 后端请求失败，使用本地数据");
+              userStats = localUserStats;
             }
           }
         } catch (error) {
-          // 尝试使用本地存储的数据
-          const localStats = localStorage.getItem("piGomokuGameStats");
-          if (localStats) {
-            userStats = JSON.parse(localStats);
+          console.error("刷新用户统计失败:", error);
+          // 网络错误，使用本地数据
+          if (localUserStats) {
+            console.log("[数据恢复] 网络错误，使用本地数据");
+            userStats = localUserStats;
           }
+        }
+      }
+
+      // 同步本地数据到后端
+      async function syncLocalDataToBackend(localStats) {
+        if (!currentUser || !localStats) return;
+
+        try {
+          // 通过记录一个数据同步请求来恢复后端数据
+          const response = await fetch(`${API_BASE_URL}/api/games/record`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: currentUser.piUserId || currentUser.uid,
+              username: localStats.username || getCurrentDisplayUsername(),
+              gameResult: "sync", // 特殊标记，表示数据同步
+              gameData: {
+                syncData: localStats, // 传递本地统计数据
+                gameMode: "sync",
+                timestamp: new Date().toISOString(),
+              },
+            }),
+          });
+
+          if (response.ok) {
+            console.log("[数据恢复] 本地数据已成功同步到后端");
+          }
+        } catch (error) {
+          console.error("[数据恢复] 同步失败:", error);
         }
       }
 
@@ -5821,6 +5901,9 @@
               JSON.stringify(userStats)
             );
 
+            // 同时保存到用户专属存储
+            saveUserGameDataToSpecificStorage();
+
             // 显示游戏结果统计
             showGameResultStats(result, data.userStats);
           } else {
@@ -5870,6 +5953,26 @@
 
         // 保存到本地存储
         localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
+
+        // 同时保存到用户专属存储
+        saveUserGameDataToSpecificStorage();
+      }
+
+      // 保存用户游戏数据到专属存储
+      function saveUserGameDataToSpecificStorage() {
+        if (!currentUser || !userStats) return;
+
+        const userGameData = {
+          userId: currentUser.piUserId || currentUser.uid,
+          username: currentUser.username || userStats.username,
+          gameStats: userStats,
+          lastUpdated: new Date().toISOString(),
+        };
+
+        const userDataKey = `piGomokuUserData_${
+          currentUser.piUserId || currentUser.uid
+        }`;
+        localStorage.setItem(userDataKey, JSON.stringify(userGameData));
       }
 
       // 显示游戏结果统计
