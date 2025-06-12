@@ -6047,16 +6047,16 @@
             saveUserGameDataToSpecificStorage();
 
             // 显示游戏结果统计
-            showGameResultStats(result, data.userStats);
+            await showGameResultStats(result, data.userStats);
           } else {
             console.error("记录游戏结果到后端失败:", response.statusText);
             // 后端失败时，使用本地数据显示结果
-            showGameResultStats(result, userStats);
+            await showGameResultStats(result, userStats);
           }
         } catch (error) {
           console.error("记录游戏结果失败:", error);
           // 网络错误时，使用本地数据显示结果
-          showGameResultStats(result, userStats);
+          await showGameResultStats(result, userStats);
         }
       }
 
@@ -6109,7 +6109,7 @@
       }
 
       // 显示游戏结果统计
-      function showGameResultStats(result, stats) {
+      async function showGameResultStats(result, stats) {
         const resultText = {
           win: t("congratulations_win"),
           loss: t("sorry_lose"),
@@ -6118,6 +6118,16 @@
 
         // 检查是否为登录用户
         const isLoggedIn = currentUser && userStats;
+
+        // 获取实时排名
+        let currentRank = 0;
+        if (isLoggedIn && currentUser.piUserId) {
+          try {
+            currentRank = await getUserRank(currentUser.piUserId);
+          } catch (error) {
+            console.error("获取用户排名失败:", error);
+          }
+        }
 
         showCustomModal(
           t("game_result"),
@@ -6172,8 +6182,8 @@
                         <div style="text-align: center; padding-top: 15px; border-top: 1px solid #e9ecef;">
                             <div style="color: #666; font-size: 0.9em;">
                                 ${t("current_rank_label")}: ${
-                            stats.rank > 0
-                              ? t("rank_position", stats.rank)
+                            currentRank > 0
+                              ? t("rank_position", currentRank)
                               : t("not_listed")
                           }
                             </div>
