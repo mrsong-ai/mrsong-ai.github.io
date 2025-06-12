@@ -4748,11 +4748,14 @@
       // 加载排行榜数据
       async function loadLeaderboard(sortBy = "score", limit = 100) {
         try {
+          console.log("正在加载排行榜数据...");
           const response = await fetch(
             `${API_BASE_URL}/api/leaderboard?limit=${limit}`
           );
           if (response.ok) {
             const data = await response.json();
+            console.log("排行榜API返回数据:", data);
+            console.log("排行榜数据:", data.leaderboard);
             return data.leaderboard || [];
           } else {
             console.error("获取排行榜失败:", response.status);
@@ -4784,12 +4787,16 @@
 
       // 显示实时排行榜
       async function showRealTimeLeaderboard() {
+        console.log("显示实时排行榜被调用");
         const leaderboard = await loadLeaderboard("score", 100);
+        console.log("获取到的排行榜数据:", leaderboard);
 
         // 获取当前用户的真实排名
         let userRank = 0;
         if (currentUser && currentUser.piUserId) {
+          console.log("当前用户ID:", currentUser.piUserId);
           userRank = await getUserRank(currentUser.piUserId);
+          console.log("当前用户排名:", userRank);
         }
 
         let leaderboardHTML = "";
