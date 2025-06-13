@@ -4040,10 +4040,21 @@
       let currentGame = null;
 
       // 后端API配置 - 根据环境自动检测
-      const API_BASE_URL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:3001" // 本地开发环境
-          : "https://pi-gomoku-backend.onrender.com"; // 生产环境后端服务器
+      const API_BASE_URL = (() => {
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+
+        if (hostname === "localhost" || hostname === "127.0.0.1") {
+          // 本地开发环境
+          return "http://localhost:3001";
+        } else if (hostname === "mrsong-ai.github.io") {
+          // GitHub Pages + 阿里云后端
+          return "http://47.82.3.211:3001";
+        } else {
+          // 阿里云自部署环境 - 使用相同域名的/api路径
+          return `${protocol}//${hostname}/api`;
+        }
+      })();
 
       // 用户统计数据
       let userStats = null;
