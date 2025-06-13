@@ -1,0 +1,88 @@
+name: Deploy to Aliyun
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+      
+    - name: 设置Node.js环境
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: houduan/package-lock.json
+        
+    - name: 安装依赖并测试
+      run: |
+        cd houduan
+        npm ci
+        # npm test  # 如果有测试的话
+        
+    - name: 部署到阿里云服务器
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.ALIYUN_HOST }}
+        username: ${{ secrets.ALIYUN_USERNAME }}
+        key: ${{ secrets.ALIYUN_SSH_KEY }}
+        port: ${{ secrets.ALIYUN_PORT || 22 }}
+        script: |
+          echo "🚀 开始部署到阿里云..."
+          
+          # 进入项目目录
+          cd /var/www/pi-gomoku
+          
+          # 拉取最新代码
+          echo "📥 拉取最新代码..."
+          git fetch origin
+          git reset --hard origin/main
+          git pull origin main
+          
+          # 安装后端依赖
+          echo "📦 安装后端依赖..."
+          cd houduan
+          npm install --production
+          
+          # 重启后端服务
+          echo "🔄 重启后端服务..."
+          pm2 restart pi-gomoku-backend || pm2 start server.js --name pi-gomoku-backend
+          
+          # 重载Nginx
+          echo "🔄 重载Nginx..."
+          nginx -s reload
+          
+          # 检查服务状态
+          echo "✅ 检查服务状态..."
+          pm2 status
+          
+          echo "🎉 部署完成！"
+          
+    - name: 健康检查
+      run: |
+        echo "🏥 等待服务启动..."
+        sleep 10
+        
+        # 检查服务是否正常
+        if curl -f -s "http://${{ secrets.ALIYUN_HOST }}/api/health" > /dev/null; then
+          echo "✅ 服务健康检查通过"
+        else
+          echo "❌ 服务健康检查失败"
+          exit 1
+        fi
+        
+    - name: 通知部署结果
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 部署成功！"
+          echo "🌐 访问地址: http://${{ secrets.ALIYUN_HOST }}"
+        else
+          echo "❌ 部署失败，请检查日志"
+        fi
