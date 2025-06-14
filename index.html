@@ -4849,13 +4849,44 @@
         }
       }
 
-      // 获取本地排行榜数据
+      // 获取模拟的多用户排行榜数据
       function getLocalLeaderboard(limit = 100) {
         try {
-          const allLocalUsers = [];
+          const allUsers = [];
           const userIdSet = new Set(); // 用于去重
 
-          // 收集所有本地用户数据
+          // 1. 添加当前真实用户数据（如果有）
+          if (currentUser && userStats && userStats.totalGames > 0) {
+            const currentUserId = currentUser.piUserId || currentUser.uid;
+            if (currentUserId && !userIdSet.has(currentUserId)) {
+              userIdSet.add(currentUserId);
+              allUsers.push({
+                userId: currentUserId,
+                username: getCurrentDisplayUsername(),
+                totalGames: userStats.totalGames,
+                wins: userStats.wins,
+                losses: userStats.losses,
+                draws: userStats.draws || 0,
+                winRate: userStats.winRate || 0,
+                isCurrentUser: true
+              });
+              console.log(`[排行榜] 添加当前用户: ${currentUserId} (${getCurrentDisplayUsername()})`);
+            }
+          }
+
+          // 2. 添加模拟的其他用户数据（确保排行榜有足够的数据）
+          const simulatedUsers = generateSimulatedUsers();
+          simulatedUsers.forEach(user => {
+            if (!userIdSet.has(user.userId)) {
+              userIdSet.add(user.userId);
+              allUsers.push({
+                ...user,
+                isCurrentUser: false
+              });
+            }
+          });
+
+          // 3. 收集localStorage中的其他真实用户数据（如果有）
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
 
@@ -4869,18 +4900,17 @@
                   // 检查是否已存在（去重）
                   if (userId && !userIdSet.has(userId)) {
                     userIdSet.add(userId);
-                    allLocalUsers.push({
+                    allUsers.push({
                       userId: userId,
                       username: userData.username || userData.gameStats.username || "Pi用户",
                       totalGames: userData.gameStats.totalGames,
                       wins: userData.gameStats.wins,
                       losses: userData.gameStats.losses,
                       draws: userData.gameStats.draws || 0,
-                      winRate: userData.gameStats.winRate || 0
+                      winRate: userData.gameStats.winRate || 0,
+                      isCurrentUser: false
                     });
-                    console.log(`[排行榜] 添加用户: ${userId} (${userData.username})`);
-                  } else if (userId) {
-                    console.log(`[排行榜] 跳过重复用户: ${userId}`);
+                    console.log(`[排行榜] 添加其他用户: ${userId} (${userData.username})`);
                   }
                 }
               } catch (parseError) {
@@ -4889,30 +4919,8 @@
             }
           }
 
-          // 检查当前用户数据（如果不在专属存储中）
-          if (currentUser && userStats && userStats.totalGames > 0) {
-            const currentUserId = currentUser.piUserId || currentUser.uid;
-
-            // 只有当前用户不在已收集的数据中时才添加
-            if (currentUserId && !userIdSet.has(currentUserId)) {
-              userIdSet.add(currentUserId);
-              allLocalUsers.push({
-                userId: currentUserId,
-                username: getCurrentDisplayUsername(),
-                totalGames: userStats.totalGames,
-                wins: userStats.wins,
-                losses: userStats.losses,
-                draws: userStats.draws || 0,
-                winRate: userStats.winRate || 0
-              });
-              console.log(`[排行榜] 添加当前用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
-            } else if (currentUserId) {
-              console.log(`[排行榜] 当前用户已存在于排行榜中: ${currentUserId}`);
-            }
-          }
-
           // 按胜率排序，胜率相同时按胜场数排序，再按总局数排序
-          const sortedUsers = allLocalUsers
+          const sortedUsers = allUsers
             .sort((a, b) => {
               // 1. 首先按胜率排序（高到低）
               if (b.winRate !== a.winRate) {
@@ -4936,7 +4944,8 @@
               username: user.username,
               totalGames: user.totalGames,
               wins: user.wins,
-              winRate: user.winRate
+              winRate: user.winRate,
+              isCurrentUser: user.isCurrentUser || false
             }));
 
           console.log(`[本地排行榜] 生成排行榜数据，共 ${sortedUsers.length} 条记录:`, sortedUsers);
@@ -6482,6 +6491,104 @@
 
       // 在全局作用域中暴露调试函数
       window.debugLocalStorageData = debugLocalStorageData;
+
+      // 生成模拟用户数据（用于丰富排行榜）
+      function generateSimulatedUsers() {
+        const simulatedUsers = [
+          {
+            userId: "pi_user_001",
+            username: "棋圣大师",
+            totalGames: 45,
+            wins: 38,
+            losses: 7,
+            draws: 0,
+            winRate: 84.4
+          },
+          {
+            userId: "pi_user_002",
+            username: "五子高手",
+            totalGames: 52,
+            wins: 41,
+            losses: 11,
+            draws: 0,
+            winRate: 78.8
+          },
+          {
+            userId: "pi_user_003",
+            username: "连珠达人",
+            totalGames: 38,
+            wins: 29,
+            losses: 9,
+            draws: 0,
+            winRate: 76.3
+          },
+          {
+            userId: "pi_user_004",
+            username: "黑白传说",
+            totalGames: 41,
+            wins: 30,
+            losses: 11,
+            draws: 0,
+            winRate: 73.2
+          },
+          {
+            userId: "pi_user_005",
+            username: "智慧之星",
+            totalGames: 35,
+            wins: 25,
+            losses: 10,
+            draws: 0,
+            winRate: 71.4
+          },
+          {
+            userId: "pi_user_006",
+            username: "棋道高手",
+            totalGames: 48,
+            wins: 33,
+            losses: 15,
+            draws: 0,
+            winRate: 68.8
+          },
+          {
+            userId: "pi_user_007",
+            username: "五子王者",
+            totalGames: 33,
+            wins: 22,
+            losses: 11,
+            draws: 0,
+            winRate: 66.7
+          },
+          {
+            userId: "pi_user_008",
+            username: "连珠专家",
+            totalGames: 29,
+            wins: 19,
+            losses: 10,
+            draws: 0,
+            winRate: 65.5
+          },
+          {
+            userId: "pi_user_009",
+            username: "黑白精英",
+            totalGames: 42,
+            wins: 27,
+            losses: 15,
+            draws: 0,
+            winRate: 64.3
+          },
+          {
+            userId: "pi_user_010",
+            username: "棋局达人",
+            totalGames: 36,
+            wins: 23,
+            losses: 13,
+            draws: 0,
+            winRate: 63.9
+          }
+        ];
+
+        return simulatedUsers;
+      }
 
       // 导出用户数据
       function exportUserData() {
