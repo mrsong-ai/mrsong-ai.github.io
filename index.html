@@ -1918,6 +1918,9 @@
           save_wallet: "💾 保存",
           edit_wallet: "✏️ 编辑",
           logout_account_text: "↩️ 退出账户",
+          export_data_text: "📤 导出数据",
+          import_data_text: "📥 导入数据",
+          data_backup_section: "数据备份",
 
           // 个人中心提示信息
           enter_avatar_hint: "请输入头像emoji",
@@ -2433,6 +2436,9 @@
           save_wallet: "💾 Save",
           edit_wallet: "✏️ Edit",
           logout_account_text: "↩️ Logout",
+          export_data_text: "📤 Export Data",
+          import_data_text: "📥 Import Data",
+          data_backup_section: "Data Backup",
 
           // 个人中心提示信息
           enter_avatar_hint: "Please enter avatar emoji",
@@ -2898,6 +2904,9 @@
           save_wallet: "💾 저장",
           edit_wallet: "✏️ 편집",
           logout_account_text: "↩️ 계정 로그아웃",
+          export_data_text: "📤 데이터 내보내기",
+          import_data_text: "📥 데이터 가져오기",
+          data_backup_section: "데이터 백업",
 
           // 개인 센터 힌트 정보
           enter_avatar_hint: "아바타 이모지를 입력하세요",
@@ -3358,6 +3367,9 @@
           save_wallet: "💾 保存",
           edit_wallet: "✏️ 編集",
           logout_account_text: "↩️ アカウントログアウト",
+          export_data_text: "📤 データエクスポート",
+          import_data_text: "📥 データインポート",
+          data_backup_section: "データバックアップ",
 
           // 個人センターヒント情報
           enter_avatar_hint: "アバター絵文字を入力してください",
@@ -3831,6 +3843,9 @@
           save_wallet: "💾 Lưu",
           edit_wallet: "✏️ Chỉnh sửa",
           logout_account_text: "↩️ Đăng xuất tài khoản",
+          export_data_text: "📤 Xuất dữ liệu",
+          import_data_text: "📥 Nhập dữ liệu",
+          data_backup_section: "Sao lưu dữ liệu",
 
           // Thông tin gợi ý trung tâm cá nhân
           enter_avatar_hint: "Vui lòng nhập emoji avatar",
@@ -4838,6 +4853,7 @@
       function getLocalLeaderboard(limit = 100) {
         try {
           const allLocalUsers = [];
+          const userIdSet = new Set(); // 用于去重
 
           // 收集所有本地用户数据
           for (let i = 0; i < localStorage.length; i++) {
@@ -4848,15 +4864,24 @@
               try {
                 const userData = JSON.parse(localStorage.getItem(key));
                 if (userData && userData.gameStats && userData.gameStats.totalGames > 0) {
-                  allLocalUsers.push({
-                    userId: userData.userId,
-                    username: userData.username || userData.gameStats.username || "Pi用户",
-                    totalGames: userData.gameStats.totalGames,
-                    wins: userData.gameStats.wins,
-                    losses: userData.gameStats.losses,
-                    draws: userData.gameStats.draws || 0,
-                    winRate: userData.gameStats.winRate || 0
-                  });
+                  const userId = userData.userId;
+
+                  // 检查是否已存在（去重）
+                  if (userId && !userIdSet.has(userId)) {
+                    userIdSet.add(userId);
+                    allLocalUsers.push({
+                      userId: userId,
+                      username: userData.username || userData.gameStats.username || "Pi用户",
+                      totalGames: userData.gameStats.totalGames,
+                      wins: userData.gameStats.wins,
+                      losses: userData.gameStats.losses,
+                      draws: userData.gameStats.draws || 0,
+                      winRate: userData.gameStats.winRate || 0
+                    });
+                    console.log(`[排行榜] 添加用户: ${userId} (${userData.username})`);
+                  } else if (userId) {
+                    console.log(`[排行榜] 跳过重复用户: ${userId}`);
+                  }
                 }
               } catch (parseError) {
                 console.error("解析用户数据失败:", parseError);
@@ -4864,17 +4889,26 @@
             }
           }
 
-          // 如果没有找到用户专属数据，检查当前用户数据
-          if (allLocalUsers.length === 0 && currentUser && userStats && userStats.totalGames > 0) {
-            allLocalUsers.push({
-              userId: currentUser.piUserId || currentUser.uid,
-              username: getCurrentDisplayUsername(),
-              totalGames: userStats.totalGames,
-              wins: userStats.wins,
-              losses: userStats.losses,
-              draws: userStats.draws || 0,
-              winRate: userStats.winRate || 0
-            });
+          // 检查当前用户数据（如果不在专属存储中）
+          if (currentUser && userStats && userStats.totalGames > 0) {
+            const currentUserId = currentUser.piUserId || currentUser.uid;
+
+            // 只有当前用户不在已收集的数据中时才添加
+            if (currentUserId && !userIdSet.has(currentUserId)) {
+              userIdSet.add(currentUserId);
+              allLocalUsers.push({
+                userId: currentUserId,
+                username: getCurrentDisplayUsername(),
+                totalGames: userStats.totalGames,
+                wins: userStats.wins,
+                losses: userStats.losses,
+                draws: userStats.draws || 0,
+                winRate: userStats.winRate || 0
+              });
+              console.log(`[排行榜] 添加当前用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
+            } else if (currentUserId) {
+              console.log(`[排行榜] 当前用户已存在于排行榜中: ${currentUserId}`);
+            }
           }
 
           // 按胜率排序，胜率相同时按胜场数排序，再按总局数排序
@@ -5478,7 +5512,57 @@
                         </div>
                     </div>
 
-
+                    <!-- 数据备份功能 -->
+                    ${currentUser && userStats ? `
+                    <div style="background: #e8f5e8; border-radius: 8px; padding: 15px; margin: 15px 0;">
+                        <h4 style="color: #2e7d32; margin: 0 0 12px 0; font-size: 16px; text-align: center;">
+                            📦 ${t("data_backup_section")}
+                        </h4>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button
+                                onclick="exportUserData()"
+                                style="
+                                    background: #28a745;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 6px;
+                                    padding: 8px 12px;
+                                    cursor: pointer;
+                                    font-size: 13px;
+                                    font-weight: 500;
+                                    transition: background 0.2s;
+                                    flex: 1;
+                                "
+                                onmouseover="this.style.background='#218838'"
+                                onmouseout="this.style.background='#28a745'"
+                            >
+                                ${t("export_data_text")}
+                            </button>
+                            <button
+                                onclick="importUserData()"
+                                style="
+                                    background: #17a2b8;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 6px;
+                                    padding: 8px 12px;
+                                    cursor: pointer;
+                                    font-size: 13px;
+                                    font-weight: 500;
+                                    transition: background 0.2s;
+                                    flex: 1;
+                                "
+                                onmouseover="this.style.background='#138496'"
+                                onmouseout="this.style.background='#17a2b8'"
+                            >
+                                ${t("import_data_text")}
+                            </button>
+                        </div>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d; text-align: center;">
+                            💡 定期备份数据，防止意外丢失
+                        </p>
+                    </div>
+                    ` : ''}
 
                     <div style="text-align: center; margin-top: 6px;">
                         ${
@@ -6361,6 +6445,131 @@
 
           console.log("[排行榜] 本地数据已刷新");
         }
+      }
+
+      // 调试函数：分析localStorage中的用户数据
+      function debugLocalStorageData() {
+        console.log("=== localStorage 数据分析 ===");
+
+        const userDataKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('piGomokuUserData_')) {
+            userDataKeys.push(key);
+          }
+        }
+
+        console.log(`找到 ${userDataKeys.length} 个用户数据键:`);
+        userDataKeys.forEach(key => {
+          try {
+            const userData = JSON.parse(localStorage.getItem(key));
+            console.log(`${key}:`, {
+              userId: userData.userId,
+              username: userData.username,
+              totalGames: userData.gameStats?.totalGames,
+              wins: userData.gameStats?.wins,
+              winRate: userData.gameStats?.winRate
+            });
+          } catch (e) {
+            console.error(`解析失败: ${key}`, e);
+          }
+        });
+
+        console.log("当前用户:", currentUser);
+        console.log("当前用户统计:", userStats);
+        console.log("=== 分析结束 ===");
+      }
+
+      // 在全局作用域中暴露调试函数
+      window.debugLocalStorageData = debugLocalStorageData;
+
+      // 导出用户数据
+      function exportUserData() {
+        if (!currentUser || !userStats) {
+          showCustomAlert(t("error_title"), "请先登录并进行游戏");
+          return;
+        }
+
+        const exportData = {
+          version: "1.0",
+          exportTime: new Date().toISOString(),
+          userData: {
+            userId: currentUser.piUserId || currentUser.uid,
+            username: getCurrentDisplayUsername(),
+            gameStats: userStats,
+            piUserInfo: {
+              uid: currentUser.uid,
+              username: currentUser.username
+            }
+          }
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `五子棋游戏数据_${getCurrentDisplayUsername()}_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+
+        showCustomAlert("导出成功", "游戏数据已导出到下载文件夹");
+      }
+
+      // 导入用户数据
+      function importUserData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+
+        input.onchange = function(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const importData = JSON.parse(e.target.result);
+
+              // 验证数据格式
+              if (!importData.userData || !importData.userData.gameStats) {
+                throw new Error("数据格式不正确");
+              }
+
+              // 确认导入
+              showCustomModal(
+                "确认导入数据",
+                `是否导入用户 "${importData.userData.username}" 的游戏数据？\n\n` +
+                `总局数：${importData.userData.gameStats.totalGames}\n` +
+                `胜场：${importData.userData.gameStats.wins}\n` +
+                `胜率：${importData.userData.gameStats.winRate}%\n\n` +
+                `⚠️ 这将覆盖当前的游戏数据！`,
+                () => {
+                  // 确认导入
+                  userStats = importData.userData.gameStats;
+
+                  // 保存到本地存储
+                  localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
+                  saveUserGameDataToSpecificStorage();
+                  refreshLocalLeaderboardData();
+
+                  showCustomAlert("导入成功", "游戏数据已成功导入！");
+                },
+                () => {
+                  // 取消导入
+                  showCustomAlert("已取消", "数据导入已取消");
+                }
+              );
+
+            } catch (error) {
+              console.error("导入数据失败:", error);
+              showCustomAlert("导入失败", "文件格式不正确或数据损坏");
+            }
+          };
+
+          reader.readAsText(file);
+        };
+
+        input.click();
       }
 
       // 显示游戏结果统计
