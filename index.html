@@ -4849,13 +4849,54 @@
         }
       }
 
-      // 获取模拟的多用户排行榜数据
+      // 获取真实用户排行榜数据（无模拟用户）
       function getLocalLeaderboard(limit = 100) {
         try {
           const allUsers = [];
           const userIdSet = new Set(); // 用于去重
 
-          // 1. 添加当前真实用户数据（如果有）
+          console.log("[排行榜] 开始收集真实用户数据...");
+
+          // 1. 收集localStorage中的所有真实用户数据
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+
+            // 查找用户专属数据
+            if (key && key.startsWith('piGomokuUserData_')) {
+              try {
+                const userData = JSON.parse(localStorage.getItem(key));
+                if (userData && userData.gameStats && userData.gameStats.totalGames > 0) {
+                  const userId = userData.userId;
+
+                  // 检查是否已存在（去重）
+                  if (userId && !userIdSet.has(userId)) {
+                    userIdSet.add(userId);
+
+                    const isCurrentUser = currentUser &&
+                      (userId === currentUser.piUserId || userId === currentUser.uid);
+
+                    allUsers.push({
+                      userId: userId,
+                      username: userData.username || userData.gameStats.username || "Pi用户",
+                      totalGames: userData.gameStats.totalGames,
+                      wins: userData.gameStats.wins,
+                      losses: userData.gameStats.losses,
+                      draws: userData.gameStats.draws || 0,
+                      winRate: userData.gameStats.winRate || 0,
+                      isCurrentUser: isCurrentUser
+                    });
+                    console.log(`[排行榜] 添加用户: ${userId} (${userData.username || userData.gameStats.username}) - 当前用户: ${isCurrentUser}`);
+                  } else if (userId) {
+                    console.log(`[排行榜] 跳过重复用户: ${userId}`);
+                  }
+                }
+              } catch (parseError) {
+                console.error("解析用户数据失败:", parseError);
+              }
+            }
+          }
+
+          // 2. 如果当前用户有数据但不在localStorage专属存储中，添加当前用户
           if (currentUser && userStats && userStats.totalGames > 0) {
             const currentUserId = currentUser.piUserId || currentUser.uid;
             if (currentUserId && !userIdSet.has(currentUserId)) {
@@ -4870,52 +4911,7 @@
                 winRate: userStats.winRate || 0,
                 isCurrentUser: true
               });
-              console.log(`[排行榜] 添加当前用户: ${currentUserId} (${getCurrentDisplayUsername()})`);
-            }
-          }
-
-          // 2. 添加模拟的其他用户数据（确保排行榜有足够的数据）
-          const simulatedUsers = generateSimulatedUsers();
-          simulatedUsers.forEach(user => {
-            if (!userIdSet.has(user.userId)) {
-              userIdSet.add(user.userId);
-              allUsers.push({
-                ...user,
-                isCurrentUser: false
-              });
-            }
-          });
-
-          // 3. 收集localStorage中的其他真实用户数据（如果有）
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-
-            // 查找用户专属数据
-            if (key && key.startsWith('piGomokuUserData_')) {
-              try {
-                const userData = JSON.parse(localStorage.getItem(key));
-                if (userData && userData.gameStats && userData.gameStats.totalGames > 0) {
-                  const userId = userData.userId;
-
-                  // 检查是否已存在（去重）
-                  if (userId && !userIdSet.has(userId)) {
-                    userIdSet.add(userId);
-                    allUsers.push({
-                      userId: userId,
-                      username: userData.username || userData.gameStats.username || "Pi用户",
-                      totalGames: userData.gameStats.totalGames,
-                      wins: userData.gameStats.wins,
-                      losses: userData.gameStats.losses,
-                      draws: userData.gameStats.draws || 0,
-                      winRate: userData.gameStats.winRate || 0,
-                      isCurrentUser: false
-                    });
-                    console.log(`[排行榜] 添加其他用户: ${userId} (${userData.username})`);
-                  }
-                }
-              } catch (parseError) {
-                console.error("解析用户数据失败:", parseError);
-              }
+              console.log(`[排行榜] 添加当前用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
             }
           }
 
@@ -6491,104 +6487,72 @@
 
       // 在全局作用域中暴露调试函数
       window.debugLocalStorageData = debugLocalStorageData;
+      window.cleanupDuplicateUserData = cleanupDuplicateUserData;
 
-      // 生成模拟用户数据（用于丰富排行榜）
-      function generateSimulatedUsers() {
-        const simulatedUsers = [
-          {
-            userId: "pi_user_001",
-            username: "棋圣大师",
-            totalGames: 45,
-            wins: 38,
-            losses: 7,
-            draws: 0,
-            winRate: 84.4
-          },
-          {
-            userId: "pi_user_002",
-            username: "五子高手",
-            totalGames: 52,
-            wins: 41,
-            losses: 11,
-            draws: 0,
-            winRate: 78.8
-          },
-          {
-            userId: "pi_user_003",
-            username: "连珠达人",
-            totalGames: 38,
-            wins: 29,
-            losses: 9,
-            draws: 0,
-            winRate: 76.3
-          },
-          {
-            userId: "pi_user_004",
-            username: "黑白传说",
-            totalGames: 41,
-            wins: 30,
-            losses: 11,
-            draws: 0,
-            winRate: 73.2
-          },
-          {
-            userId: "pi_user_005",
-            username: "智慧之星",
-            totalGames: 35,
-            wins: 25,
-            losses: 10,
-            draws: 0,
-            winRate: 71.4
-          },
-          {
-            userId: "pi_user_006",
-            username: "棋道高手",
-            totalGames: 48,
-            wins: 33,
-            losses: 15,
-            draws: 0,
-            winRate: 68.8
-          },
-          {
-            userId: "pi_user_007",
-            username: "五子王者",
-            totalGames: 33,
-            wins: 22,
-            losses: 11,
-            draws: 0,
-            winRate: 66.7
-          },
-          {
-            userId: "pi_user_008",
-            username: "连珠专家",
-            totalGames: 29,
-            wins: 19,
-            losses: 10,
-            draws: 0,
-            winRate: 65.5
-          },
-          {
-            userId: "pi_user_009",
-            username: "黑白精英",
-            totalGames: 42,
-            wins: 27,
-            losses: 15,
-            draws: 0,
-            winRate: 64.3
-          },
-          {
-            userId: "pi_user_010",
-            username: "棋局达人",
-            totalGames: 36,
-            wins: 23,
-            losses: 13,
-            draws: 0,
-            winRate: 63.9
+      // 清理重复的用户数据
+      function cleanupDuplicateUserData() {
+        console.log("[数据清理] 开始清理重复的用户数据...");
+
+        const userDataMap = new Map(); // userId -> 最新的用户数据
+        const keysToRemove = [];
+
+        // 1. 收集所有用户数据，保留最新的
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+
+          if (key && key.startsWith('piGomokuUserData_')) {
+            try {
+              const userData = JSON.parse(localStorage.getItem(key));
+              if (userData && userData.userId) {
+                const userId = userData.userId;
+
+                if (userDataMap.has(userId)) {
+                  // 如果已存在，比较时间戳，保留更新的数据
+                  const existingData = userDataMap.get(userId);
+                  const existingTimestamp = existingData.lastUpdated || 0;
+                  const currentTimestamp = userData.lastUpdated || 0;
+
+                  if (currentTimestamp > existingTimestamp) {
+                    // 当前数据更新，标记旧key删除
+                    keysToRemove.push(existingData.storageKey);
+                    userDataMap.set(userId, { ...userData, storageKey: key });
+                    console.log(`[数据清理] 用户 ${userId} 保留更新的数据 (${key})`);
+                  } else {
+                    // 旧数据更新，标记当前key删除
+                    keysToRemove.push(key);
+                    console.log(`[数据清理] 用户 ${userId} 删除旧数据 (${key})`);
+                  }
+                } else {
+                  // 首次遇到该用户
+                  userDataMap.set(userId, { ...userData, storageKey: key });
+                }
+              }
+            } catch (error) {
+              console.error(`[数据清理] 解析数据失败 ${key}:`, error);
+              keysToRemove.push(key); // 损坏的数据也删除
+            }
           }
-        ];
+        }
 
-        return simulatedUsers;
+        // 2. 删除重复的数据
+        keysToRemove.forEach(key => {
+          localStorage.removeItem(key);
+          console.log(`[数据清理] 删除重复数据: ${key}`);
+        });
+
+        console.log(`[数据清理] 清理完成，删除了 ${keysToRemove.length} 个重复项`);
+        console.log(`[数据清理] 保留了 ${userDataMap.size} 个唯一用户的数据`);
+
+        return keysToRemove.length;
       }
+
+      // 在页面加载时自动清理重复数据
+      document.addEventListener('DOMContentLoaded', function() {
+        // 延迟执行清理，确保其他初始化完成
+        setTimeout(() => {
+          cleanupDuplicateUserData();
+        }, 1000);
+      });
 
       // 导出用户数据
       function exportUserData() {
