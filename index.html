@@ -4232,6 +4232,12 @@
               // 更新主页按钮状态
               updateMainPageButtonState();
 
+              // 确保用户数据被保存到本地存储
+              if (userStats) {
+                saveUserGameDataToSpecificStorage();
+                refreshLocalLeaderboardData();
+              }
+
               // 触发数据刷新（延迟执行，确保后端数据已同步）
               setTimeout(() => {
                 triggerDataRefresh();
@@ -4520,6 +4526,12 @@
               // 更新主页按钮状态
               updateMainPageButtonState();
 
+              // 确保用户数据被保存到本地存储
+              if (userStats) {
+                saveUserGameDataToSpecificStorage();
+                refreshLocalLeaderboardData();
+              }
+
               // 触发数据刷新（延迟执行，确保后端数据已同步）
               setTimeout(() => {
                 triggerDataRefresh();
@@ -4777,7 +4789,7 @@
         showSimpleGameScreen();
       }
 
-      // 加载排行榜数据
+      // 加载排行榜数据 - 支持本地数据降级
       async function loadLeaderboard(
         sortBy = "score",
         limit = 100,
@@ -4790,44 +4802,149 @@
 
           if (!shouldRefresh) {
             console.log("[排行榜] 跳过刷新，冷却时间未到");
-            return [];
+            // 如果不需要刷新，返回本地排行榜数据
+            return getLocalLeaderboard(limit);
           }
 
-          const refreshParam = forceRefresh ? "&refresh=true" : "";
-          const response = await fetch(
-            `${API_BASE_URL}/api/leaderboard?limit=${limit}${refreshParam}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            lastDataRefreshTime = now;
-            console.log(
-              `[排行榜] 数据刷新成功，总用户数: ${data.totalUsers}, 排行榜条目: ${data.leaderboard.length}`
+          // 首先尝试从后端获取数据
+          try {
+            const refreshParam = forceRefresh ? "&refresh=true" : "";
+            const response = await fetch(
+              `${API_BASE_URL}/api/leaderboard?limit=${limit}${refreshParam}`
             );
-            return data.leaderboard || [];
-          } else {
-            console.error("获取排行榜失败:", response.status);
-            return [];
+            if (response.ok) {
+              const data = await response.json();
+              lastDataRefreshTime = now;
+              console.log(
+                `[排行榜] 后端数据刷新成功，总用户数: ${data.totalUsers}, 排行榜条目: ${data.leaderboard.length}`
+              );
+              return data.leaderboard || [];
+            } else {
+              console.error("获取排行榜失败:", response.status);
+              throw new Error("后端请求失败");
+            }
+          } catch (backendError) {
+            console.log("[排行榜] 后端不可用，使用本地数据");
+            return getLocalLeaderboard(limit);
           }
         } catch (error) {
           console.error("排行榜请求错误:", error);
+          // 发生任何错误时，都返回本地排行榜数据
+          return getLocalLeaderboard(limit);
+        }
+      }
+
+      // 获取本地排行榜数据
+      function getLocalLeaderboard(limit = 100) {
+        try {
+          const allLocalUsers = [];
+
+          // 收集所有本地用户数据
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+
+            // 查找用户专属数据
+            if (key && key.startsWith('piGomokuUserData_')) {
+              try {
+                const userData = JSON.parse(localStorage.getItem(key));
+                if (userData && userData.gameStats && userData.gameStats.totalGames > 0) {
+                  allLocalUsers.push({
+                    userId: userData.userId,
+                    username: userData.username || userData.gameStats.username || "Pi用户",
+                    totalGames: userData.gameStats.totalGames,
+                    wins: userData.gameStats.wins,
+                    losses: userData.gameStats.losses,
+                    draws: userData.gameStats.draws || 0,
+                    winRate: userData.gameStats.winRate || 0
+                  });
+                }
+              } catch (parseError) {
+                console.error("解析用户数据失败:", parseError);
+              }
+            }
+          }
+
+          // 如果没有找到用户专属数据，检查当前用户数据
+          if (allLocalUsers.length === 0 && currentUser && userStats && userStats.totalGames > 0) {
+            allLocalUsers.push({
+              userId: currentUser.piUserId || currentUser.uid,
+              username: getCurrentDisplayUsername(),
+              totalGames: userStats.totalGames,
+              wins: userStats.wins,
+              losses: userStats.losses,
+              draws: userStats.draws || 0,
+              winRate: userStats.winRate || 0
+            });
+          }
+
+          // 按胜率排序，胜率相同时按胜场数排序，再按总局数排序
+          const sortedUsers = allLocalUsers
+            .sort((a, b) => {
+              // 1. 首先按胜率排序（高到低）
+              if (b.winRate !== a.winRate) {
+                return b.winRate - a.winRate;
+              }
+              // 2. 胜率相同时，按胜场数排序（高到低）
+              if (b.wins !== a.wins) {
+                return b.wins - a.wins;
+              }
+              // 3. 胜场数相同时，按总局数排序（高到低）
+              if (b.totalGames !== a.totalGames) {
+                return b.totalGames - a.totalGames;
+              }
+              // 4. 最后按用户名排序（确保稳定排序）
+              return a.username.localeCompare(b.username);
+            })
+            .slice(0, limit)
+            .map((user, index) => ({
+              rank: index + 1,
+              userId: user.userId,
+              username: user.username,
+              totalGames: user.totalGames,
+              wins: user.wins,
+              winRate: user.winRate
+            }));
+
+          console.log(`[本地排行榜] 生成排行榜数据，共 ${sortedUsers.length} 条记录:`, sortedUsers);
+          return sortedUsers;
+        } catch (error) {
+          console.error("生成本地排行榜失败:", error);
           return [];
         }
       }
 
-      // 获取用户排名
+      // 获取用户排名 - 支持本地数据降级
       async function getUserRank(userId) {
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/api/leaderboard/rank?userId=${userId}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data.rank || 0;
-          } else {
-            return 0;
+          // 首先尝试从后端获取排名
+          try {
+            const response = await fetch(
+              `${API_BASE_URL}/api/leaderboard/rank?userId=${userId}`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              return data.rank || 0;
+            } else {
+              throw new Error("后端请求失败");
+            }
+          } catch (backendError) {
+            console.log("[用户排名] 后端不可用，使用本地数据计算排名");
+            return getLocalUserRank(userId);
           }
         } catch (error) {
           console.error("获取用户排名错误:", error);
+          return getLocalUserRank(userId);
+        }
+      }
+
+      // 从本地数据计算用户排名
+      function getLocalUserRank(userId) {
+        try {
+          const leaderboard = getLocalLeaderboard(1000); // 获取完整排行榜
+          const userEntry = leaderboard.find(entry => entry.userId === userId);
+          return userEntry ? userEntry.rank : 0;
+        } catch (error) {
+          console.error("计算本地用户排名失败:", error);
           return 0;
         }
       }
@@ -4847,11 +4964,18 @@
 
         let leaderboardHTML = "";
         if (leaderboard.length === 0) {
+          // 检查当前用户是否有游戏数据但未显示在排行榜中
+          const hasUserData = currentUser && userStats && userStats.totalGames > 0;
+
           leaderboardHTML = `
                     <div style="text-align: center; padding: 40px 20px; color: #666;">
                         <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
-                        <p style="margin: 0; font-size: 1.1em;">暂无排行榜数据</p>
-                        <p style="margin: 5px 0 0 0; font-size: 0.9em;">完成1局游戏即可上榜！</p>
+                        ${hasUserData ?
+                          `<p style="margin: 0; font-size: 1.1em;">正在加载排行榜数据...</p>
+                           <p style="margin: 5px 0 0 0; font-size: 0.9em;">您的游戏数据：${userStats.totalGames}局 (${userStats.wins}胜${userStats.losses}负) 胜率${userStats.winRate}%</p>` :
+                          `<p style="margin: 0; font-size: 1.1em;">暂无排行榜数据</p>
+                           <p style="margin: 5px 0 0 0; font-size: 0.9em;">${t("play_one_game_to_rank")}</p>`
+                        }
                     </div>
                 `;
         } else {
@@ -6153,16 +6277,25 @@
             // 同时保存到用户专属存储
             saveUserGameDataToSpecificStorage();
 
+            // 刷新本地排行榜数据
+            refreshLocalLeaderboardData();
+
             // 显示游戏结果统计
             await showGameResultStats(result, data.userStats);
           } else {
             console.error("记录游戏结果到后端失败:", response.statusText);
-            // 后端失败时，使用本地数据显示结果
+            // 后端失败时，确保本地数据已保存并刷新排行榜
+            saveUserGameDataToSpecificStorage();
+            refreshLocalLeaderboardData();
+            // 使用本地数据显示结果
             await showGameResultStats(result, userStats);
           }
         } catch (error) {
           console.error("记录游戏结果失败:", error);
-          // 网络错误时，使用本地数据显示结果
+          // 网络错误时，确保本地数据已保存并刷新排行榜
+          saveUserGameDataToSpecificStorage();
+          refreshLocalLeaderboardData();
+          // 使用本地数据显示结果
           await showGameResultStats(result, userStats);
         }
       }
@@ -6204,7 +6337,7 @@
 
         const userGameData = {
           userId: currentUser.piUserId || currentUser.uid,
-          username: currentUser.username || userStats.username,
+          username: getCurrentDisplayUsername(), // 使用统一的用户名获取函数
           gameStats: userStats,
           lastUpdated: new Date().toISOString(),
         };
@@ -6213,6 +6346,21 @@
           currentUser.piUserId || currentUser.uid
         }`;
         localStorage.setItem(userDataKey, JSON.stringify(userGameData));
+
+        console.log(`[数据保存] 用户数据已保存到本地存储: ${userDataKey}`, userGameData);
+      }
+
+      // 强制刷新本地排行榜数据
+      function refreshLocalLeaderboardData() {
+        if (currentUser && userStats) {
+          // 确保当前用户数据被保存
+          saveUserGameDataToSpecificStorage();
+
+          // 重置数据刷新时间，强制下次获取排行榜时重新计算
+          lastDataRefreshTime = 0;
+
+          console.log("[排行榜] 本地数据已刷新");
+        }
       }
 
       // 显示游戏结果统计
