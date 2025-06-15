@@ -16,7 +16,14 @@ GitHub仓库 → GitHub Actions → 阿里云ECS服务器
 
 ### 1. 阿里云服务器准备
 
-#### 1.1 安装必要软件
+#### 1.1 快速安装（推荐）
+使用自动化脚本快速配置服务器：
+```bash
+# 下载并运行服务器配置脚本
+curl -fsSL https://raw.githubusercontent.com/mrsong-ai/pi-gomoku-backend/main/houduan/setup-server.sh | bash
+```
+
+#### 1.2 手动安装（如果自动脚本失败）
 ```bash
 # 更新系统
 sudo yum update -y
@@ -35,18 +42,31 @@ sudo yum install -y git
 sudo yum install -y nginx
 sudo systemctl enable nginx
 sudo systemctl start nginx
+
+# 配置防火墙
+sudo firewall-cmd --permanent --add-port=80/tcp
+sudo firewall-cmd --permanent --add-port=443/tcp
+sudo firewall-cmd --permanent --add-port=3001/tcp
+sudo firewall-cmd --reload
 ```
 
-#### 1.2 创建项目目录
+#### 1.3 创建项目目录
 ```bash
 sudo mkdir -p /var/www/pi-gomoku
 sudo chown -R $USER:$USER /var/www/pi-gomoku
 cd /var/www/pi-gomoku
 ```
 
-#### 1.3 初始化Git仓库
+#### 1.4 初始化Git仓库
 ```bash
-git clone https://github.com/你的用户名/你的仓库名.git .
+git clone https://github.com/mrsong-ai/pi-gomoku-backend.git .
+```
+
+#### 1.5 运行部署前检查
+```bash
+cd /var/www/pi-gomoku/houduan
+chmod +x pre-deploy-check.sh
+./pre-deploy-check.sh
 ```
 
 ### 2. GitHub仓库配置
@@ -86,51 +106,43 @@ chmod 700 ~/.ssh
 ### 3. 服务器环境配置
 
 #### 3.1 配置Nginx
+有两种Nginx配置可选：
+
+**基础配置（推荐新手）：**
+```bash
+sudo cp /var/www/pi-gomoku/houduan/nginx-site.conf /etc/nginx/conf.d/pi-gomoku.conf
+```
+
+**增强配置（推荐生产环境）：**
+```bash
+sudo cp /var/www/pi-gomoku/houduan/nginx-enhanced.conf /etc/nginx/conf.d/pi-gomoku.conf
+```
+
+编辑配置文件，替换域名：
 ```bash
 sudo nano /etc/nginx/conf.d/pi-gomoku.conf
+# 将 "your-domain.com" 替换为你的实际域名或IP地址
 ```
 
-添加配置：
-```nginx
-server {
-    listen 80;
-    server_name 你的域名或IP;
-
-    # 前端静态文件
-    location / {
-        proxy_pass https://mrsong-ai.github.io/;
-        proxy_set_header Host mrsong-ai.github.io;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # 后端API
-    location /api/ {
-        proxy_pass http://localhost:3001;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # 健康检查
-    location /health {
-        proxy_pass http://localhost:3001/health;
-    }
-}
-```
-
-重启Nginx：
+测试并重启Nginx：
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-#### 3.2 配置PM2
+#### 3.2 配置环境变量
 ```bash
 cd /var/www/pi-gomoku/houduan
-pm2 start ecosystem.config.js
+cp .env.production .env
+# 根据需要编辑 .env 文件
+nano .env
+```
+
+#### 3.3 配置PM2
+```bash
+cd /var/www/pi-gomoku/houduan
+npm install --production
+pm2 start ecosystem.config.js --env production
 pm2 save
 pm2 startup
 ```
@@ -145,14 +157,16 @@ pm2 startup
 
 #### 4.2 验证部署
 ```bash
-# 检查服务状态
+# 运行完整验证脚本
+cd /var/www/pi-gomoku/houduan
+chmod +x post-deploy-verify.sh
+./post-deploy-verify.sh
+
+# 或手动检查
 pm2 status
-
-# 检查日志
-pm2 logs pi-gomoku-backend
-
-# 测试API
-curl http://localhost:3001/api/health
+pm2 logs pi-gomoku-backend --lines 20
+curl http://localhost:3001/health
+curl http://localhost/health
 ```
 
 ## 🔄 自动部署流程
