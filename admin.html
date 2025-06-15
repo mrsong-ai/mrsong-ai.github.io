@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>五子棋游戏 - 管理员监控面板</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .stat-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        border-left: 4px solid #007bff;
+      }
+
+      .stat-card.active {
+        border-left-color: #28a745;
+      }
+
+      .stat-card.games {
+        border-left-color: #ffc107;
+      }
+
+      .stat-card.users {
+        border-left-color: #17a2b8;
+      }
+
+      .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .section {
+        margin: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .section-header {
+        background: #e9ecef;
+        padding: 15px 20px;
+        font-weight: bold;
+        color: #333;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .section-content {
+        padding: 20px;
+      }
+
+      .user-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .user-item {
+        display: grid;
+        grid-template-columns: 1fr 80px 80px 80px 150px;
+        gap: 15px;
+        padding: 10px;
+        background: white;
+        border-radius: 6px;
+        align-items: center;
+        font-size: 0.9em;
+      }
+
+      .user-item.header {
+        background: #e9ecef;
+        font-weight: bold;
+      }
+
+      .refresh-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 20px;
+      }
+
+      .refresh-btn:hover {
+        background: #218838;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px;
+      }
+
+      .time-info {
+        text-align: center;
+        color: #666;
+        font-size: 0.9em;
+        padding: 10px;
+        background: #e9ecef;
+      }
+
+      .pagination-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+      }
+
+      .pagination-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .pagination-btn:hover {
+        background: #0056b3;
+      }
+
+      .pagination-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .pagination-info {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .user-limit-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+
+      .user-limit-control select {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      @media (max-width: 768px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .user-item {
+          grid-template-columns: 1fr;
+          gap: 5px;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎮 五子棋游戏监控面板</h1>
+        <p>实时查看用户活动和游戏统计</p>
+      </div>
+
+      <button class="refresh-btn" onclick="loadStats()">🔄 刷新数据</button>
+
+      <div id="loading" class="loading">
+        <div>📊 正在加载数据...</div>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
+
+      <div id="content" style="display: none">
+        <!-- 基础统计 -->
+        <div class="stats-grid">
+          <div class="stat-card users">
+            <div class="stat-number" id="totalUsers">-</div>
+            <div class="stat-label">Pi用户总数</div>
+          </div>
+          <div class="stat-card active">
+            <div class="stat-number" id="activeUsers">-</div>
+            <div class="stat-label">已游戏用户</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="recentActiveUsers">-</div>
+            <div class="stat-label">24小时内活跃</div>
+          </div>
+          <div class="stat-card games">
+            <div class="stat-number" id="totalGames">-</div>
+            <div class="stat-label">总游戏局数</div>
+          </div>
+        </div>
+
+        <!-- 用户列表（分页） -->
+        <div class="section">
+          <div class="section-header">👥 用户列表</div>
+          <div class="section-content">
+            <div class="user-limit-control">
+              <label>每页显示:</label>
+              <select id="userLimit" onchange="changeUserLimit()">
+                <option value="20">20个用户</option>
+                <option value="50" selected>50个用户</option>
+                <option value="100">100个用户</option>
+                <option value="all">全部用户</option>
+              </select>
+            </div>
+
+            <div class="pagination-controls" id="paginationTop">
+              <button
+                class="pagination-btn"
+                id="prevBtn"
+                onclick="changePage(-1)"
+              >
+                上一页
+              </button>
+              <span class="pagination-info" id="pageInfo"
+                >第 1 页，共 1 页</span
+              >
+              <button
+                class="pagination-btn"
+                id="nextBtn"
+                onclick="changePage(1)"
+              >
+                下一页
+              </button>
+            </div>
+
+            <div class="user-list">
+              <div class="user-item header">
+                <div>用户名</div>
+                <div>游戏数</div>
+                <div>胜场</div>
+                <div>胜率</div>
+                <div>最后登录</div>
+              </div>
+              <div id="paginatedUsersList"></div>
+            </div>
+
+            <div class="pagination-controls" id="paginationBottom">
+              <button class="pagination-btn" onclick="changePage(-1)">
+                上一页
+              </button>
+              <span class="pagination-info" id="pageInfoBottom"
+                >第 1 页，共 1 页</span
+              >
+              <button class="pagination-btn" onclick="changePage(1)">
+                下一页
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 最近登录用户 -->
+        <div class="section">
+          <div class="section-header">📱 最近登录用户 (最新10个)</div>
+          <div class="section-content">
+            <div class="user-list">
+              <div class="user-item header">
+                <div>用户名</div>
+                <div>游戏数</div>
+                <div>胜场</div>
+                <div>胜率</div>
+                <div>最后登录</div>
+              </div>
+              <div id="recentUsersList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 活跃用户排行 -->
+        <div class="section">
+          <div class="section-header">🏆 活跃用户排行 (按游戏局数)</div>
+          <div class="section-content">
+            <div class="user-list">
+              <div class="user-item header">
+                <div>用户名</div>
+                <div>游戏数</div>
+                <div>胜场</div>
+                <div>胜率</div>
+                <div>最后登录</div>
+              </div>
+              <div id="topActiveUsersList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="time-info" id="timeInfo"></div>
+    </div>
+
+    <script>
+      // API配置
+      const API_BASE_URL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3001"
+          : "http://47.82.3.211:3001";
+
+      // 分页状态
+      let currentPage = 1;
+      let currentLimit = 50;
+      let totalPages = 1;
+      let currentStats = null;
+
+      // 加载统计数据
+      async function loadStats(page = currentPage, limit = currentLimit) {
+        const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        const content = document.getElementById("content");
+
+        loading.style.display = "block";
+        error.style.display = "none";
+        content.style.display = "none";
+
+        try {
+          // 构建查询参数
+          const params = new URLSearchParams({
+            page: page,
+            limit: limit === "all" ? "all" : limit,
+          });
+
+          // 先尝试新的管理员接口
+          let response = await fetch(
+            `${API_BASE_URL}/api/admin/stats?${params}`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              currentStats = data.stats;
+              currentPage = page;
+              currentLimit = limit;
+              displayStats(data.stats);
+              content.style.display = "block";
+              return;
+            }
+          }
+
+          // 如果管理员接口不可用，使用排行榜接口获取数据
+          console.log("管理员接口不可用，使用排行榜接口...");
+          response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const leaderboardData = await response.json();
+
+          if (leaderboardData.success) {
+            // 从排行榜数据构造统计信息
+            const mockStats = createStatsFromLeaderboard(
+              leaderboardData.leaderboard
+            );
+            displayStats(mockStats);
+            content.style.display = "block";
+          } else {
+            throw new Error(leaderboardData.message || "获取数据失败");
+          }
+        } catch (err) {
+          console.error("加载统计数据失败:", err);
+          error.textContent = `❌ 加载失败: ${err.message}`;
+          error.style.display = "block";
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      // 从排行榜数据创建统计信息
+      function createStatsFromLeaderboard(leaderboard) {
+        const now = new Date();
+
+        return {
+          totalUsers: leaderboard.length,
+          activeUsers: leaderboard.filter((user) => user.totalGames > 0).length,
+          recentActiveUsers: leaderboard.length, // 假设排行榜中的都是活跃用户
+          totalGames: leaderboard.reduce(
+            (sum, user) => sum + user.totalGames,
+            0
+          ),
+          newUsersToday: 0, // 无法从排行榜获取
+
+          recentUsers: leaderboard.slice(0, 10).map((user) => ({
+            id: "user_***",
+            username: user.username,
+            totalGames: user.totalGames,
+            wins: user.wins,
+            winRate: user.winRate,
+            lastLoginAt: now.toISOString(), // 模拟数据
+            createdAt: now.toISOString(),
+          })),
+
+          topActiveUsers: leaderboard
+            .sort((a, b) => b.totalGames - a.totalGames)
+            .slice(0, 10)
+            .map((user) => ({
+              id: "user_***",
+              username: user.username,
+              totalGames: user.totalGames,
+              wins: user.wins,
+              winRate: user.winRate,
+              lastLoginAt: now.toISOString(),
+            })),
+
+          serverTime: now.toISOString(),
+          dataLastUpdated: now.toISOString(),
+        };
+      }
+
+      // 分页控制函数
+      function changePage(direction) {
+        const newPage = currentPage + direction;
+        if (newPage >= 1 && newPage <= totalPages) {
+          loadStats(newPage, currentLimit);
+        }
+      }
+
+      function changeUserLimit() {
+        const select = document.getElementById("userLimit");
+        const newLimit = select.value;
+        currentPage = 1; // 重置到第一页
+        loadStats(1, newLimit);
+      }
+
+      function updatePaginationControls(pagination) {
+        if (!pagination) return;
+
+        totalPages = pagination.totalPages;
+
+        // 更新页面信息
+        const pageInfo = `第 ${pagination.currentPage} 页，共 ${pagination.totalPages} 页 (总计 ${pagination.totalUsers} 个用户)`;
+        document.getElementById("pageInfo").textContent = pageInfo;
+        document.getElementById("pageInfoBottom").textContent = pageInfo;
+
+        // 更新按钮状态
+        const prevBtns = document.querySelectorAll(
+          ".pagination-btn:first-child"
+        );
+        const nextBtns = document.querySelectorAll(
+          ".pagination-btn:last-child"
+        );
+
+        prevBtns.forEach((btn) => {
+          btn.disabled = !pagination.hasPrevPage;
+        });
+
+        nextBtns.forEach((btn) => {
+          btn.disabled = !pagination.hasNextPage;
+        });
+      }
+
+      // 显示统计数据
+      function displayStats(stats) {
+        // 基础统计
+        document.getElementById("totalUsers").textContent = stats.totalUsers;
+        document.getElementById("activeUsers").textContent = stats.activeUsers;
+        document.getElementById("recentActiveUsers").textContent =
+          stats.recentActiveUsers;
+        document.getElementById("totalGames").textContent = stats.totalGames;
+
+        // 更新分页用户列表
+        if (stats.pagination) {
+          updatePaginationControls(stats.pagination);
+          const paginatedList = document.getElementById("paginatedUsersList");
+          paginatedList.innerHTML = stats.pagination.users
+            .map(
+              (user) => `
+                  <div class="user-item">
+                      <div>${user.username}</div>
+                      <div>${user.totalGames}</div>
+                      <div>${user.wins}</div>
+                      <div>${user.winRate}%</div>
+                      <div>${formatTime(user.lastLoginAt)}</div>
+                  </div>
+              `
+            )
+            .join("");
+        }
+
+        // 最近登录用户
+        const recentList = document.getElementById("recentUsersList");
+        recentList.innerHTML = stats.recentUsers
+          .map(
+            (user) => `
+                <div class="user-item">
+                    <div>${user.username}</div>
+                    <div>${user.totalGames}</div>
+                    <div>${user.wins}</div>
+                    <div>${user.winRate}%</div>
+                    <div>${formatTime(user.lastLoginAt)}</div>
+                </div>
+            `
+          )
+          .join("");
+
+        // 活跃用户排行
+        const topList = document.getElementById("topActiveUsersList");
+        topList.innerHTML = stats.topActiveUsers
+          .map(
+            (user) => `
+                <div class="user-item">
+                    <div>${user.username}</div>
+                    <div>${user.totalGames}</div>
+                    <div>${user.wins}</div>
+                    <div>${user.winRate}%</div>
+                    <div>${formatTime(user.lastLoginAt)}</div>
+                </div>
+            `
+          )
+          .join("");
+
+        // 更新时间信息
+        document.getElementById(
+          "timeInfo"
+        ).textContent = `数据更新时间: ${formatTime(stats.serverTime)}`;
+      }
+
+      // 格式化时间
+      function formatTime(timeString) {
+        const date = new Date(timeString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffMins < 1) return "刚刚";
+        if (diffMins < 60) return `${diffMins}分钟前`;
+        if (diffHours < 24) return `${diffHours}小时前`;
+        if (diffDays < 7) return `${diffDays}天前`;
+
+        return date.toLocaleDateString("zh-CN", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      // 页面加载时自动获取数据
+      document.addEventListener("DOMContentLoaded", loadStats);
+
+      // 每30秒自动刷新一次
+      setInterval(loadStats, 30000);
+    </script>
+  </body>
+</html>
