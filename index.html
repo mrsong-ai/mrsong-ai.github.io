@@ -1918,9 +1918,6 @@
           save_wallet: "💾 保存",
           edit_wallet: "✏️ 编辑",
           logout_account_text: "↩️ 退出账户",
-          export_data_text: "📤 导出数据",
-          import_data_text: "📥 导入数据",
-          data_backup_section: "数据备份",
 
           // 个人中心提示信息
           enter_avatar_hint: "请输入头像emoji",
@@ -2436,9 +2433,6 @@
           save_wallet: "💾 Save",
           edit_wallet: "✏️ Edit",
           logout_account_text: "↩️ Logout",
-          export_data_text: "📤 Export Data",
-          import_data_text: "📥 Import Data",
-          data_backup_section: "Data Backup",
 
           // 个人中心提示信息
           enter_avatar_hint: "Please enter avatar emoji",
@@ -2904,9 +2898,6 @@
           save_wallet: "💾 저장",
           edit_wallet: "✏️ 편집",
           logout_account_text: "↩️ 계정 로그아웃",
-          export_data_text: "📤 데이터 내보내기",
-          import_data_text: "📥 데이터 가져오기",
-          data_backup_section: "데이터 백업",
 
           // 개인 센터 힌트 정보
           enter_avatar_hint: "아바타 이모지를 입력하세요",
@@ -3367,9 +3358,6 @@
           save_wallet: "💾 保存",
           edit_wallet: "✏️ 編集",
           logout_account_text: "↩️ アカウントログアウト",
-          export_data_text: "📤 データエクスポート",
-          import_data_text: "📥 データインポート",
-          data_backup_section: "データバックアップ",
 
           // 個人センターヒント情報
           enter_avatar_hint: "アバター絵文字を入力してください",
@@ -3843,9 +3831,6 @@
           save_wallet: "💾 Lưu",
           edit_wallet: "✏️ Chỉnh sửa",
           logout_account_text: "↩️ Đăng xuất tài khoản",
-          export_data_text: "📤 Xuất dữ liệu",
-          import_data_text: "📥 Nhập dữ liệu",
-          data_backup_section: "Sao lưu dữ liệu",
 
           // Thông tin gợi ý trung tâm cá nhân
           enter_avatar_hint: "Vui lòng nhập emoji avatar",
@@ -8738,7 +8723,7 @@
 
       // 强制刷新缓存检查
       function checkCacheVersion() {
-        const currentVersion = "2025-06-11-22:30";
+        const currentVersion = "2025-06-15-remove-backup";
         const cachedVersion = localStorage.getItem("appVersion");
 
         if (cachedVersion !== currentVersion) {
@@ -8798,7 +8783,7 @@
 
       // 强制刷新缓存检查
       function checkCacheVersion() {
-        const currentVersion = "2025-06-11-22:30";
+        const currentVersion = "2025-06-15-remove-backup";
         const cachedVersion = localStorage.getItem("appVersion");
 
         if (cachedVersion !== currentVersion) {
