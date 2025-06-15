@@ -1,8 +1,11 @@
-name: Deploy to Aliyun
+name: Deploy Backend to Aliyun
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
+    paths:
+      - 'houduan/**'  # 只有后端文件变化时才触发
+      - '.github/workflows/deploy-to-aliyun.yml'  # 工作流文件变化时也触发
   workflow_dispatch:  # 允许手动触发
 
 jobs:
@@ -11,10 +14,10 @@ jobs:
     
     steps:
     - name: 检出代码
-      uses: actions/checkout@v3
-      
+      uses: actions/checkout@v4
+
     - name: 设置Node.js环境
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -27,7 +30,7 @@ jobs:
         # npm test  # 如果有测试的话
         
     - name: 部署到阿里云服务器
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.ALIYUN_HOST }}
         username: ${{ secrets.ALIYUN_USERNAME }}
