@@ -7013,70 +7013,26 @@
         // 重新初始化页面状态
         initializePage();
 
-        // 强制重置容器样式，确保布局正确
+        // 强制重置容器样式，确保布局正确 - 让CSS完全控制布局
         setTimeout(() => {
-          // 强制重置容器样式
+          // 移除所有强制样式设置，让CSS媒体查询控制布局
           const container = document.querySelector(".container");
-          if (container) {
-            container.style.padding = "0";
-            container.style.maxWidth = "none";
-            container.style.width = "100%";
-          }
-
           const loginContent = document.querySelector(".login-content");
-          if (loginContent) {
-            // 检查是否为移动端
-            const isMobile = window.innerWidth <= 768;
-
-            if (isMobile) {
-              // 移动端使用全宽
-              loginContent.style.maxWidth = "none";
-              loginContent.style.width = "100%";
-              loginContent.style.margin = "0";
-            } else {
-              // 桌面端使用固定宽度
-              loginContent.style.maxWidth = "400px";
-              loginContent.style.width = "100%";
-              loginContent.style.margin = "0 auto";
-            }
-            loginContent.style.boxSizing = "border-box";
-
-            // 强制重新计算布局
-            loginContent.style.display = "none";
-            loginContent.offsetHeight; // 触发重排
-            loginContent.style.display = "block";
-          }
-
           const card = document.querySelector(".login-card.card");
+
+          // 只设置必要的样式，其他交给CSS
           if (card) {
-            // 强制重置卡片样式
             card.style.position = "relative";
-            card.style.width = "100%";
-            card.style.maxWidth = "none";
             card.style.boxSizing = "border-box";
           }
 
           adjustSubtitleFontSize();
 
-          // 再次确保布局正确
+          // 确保按钮状态正确更新
           setTimeout(() => {
-            if (loginContent) {
-              const isMobile = window.innerWidth <= 768;
-              if (isMobile) {
-                loginContent.style.maxWidth = "none";
-                loginContent.style.width = "100%";
-                loginContent.style.margin = "0";
-              } else {
-                loginContent.style.maxWidth = "400px";
-                loginContent.style.width = "100%";
-                loginContent.style.margin = "0 auto";
-              }
-            }
-
-            // 确保按钮状态正确更新
             updateMainPageButtonState();
           }, 50);
-        }, 100); // 增加延迟确保DOM完全渲染
+        }, 100);
       }
 
       // 显示充值对话框
@@ -14072,70 +14028,26 @@
         // 重新初始化页面状态
         initializePage();
 
-        // 强制重置容器样式，确保布局正确
+        // 强制重置容器样式，确保布局正确 - 让CSS完全控制布局
         setTimeout(() => {
-          // 强制重置容器样式
+          // 移除所有强制样式设置，让CSS媒体查询控制布局
           const container = document.querySelector(".container");
-          if (container) {
-           // container.style.padding = "0";
-            container.style.maxWidth = "none";
-            container.style.width = "100%";
-          }
-
           const loginContent = document.querySelector(".login-content");
-          if (loginContent) {
-            // 检查是否为移动端
-            const isMobile = window.innerWidth <= 768;
-
-            if (isMobile) {
-              // 移动端使用全宽
-              loginContent.style.maxWidth = "none";
-              loginContent.style.width = "100%";
-              loginContent.style.margin = "0";
-            } else {
-              // 桌面端使用固定宽度
-              loginContent.style.maxWidth = "400px";
-              loginContent.style.width = "100%";
-              loginContent.style.margin = "0 auto";
-            }
-            loginContent.style.boxSizing = "border-box";
-
-            // 强制重新计算布局
-            loginContent.style.display = "none";
-            loginContent.offsetHeight; // 触发重排
-            loginContent.style.display = "block";
-          }
-
           const card = document.querySelector(".login-card.card");
+
+          // 只设置必要的样式，其他交给CSS
           if (card) {
-            // 强制重置卡片样式
             card.style.position = "relative";
-            card.style.width = "100%";
-            card.style.maxWidth = "none";
             card.style.boxSizing = "border-box";
           }
 
           adjustSubtitleFontSize();
 
-          // 再次确保布局正确
+          // 确保按钮状态正确更新
           setTimeout(() => {
-            if (loginContent) {
-              const isMobile = window.innerWidth <= 768;
-              if (isMobile) {
-                loginContent.style.maxWidth = "none";
-                loginContent.style.width = "100%";
-                loginContent.style.margin = "0";
-              } else {
-                loginContent.style.maxWidth = "400px";
-                loginContent.style.width = "100%";
-                loginContent.style.margin = "0 auto";
-              }
-            }
-
-            // 确保按钮状态正确更新
             updateMainPageButtonState();
           }, 50);
-        }, 100); // 增加延迟确保DOM完全渲染
+        }, 100);
       }
 
       // 显示充值对话框

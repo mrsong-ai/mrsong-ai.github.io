@@ -1,0 +1,18 @@
+/* 登录界面样式 - 已修复边距问题 */
+.login-screen {
+  align-items: flex-start;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1vh 1vw; /* 修改：距离屏幕边缘1% */
+}
+
+/* 手机端登录屏幕边距优化 */
+@media (max-width: 768px) {
+  .login-screen {
+    padding: 1vh 1vw; /* 确保手机端也是1%边距 */
+  }
+}
+
+/* 这是关键修改的部分，您只需要在原 styles.css 文件中找到 .login-screen 样式，
+   将 padding: 20px; 改为 padding: 1vh 1vw; 即可 */

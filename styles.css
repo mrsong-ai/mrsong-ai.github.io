@@ -957,6 +957,7 @@ body {
   }
 }
 
+/* 所有移动设备统一样式 - 确保一致的显示效果 */
 @media (max-width: 768px) {
   .language-selector {
     top: 10px !important;
@@ -978,9 +979,26 @@ body {
     animation: globe-rotate 6s linear infinite;
   }
 
-  /* 手机端登录屏幕边距优化 */
+  /* 手机端登录屏幕边距优化 - 确保所有设备一致的1%边距 */
   .login-screen {
-    padding: 1vh 1vw;
+    padding: 1vh 1vw !important;
+  }
+
+  /* 容器设置 - 确保一致的布局 */
+  .container {
+    margin: 0 auto !important;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .login-content,
+  .login-content-fixed {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   /* 手机端游戏模式按钮 - 单列布局 */
@@ -995,6 +1013,25 @@ body {
     max-width: none;
     min-height: 50px;
     padding: 12px 16px;
+  }
+}
+
+/* 针对不同屏幕尺寸的额外优化 */
+@media (max-width: 480px) {
+  .login-screen {
+    padding: 1vh 1vw !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .login-screen {
+    padding: 1vh 1vw !important;
+  }
+}
+
+@media (max-width: 320px) {
+  .login-screen {
+    padding: 1vh 1vw !important;
   }
 }
 
