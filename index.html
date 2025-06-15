@@ -5547,57 +5547,7 @@
                         </div>
                     </div>
 
-                    <!-- 数据备份功能 -->
-                    ${currentUser && userStats ? `
-                    <div style="background: #e8f5e8; border-radius: 8px; padding: 15px; margin: 15px 0;">
-                        <h4 style="color: #2e7d32; margin: 0 0 12px 0; font-size: 16px; text-align: center;">
-                            📦 ${t("data_backup_section")}
-                        </h4>
-                        <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button
-                                onclick="exportUserData()"
-                                style="
-                                    background: #28a745;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 6px;
-                                    padding: 8px 12px;
-                                    cursor: pointer;
-                                    font-size: 13px;
-                                    font-weight: 500;
-                                    transition: background 0.2s;
-                                    flex: 1;
-                                "
-                                onmouseover="this.style.background='#218838'"
-                                onmouseout="this.style.background='#28a745'"
-                            >
-                                ${t("export_data_text")}
-                            </button>
-                            <button
-                                onclick="importUserData()"
-                                style="
-                                    background: #17a2b8;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 6px;
-                                    padding: 8px 12px;
-                                    cursor: pointer;
-                                    font-size: 13px;
-                                    font-weight: 500;
-                                    transition: background 0.2s;
-                                    flex: 1;
-                                "
-                                onmouseover="this.style.background='#138496'"
-                                onmouseout="this.style.background='#17a2b8'"
-                            >
-                                ${t("import_data_text")}
-                            </button>
-                        </div>
-                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d; text-align: center;">
-                            💡 定期备份数据，防止意外丢失
-                        </p>
-                    </div>
-                    ` : ''}
+                    <!-- 数据备份功能已移除 -->
 
                     <div style="text-align: center; margin-top: 6px;">
                         ${
@@ -6700,93 +6650,14 @@
         }, 1000);
       });
 
-      // 导出用户数据
+      // 导出用户数据功能已禁用
       function exportUserData() {
-        if (!currentUser || !userStats) {
-          showCustomAlert(t("error_title"), "请先登录并进行游戏");
-          return;
-        }
-
-        const exportData = {
-          version: "1.0",
-          exportTime: new Date().toISOString(),
-          userData: {
-            userId: currentUser.piUserId || currentUser.uid,
-            username: getCurrentDisplayUsername(),
-            gameStats: userStats,
-            piUserInfo: {
-              uid: currentUser.uid,
-              username: currentUser.username
-            }
-          }
-        };
-
-        const dataStr = JSON.stringify(exportData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `五子棋游戏数据_${getCurrentDisplayUsername()}_${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-
-        showCustomAlert("导出成功", "游戏数据已导出到下载文件夹");
+        showCustomAlert(t("hint"), "数据导出功能已禁用");
       }
 
-      // 导入用户数据
+      // 导入用户数据功能已禁用
       function importUserData() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-
-        input.onchange = function(event) {
-          const file = event.target.files[0];
-          if (!file) return;
-
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            try {
-              const importData = JSON.parse(e.target.result);
-
-              // 验证数据格式
-              if (!importData.userData || !importData.userData.gameStats) {
-                throw new Error("数据格式不正确");
-              }
-
-              // 确认导入
-              showCustomModal(
-                "确认导入数据",
-                `是否导入用户 "${importData.userData.username}" 的游戏数据？\n\n` +
-                `总局数：${importData.userData.gameStats.totalGames}\n` +
-                `胜场：${importData.userData.gameStats.wins}\n` +
-                `胜率：${importData.userData.gameStats.winRate}%\n\n` +
-                `⚠️ 这将覆盖当前的游戏数据！`,
-                () => {
-                  // 确认导入
-                  userStats = importData.userData.gameStats;
-
-                  // 保存到本地存储
-                  localStorage.setItem("piGomokuGameStats", JSON.stringify(userStats));
-                  saveUserGameDataToSpecificStorage();
-                  refreshLocalLeaderboardData();
-
-                  showCustomAlert("导入成功", "游戏数据已成功导入！");
-                },
-                () => {
-                  // 取消导入
-                  showCustomAlert("已取消", "数据导入已取消");
-                }
-              );
-
-            } catch (error) {
-              console.error("导入数据失败:", error);
-              showCustomAlert("导入失败", "文件格式不正确或数据损坏");
-            }
-          };
-
-          reader.readAsText(file);
-        };
-
-        input.click();
+        showCustomAlert(t("hint"), "数据导入功能已禁用");
       }
 
       // 显示游戏结果统计
