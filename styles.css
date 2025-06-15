@@ -603,7 +603,7 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 20px;
+  padding: 1vh 1vw;
 }
 
 .login-content {
@@ -672,14 +672,7 @@ body {
   font-weight: 500;
 }
 
-/* 登录界面样式 */
-.login-screen {
-  align-items: flex-start;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-}
+/* 登录界面样式 - 重复定义已移除，使用上面的定义 */
 
 .login-content {
   max-width: 400px;
@@ -983,6 +976,11 @@ body {
   .language-selector .globe-icon {
     font-size: 12px;
     animation: globe-rotate 6s linear infinite;
+  }
+
+  /* 手机端登录屏幕边距优化 */
+  .login-screen {
+    padding: 1vh 1vw;
   }
 
   /* 手机端游戏模式按钮 - 单列布局 */
