@@ -14074,10 +14074,10 @@
 
         // 强制重置容器样式，确保布局正确
         setTimeout(() => {
-          // 强制重置容器样式
+          // 强制重置容器样式 - 移除padding覆盖，让CSS控制边距
           const container = document.querySelector(".container");
           if (container) {
-            container.style.padding = "0";
+            // 不再强制设置padding为0，让CSS的1vh 1vw生效
             container.style.maxWidth = "none";
             container.style.width = "100%";
           }
