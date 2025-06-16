@@ -603,7 +603,7 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 1vh 1vw;
+  padding: 8px 4px;
 }
 
 .login-content {
@@ -993,9 +993,9 @@ body {
     animation: globe-rotate 6s linear infinite;
   }
 
-  /* 手机端登录屏幕边距优化 - 确保所有设备一致的1%边距 */
+  /* 手机端登录屏幕边距优化 - 确保所有设备一致的紧凑边距 */
   .login-screen {
-    padding: 1vh 1vw !important;
+    padding: 8px 4px !important;
   }
 
   /* 容器设置 - 确保一致的布局 */
@@ -1030,22 +1030,40 @@ body {
   }
 }
 
-/* 针对不同屏幕尺寸的额外优化 */
+/* 针对不同屏幕尺寸的额外优化 - 统一使用固定像素值确保一致性 */
 @media (max-width: 480px) {
   .login-screen {
-    padding: 1vh 1vw !important;
+    padding: 8px 4px !important;
   }
 }
 
 @media (max-width: 375px) {
   .login-screen {
-    padding: 1vh 1vw !important;
+    padding: 8px 4px !important;
   }
 }
 
 @media (max-width: 320px) {
   .login-screen {
-    padding: 1vh 1vw !important;
+    padding: 8px 4px !important;
+  }
+}
+
+/* 确保卡片在所有设备上都有一致的边距 */
+@media (max-width: 768px) {
+  .login-card.card {
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 确保卡片内容不会溢出 */
+  .card-header,
+  .card-content,
+  .card-footer {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -1092,21 +1110,29 @@ body {
 
 .custom-confirm-buttons {
   display: flex;
-  gap: 12px;
+  flex-direction: row;
+  gap: 8px;
   justify-content: center;
-  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
 }
 
 .custom-confirm-btn {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 25px;
-  padding: 12px 24px;
+  padding: 10px 16px;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 100px;
+  flex: 1;
+  min-width: 80px;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .custom-confirm-btn:hover {
@@ -1133,6 +1159,25 @@ body {
 .custom-confirm-btn.danger:hover {
   background: #ff3742;
   box-shadow: 0 4px 16px rgba(255, 71, 87, 0.4);
+}
+
+/* 小屏幕设备上的按钮优化 */
+@media (max-width: 480px) {
+  .custom-confirm-btn {
+    font-size: 12px;
+    padding: 8px 12px;
+    min-width: 70px;
+    max-width: 120px;
+  }
+
+  .custom-confirm-dialog {
+    padding: 25px 20px;
+    width: 95%;
+  }
+
+  .custom-confirm-buttons {
+    gap: 6px;
+  }
 }
 
 @keyframes confirmSlideIn {
