@@ -7131,8 +7131,8 @@
         root.innerHTML = `
                 <div class="login-screen">
                     <div class="container">
-                        <div class="login-content login-content-fixed">
-                            <div class="login-card card" style="position: relative;">
+                        <div class="login-content">
+                            <div class="login-card card">
                                 <!-- 语言切换器 -->
                                 <div class="language-selector">
                                     <span class="globe-icon">🌍</span>
@@ -7145,7 +7145,7 @@
                                     </select>
                                 </div>
 
-                                <div class="card-header text-center" style="padding-top: 25px;">
+                                <div class="card-header text-center">
                                     <div class="title-with-icon">
                                         <div class="board-icon">
                                             <div class="stones-container">
@@ -7210,22 +7210,27 @@
                                         </div>
                                     </div>
 
-
-
                                     <div class="error-message" id="error-message" style="display: none;">
                                         <p id="error-text" data-i18n="error_message">❌ 错误信息</p>
                                     </div>
                                 </div>
 
                                 <div class="card-footer">
-                                    <button id="login-btn" class="btn btn-primary pi-login-btn" onclick="handleSignIn()">
+                                    <button id="login-btn" class="btn btn-primary btn-lg pi-login-btn" onclick="handleSignIn()">
                                         <span class="pi-icon">π</span>
                                         <span data-i18n="login_with_pi">${t(
                                           "login_with_pi"
                                         )}</span>
                                     </button>
-                                    <div class="login-note" data-i18n="login_benefits_note">
-                                        ${t("login_benefits_note")}
+                                    <p class="login-note" data-i18n="login_note">
+                                        ${t("login_note")}
+                                    </p>
+
+                                    <!-- 隐私政策和服务条款链接 -->
+                                    <div class="legal-links" style="margin-top: 20px; text-align: center;">
+                                        <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">隐私政策</a>
+                                        <span style="color: #ffffff80;">|</span>
+                                        <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">服务条款</a>
                                     </div>
                                 </div>
                             </div>
@@ -7237,26 +7242,11 @@
         // 重新初始化页面状态
         initializePage();
 
-        // 强制重置容器样式，确保布局正确 - 让CSS完全控制布局
-        setTimeout(() => {
-          // 移除所有强制样式设置，让CSS媒体查询控制布局
-          const container = document.querySelector(".container");
-          const loginContent = document.querySelector(".login-content");
-          const card = document.querySelector(".login-card.card");
+        // 立即调整副标题字体大小，不使用延迟
+        adjustSubtitleFontSize();
 
-          // 只设置必要的样式，其他交给CSS
-          if (card) {
-            card.style.position = "relative";
-            card.style.boxSizing = "border-box";
-          }
-
-          adjustSubtitleFontSize();
-
-          // 确保按钮状态正确更新
-          setTimeout(() => {
-            updateMainPageButtonState();
-          }, 50);
-        }, 100);
+        // 确保按钮状态正确更新
+        updateMainPageButtonState();
       }
 
       // 显示充值对话框
@@ -14159,8 +14149,8 @@
         root.innerHTML = `
                 <div class="login-screen">
                     <div class="container">
-                        <div class="login-content login-content-fixed">
-                            <div class="login-card card" style="position: relative;">
+                        <div class="login-content">
+                            <div class="login-card card">
                                 <!-- 语言切换器 -->
                                 <div class="language-selector">
                                     <span class="globe-icon">🌍</span>
@@ -14173,7 +14163,7 @@
                                     </select>
                                 </div>
 
-                                <div class="card-header text-center" style="padding-top: 25px;">
+                                <div class="card-header text-center">
                                     <div class="title-with-icon">
                                         <div class="board-icon">
                                             <div class="stones-container">
@@ -14238,22 +14228,27 @@
                                         </div>
                                     </div>
 
-
-
                                     <div class="error-message" id="error-message" style="display: none;">
                                         <p id="error-text" data-i18n="error_message">❌ 错误信息</p>
                                     </div>
                                 </div>
 
                                 <div class="card-footer">
-                                    <button id="login-btn" class="btn btn-primary pi-login-btn" onclick="handleSignIn()">
+                                    <button id="login-btn" class="btn btn-primary btn-lg pi-login-btn" onclick="handleSignIn()">
                                         <span class="pi-icon">π</span>
                                         <span data-i18n="login_with_pi">${t(
                                           "login_with_pi"
                                         )}</span>
                                     </button>
-                                    <div class="login-note" data-i18n="login_benefits_note">
-                                        ${t("login_benefits_note")}
+                                    <p class="login-note" data-i18n="login_note">
+                                        ${t("login_note")}
+                                    </p>
+
+                                    <!-- 隐私政策和服务条款链接 -->
+                                    <div class="legal-links" style="margin-top: 20px; text-align: center;">
+                                        <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">隐私政策</a>
+                                        <span style="color: #ffffff80;">|</span>
+                                        <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">服务条款</a>
                                     </div>
                                 </div>
                             </div>
@@ -14265,26 +14260,11 @@
         // 重新初始化页面状态
         initializePage();
 
-        // 强制重置容器样式，确保布局正确 - 让CSS完全控制布局
-        setTimeout(() => {
-          // 移除所有强制样式设置，让CSS媒体查询控制布局
-          const container = document.querySelector(".container");
-          const loginContent = document.querySelector(".login-content");
-          const card = document.querySelector(".login-card.card");
+        // 立即调整副标题字体大小，不使用延迟
+        adjustSubtitleFontSize();
 
-          // 只设置必要的样式，其他交给CSS
-          if (card) {
-            card.style.position = "relative";
-            card.style.boxSizing = "border-box";
-          }
-
-          adjustSubtitleFontSize();
-
-          // 确保按钮状态正确更新
-          setTimeout(() => {
-            updateMainPageButtonState();
-          }, 50);
-        }, 100);
+        // 确保按钮状态正确更新
+        updateMainPageButtonState();
       }
 
       // 显示充值对话框
