@@ -4916,27 +4916,39 @@
         if (!currentUser || !localStats) return;
 
         try {
-          // 通过记录一个数据同步请求来恢复后端数据
-          const response = await fetch(`${API_BASE_URL}/api/games/record`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: currentUser.piUserId || currentUser.uid,
-              username: localStats.username || getCurrentDisplayUsername(),
-              gameResult: "sync", // 特殊标记，表示数据同步
-              gameData: {
-                syncData: localStats, // 传递本地统计数据
-                gameMode: "sync",
-                timestamp: new Date().toISOString(),
+          // 为每个本地游戏记录一个胜利，以恢复后端统计数据
+          for (let i = 0; i < (localStats.wins || 0); i++) {
+            await fetch(`${API_BASE_URL}/api/games`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
               },
-            }),
-          });
-
-          if (response.ok) {
-            console.log("[数据恢复] 本地数据已成功同步到后端");
+              body: JSON.stringify({
+                playerUid: currentUser.piUserId || currentUser.uid,
+                result: "win",
+                moves: [],
+                duration: 0,
+              }),
+            });
           }
+
+          // 为每个本地游戏记录一个失败
+          for (let i = 0; i < (localStats.losses || 0); i++) {
+            await fetch(`${API_BASE_URL}/api/games`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                playerUid: currentUser.piUserId || currentUser.uid,
+                result: "lose",
+                moves: [],
+                duration: 0,
+              }),
+            });
+          }
+
+          console.log("[数据恢复] 本地数据已成功同步到后端");
         } catch (error) {
           console.error("[数据恢复] 同步失败:", error);
         }
@@ -4961,7 +4973,7 @@
 
         try {
           const userId = currentUser.piUserId || currentUser.uid;
-          const apiUrl = `${API_BASE_URL}/api/games/record`;
+          const apiUrl = `${API_BASE_URL}/api/games`;
 
           // 确保使用与个人中心一致的用户名
           const displayUsername = getCurrentDisplayUsername();
@@ -4977,15 +4989,10 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              userId: currentUser.piUserId || currentUser.uid,
-              username: displayUsername,
-              gameResult: result, // 'win', 'loss', 'draw'
-              gameData: {
-                ...gameData,
-                gameMode: "ai",
-                difficulty: 7,
-                timestamp: new Date().toISOString(),
-              },
+              playerUid: currentUser.piUserId || currentUser.uid,
+              result: result === 'loss' ? 'lose' : result, // 'win', 'lose', 'draw' - 后端期望的格式
+              moves: gameData.moves || [],
+              duration: gameData.duration || 0,
             }),
           });
 
@@ -7090,7 +7097,7 @@
             userStats.username = displayUsername;
           }
 
-          const response = await fetch(`${API_BASE_URL}/api/games/record`, {
+          const response = await fetch(`${API_BASE_URL}/api/games`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -14108,21 +14115,16 @@
             userStats.username = displayUsername;
           }
 
-          const response = await fetch(`${API_BASE_URL}/api/games/record`, {
+          const response = await fetch(`${API_BASE_URL}/api/games`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              userId: currentUser.piUserId || currentUser.uid,
-              username: displayUsername,
-              gameResult: result, // 'win', 'loss', 'draw'
-              gameData: {
-                ...gameData,
-                gameMode: "ai",
-                difficulty: 7,
-                timestamp: new Date().toISOString(),
-              },
+              playerUid: currentUser.piUserId || currentUser.uid,
+              result: result === 'loss' ? 'lose' : result, // 'win', 'lose', 'draw' - 后端期望的格式
+              moves: gameData.moves || [],
+              duration: gameData.duration || 0,
             }),
           });
 
