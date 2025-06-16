@@ -585,8 +585,13 @@
           level_label: "等级：⭐⭐⭐",
           start_game: "开始游戏",
           rematch: "重新匹配",
-          cancel_match_confirm: "确定要取消匹配吗？\n\n取消后将返回主界面。",
-          online_game_info: "🌐 在线对战功能说明\n\n在线匹配需要后端服务器支持以下功能：\n• WebSocket实时通信\n• 玩家匹配算法\n• 游戏房间管理\n• 实时棋局同步\n\n后端代码已准备就绪，正在部署服务器中...\n\n目前您可以体验AI对战模式！",
+          cancel_match_confirm: "确定要取消当前匹配吗？",
+          cancel_match_title: "取消匹配",
+          cancel_match_options: "您可以选择：",
+          rematch_option: "重新匹配",
+          return_main_option: "返回主界面",
+          continue_match_option: "继续匹配",
+          online_game_info: "在线对战需要后端服务器支持：\n\n• WebSocket实时通信\n• 玩家匹配算法\n• 游戏房间管理\n• 实时棋局同步\n\n后端代码已完成，正在部署服务器...\n目前可体验AI对战模式！",
 
           // 连接错误
           connection_failed: "连接失败",
@@ -664,8 +669,13 @@
           game_instructions: "Game Instructions",
 
           // Online match related
-          cancel_match_confirm: "Are you sure you want to cancel matching?\n\nYou will return to the main interface after canceling.",
-          online_game_info: "🌐 Online Battle Feature Description\n\nOnline matching requires backend server support for:\n• WebSocket real-time communication\n• Player matching algorithm\n• Game room management\n• Real-time game synchronization\n\nBackend code is ready, server deployment in progress...\n\nYou can currently experience AI battle mode!",
+          cancel_match_confirm: "Are you sure you want to cancel current matching?",
+          cancel_match_title: "Cancel Match",
+          cancel_match_options: "You can choose:",
+          rematch_option: "Rematch",
+          return_main_option: "Return to Main",
+          continue_match_option: "Continue Matching",
+          online_game_info: "Online battle requires backend server support:\n\n• WebSocket real-time communication\n• Player matching algorithm\n• Game room management\n• Real-time game synchronization\n\nBackend code is ready, deploying server...\nCurrently you can experience AI battle mode!",
           error_message: "❌ Error Message",
           login_with_pi: "Login with Pi Network",
           login_note:
@@ -5426,7 +5436,7 @@
           <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; position: relative;">
             <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; width: 100%; border: 2px solid rgba(255, 255, 255, 0.2);">
               <!-- 返回按钮 -->
-              <button onclick="cancelMatch()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">
+              <button onclick="showMainScreen()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">
                 ←
               </button>
 
@@ -5497,17 +5507,79 @@
         }
       }
 
+      // 显示自定义确认对话框
+      function showCustomConfirm(title, message, buttons) {
+        return new Promise((resolve) => {
+          const overlay = document.createElement('div');
+          overlay.className = 'custom-confirm-overlay';
+
+          const buttonsHtml = buttons.map((btn, index) =>
+            `<button class="custom-confirm-btn ${btn.class || ''}" onclick="resolveConfirm(${index})">${btn.text}</button>`
+          ).join('');
+
+          overlay.innerHTML = `
+            <div class="custom-confirm-dialog">
+              <div class="custom-confirm-title">${title}</div>
+              <div class="custom-confirm-message">${message}</div>
+              <div class="custom-confirm-buttons">
+                ${buttonsHtml}
+              </div>
+            </div>
+          `;
+
+          document.body.appendChild(overlay);
+
+          // 存储resolve函数供按钮调用
+          window.currentConfirmResolve = resolve;
+          window.currentConfirmOverlay = overlay;
+        });
+      }
+
+      // 处理确认对话框结果
+      function resolveConfirm(buttonIndex) {
+        if (window.currentConfirmResolve) {
+          window.currentConfirmResolve(buttonIndex);
+          document.body.removeChild(window.currentConfirmOverlay);
+          window.currentConfirmResolve = null;
+          window.currentConfirmOverlay = null;
+        }
+      }
+
       // 取消匹配
-      function cancelMatch() {
-        const confirmed = confirm(t("cancel_match_confirm"));
-        if (confirmed) {
-          showMainScreen();
+      async function cancelMatch() {
+        const result = await showCustomConfirm(
+          t("cancel_match_title"),
+          t("cancel_match_confirm"),
+          [
+            { text: t("continue_match_option"), class: "primary" },
+            { text: t("rematch_option"), class: "" },
+            { text: t("return_main_option"), class: "danger" }
+          ]
+        );
+
+        switch(result) {
+          case 0: // 继续匹配
+            // 什么都不做，保持当前状态
+            break;
+          case 1: // 重新匹配
+            showOnlineMatchScreen();
+            break;
+          case 2: // 返回主界面
+            showMainScreen();
+            break;
         }
       }
 
       // 开始在线游戏
-      function startOnlineGame() {
-        alert(t("online_game_info"));
+      async function startOnlineGame() {
+        await showCustomConfirm(
+          "🌐 " + t("online_match"),
+          t("online_game_info"),
+          [
+            { text: "了解", class: "primary" },
+            { text: "体验AI对战", class: "" }
+          ]
+        );
         showMainScreen();
       }
 

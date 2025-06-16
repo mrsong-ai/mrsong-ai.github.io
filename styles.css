@@ -1049,6 +1049,103 @@ body {
   }
 }
 
+/* 自定义确认对话框样式 */
+.custom-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.custom-confirm-dialog {
+  background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: confirmSlideIn 0.3s ease-out;
+}
+
+.custom-confirm-title {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.custom-confirm-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.custom-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.custom-confirm-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 25px;
+  padding: 12px 24px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.custom-confirm-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.custom-confirm-btn.primary {
+  background: var(--pi-accent);
+  border-color: var(--pi-accent);
+}
+
+.custom-confirm-btn.primary:hover {
+  background: #b366f7;
+  box-shadow: 0 4px 16px rgba(199, 125, 255, 0.4);
+}
+
+.custom-confirm-btn.danger {
+  background: #ff4757;
+  border-color: #ff4757;
+}
+
+.custom-confirm-btn.danger:hover {
+  background: #ff3742;
+  box-shadow: 0 4px 16px rgba(255, 71, 87, 0.4);
+}
+
+@keyframes confirmSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 /* 自定义弹窗样式 */
 .custom-modal {
   position: fixed;
