@@ -603,7 +603,8 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 8px 4px;
+  padding: 1% 1%;
+  box-sizing: border-box;
 }
 
 .login-content {
@@ -635,14 +636,13 @@ body {
 .game-subtitle {
   font-size: clamp(12px, 4vw, var(--text-lg));
   opacity: 0.9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  line-height: 1.2;
+  white-space: normal;
+  line-height: 1.3;
   padding: 0 10px;
   box-sizing: border-box;
   margin-bottom: var(--spacing-lg);
+  text-align: center;
+  word-wrap: break-word;
 }
 
 /* 功能特色区域 */
@@ -995,7 +995,8 @@ body {
 
   /* 手机端登录屏幕边距优化 - 确保所有设备一致的紧凑边距 */
   .login-screen {
-    padding: 8px 4px !important;
+    padding: 1% 1% !important;
+    box-sizing: border-box !important;
   }
 
   /* 容器设置 - 确保一致的布局 */
@@ -1030,22 +1031,25 @@ body {
   }
 }
 
-/* 针对不同屏幕尺寸的额外优化 - 统一使用固定像素值确保一致性 */
+/* 针对不同屏幕尺寸的额外优化 - 统一使用百分比确保一致性 */
 @media (max-width: 480px) {
   .login-screen {
-    padding: 8px 4px !important;
+    padding: 1% 1% !important;
+    box-sizing: border-box !important;
   }
 }
 
 @media (max-width: 375px) {
   .login-screen {
-    padding: 8px 4px !important;
+    padding: 1% 1% !important;
+    box-sizing: border-box !important;
   }
 }
 
 @media (max-width: 320px) {
   .login-screen {
-    padding: 8px 4px !important;
+    padding: 1% 1% !important;
+    box-sizing: border-box !important;
   }
 }
 
