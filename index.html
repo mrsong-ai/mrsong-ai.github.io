@@ -5502,12 +5502,14 @@
               ${t("opponent_label")}<strong>玩家${Math.floor(Math.random() * 1000)}</strong><br>
               ${t("level_label")}
             </div>
-            <button onclick="startOnlineGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; margin-right: 10px;">
-              ${t("start_game")}
-            </button>
-            <button onclick="showOnlineMatchScreen()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer;">
-              ${t("rematch")}
-            </button>
+            <div style="display: flex; flex-direction: row; gap: 10px; justify-content: center; align-items: center; width: 100%; flex-wrap: nowrap;">
+              <button onclick="startOnlineGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 10px 20px; color: white; font-size: 14px; cursor: pointer; flex: 1; min-width: 80px; max-width: 140px; transition: all 0.3s; white-space: nowrap;">
+                ${t("start_game")}
+              </button>
+              <button onclick="showOnlineMatchScreen()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 10px 20px; color: white; font-size: 14px; cursor: pointer; flex: 1; min-width: 80px; max-width: 140px; transition: all 0.3s; white-space: nowrap;">
+                ${t("rematch")}
+              </button>
+            </div>
           `;
         }
       }
