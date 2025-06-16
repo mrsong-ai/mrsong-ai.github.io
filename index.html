@@ -78,12 +78,22 @@
               <div class="card-content">
                 <div class="game-modes">
                   <div class="game-mode-row">
+                    <button class="game-mode-btn online-mode" onclick="handleOnlineMatch()">
+                      <span class="mode-icon">🌐</span>
+                      <span class="mode-text" data-i18n="online_match"
+                        >在线匹配</span
+                      >
+                    </button>
+                  </div>
+                  <div class="game-mode-row">
                     <button class="game-mode-btn" onclick="showGlobalRanking()">
                       <span class="mode-icon">🏆</span>
                       <span class="mode-text" data-i18n="global_ranking"
                         >全球排行</span
                       >
                     </button>
+                  </div>
+                  <div class="game-mode-row">
                     <button
                       class="game-mode-btn ai-mode"
                       onclick="handleAIGame()"
@@ -104,6 +114,8 @@
                         >个人中心</span
                       >
                     </button>
+                  </div>
+                  <div class="game-mode-row">
                     <button
                       class="game-mode-btn"
                       onclick="showGameInstructions()"
@@ -555,6 +567,7 @@
           game_over: "游戏结束",
 
           // 主界面按钮
+          online_match: "在线匹配",
           global_ranking: "全球排行",
           ai_battle: "AI对战",
           personal_center: "个人中心",
@@ -629,6 +642,7 @@
           noscript: "You need to enable JavaScript to run this application.",
           game_title: "Gomoku",
           game_subtitle: "Gomoku game running on pinetwork blockchain",
+          online_match: "Online Match",
           global_ranking: "Global Ranking",
           ai_battle: "AI Battle",
           personal_center: "Personal Center",
@@ -1154,6 +1168,7 @@
             "이 애플리케이션을 실행하려면 JavaScript를 활성화해야 합니다.",
           game_title: "오목",
           game_subtitle: "pinetwork 블록체인에서 실행되는 오목 게임",
+          online_match: "온라인 매칭",
           global_ranking: "글로벌 순위",
           ai_battle: "AI 대전",
           personal_center: "개인 센터",
@@ -1623,6 +1638,7 @@
             "このアプリケーションを実行するにはJavaScriptを有効にする必要があります。",
           game_title: "五目並べ",
           game_subtitle: "pinetworkブロックチェーン上で動作する五目並べゲーム",
+          online_match: "オンラインマッチ",
           global_ranking: "グローバルランキング",
           ai_battle: "AI対戦",
           personal_center: "個人センター",
@@ -2083,6 +2099,7 @@
           noscript: "Bạn cần bật JavaScript để chạy ứng dụng này.",
           game_title: "Cờ Carô",
           game_subtitle: "Trò chơi cờ carô chạy trên blockchain pinetwork",
+          online_match: "Ghép Đôi Trực Tuyến",
           global_ranking: "Bảng Xếp Hạng Toàn Cầu",
           ai_battle: "Đấu với AI",
           personal_center: "Trung Tâm Cá Nhân",
@@ -3398,6 +3415,11 @@
         } catch (error) {
           console.error("服务器完成支付失败:", error);
         }
+      }
+
+      // 在线匹配处理
+      function handleOnlineMatch() {
+        showOnlineMatchScreen();
       }
 
       // AI对战处理
@@ -5378,6 +5400,95 @@
         );
       }
 
+      // 显示在线匹配界面
+      function showOnlineMatchScreen() {
+        const root = document.getElementById("root");
+        root.innerHTML = `
+          <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+            <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; width: 100%; border: 2px solid rgba(255, 255, 255, 0.2);">
+              <!-- 返回按钮 -->
+              <button onclick="showMainScreen()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                ←
+              </button>
+
+              <!-- 标题 -->
+              <h2 style="color: white; margin-bottom: 30px; font-size: 24px;">
+                🌐 <span data-i18n="online_match">在线匹配</span>
+              </h2>
+
+              <!-- 匹配状态 -->
+              <div id="matchStatus" style="margin-bottom: 30px;">
+                <div style="color: white; font-size: 18px; margin-bottom: 20px;">
+                  正在寻找对手...
+                </div>
+                <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+              </div>
+
+              <!-- 在线玩家数 -->
+              <div style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px;">
+                当前在线玩家：<span id="onlineCount">42</span> 人
+              </div>
+
+              <!-- 匹配说明 -->
+              <div style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-bottom: 30px;">
+                系统将为您匹配实力相近的对手<br>
+                预计等待时间：30-60秒
+              </div>
+
+              <!-- 取消匹配按钮 -->
+              <button onclick="cancelMatch()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+                取消匹配
+              </button>
+            </div>
+          </div>
+
+          <style>
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          </style>
+        `;
+
+        // 模拟匹配过程
+        setTimeout(() => {
+          showMatchFoundDialog();
+        }, 3000);
+      }
+
+      // 显示匹配成功对话框
+      function showMatchFoundDialog() {
+        const matchStatus = document.getElementById("matchStatus");
+        if (matchStatus) {
+          matchStatus.innerHTML = `
+            <div style="color: #4CAF50; font-size: 18px; margin-bottom: 20px;">
+              ✅ 找到对手！
+            </div>
+            <div style="color: white; margin-bottom: 20px;">
+              对手：<strong>玩家${Math.floor(Math.random() * 1000)}</strong><br>
+              等级：⭐⭐⭐
+            </div>
+            <button onclick="startOnlineGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; margin-right: 10px;">
+              开始游戏
+            </button>
+            <button onclick="showOnlineMatchScreen()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer;">
+              重新匹配
+            </button>
+          `;
+        }
+      }
+
+      // 取消匹配
+      function cancelMatch() {
+        showMainScreen();
+      }
+
+      // 开始在线游戏
+      function startOnlineGame() {
+        alert("在线对战功能正在开发中，敬请期待！\n\n目前您可以体验AI对战模式。");
+        showMainScreen();
+      }
+
       // 显示AI对战游戏界面 - 响应式设计适配所有屏幕
       function showSimpleGameScreen() {
         const root = document.getElementById("root");
@@ -6957,12 +7068,22 @@
                                 <div class="card-content">
                                     <div class="game-modes">
                                         <div class="game-mode-row">
+                                            <button class="game-mode-btn online-mode" onclick="handleOnlineMatch()">
+                                                <span class="mode-icon">🌐</span>
+                                                <span class="mode-text" data-i18n="online_match">${t(
+                                                  "online_match"
+                                                )}</span>
+                                            </button>
+                                        </div>
+                                        <div class="game-mode-row">
                                             <button class="game-mode-btn" onclick="showGlobalRanking()">
                                                 <span class="mode-icon">🏆</span>
                                                 <span class="mode-text" data-i18n="global_ranking">${t(
                                                   "global_ranking"
                                                 )}</span>
                                             </button>
+                                        </div>
+                                        <div class="game-mode-row">
                                             <button class="game-mode-btn ai-mode" onclick="handleAIGame()">
                                                 <span class="mode-icon">🧠</span>
                                                 <span class="mode-text" data-i18n="ai_battle">${t(
@@ -6977,6 +7098,8 @@
                                                   "personal_center"
                                                 )}</span>
                                             </button>
+                                        </div>
+                                        <div class="game-mode-row">
                                             <button class="game-mode-btn" onclick="showGameInstructions()">
                                                 <span class="mode-icon">❓</span>
                                                 <span class="mode-text" data-i18n="game_instructions">${t(
@@ -7802,6 +7925,7 @@
           game_over: "游戏结束",
 
           // 主界面按钮
+          online_match: "在线匹配",
           global_ranking: "全球排行",
           ai_battle: "AI对战",
           personal_center: "个人中心",
@@ -13972,12 +14096,22 @@
                                 <div class="card-content">
                                     <div class="game-modes">
                                         <div class="game-mode-row">
+                                            <button class="game-mode-btn online-mode" onclick="handleOnlineMatch()">
+                                                <span class="mode-icon">🌐</span>
+                                                <span class="mode-text" data-i18n="online_match">${t(
+                                                  "online_match"
+                                                )}</span>
+                                            </button>
+                                        </div>
+                                        <div class="game-mode-row">
                                             <button class="game-mode-btn" onclick="showGlobalRanking()">
                                                 <span class="mode-icon">🏆</span>
                                                 <span class="mode-text" data-i18n="global_ranking">${t(
                                                   "global_ranking"
                                                 )}</span>
                                             </button>
+                                        </div>
+                                        <div class="game-mode-row">
                                             <button class="game-mode-btn ai-mode" onclick="handleAIGame()">
                                                 <span class="mode-icon">🧠</span>
                                                 <span class="mode-text" data-i18n="ai_battle">${t(
@@ -13992,6 +14126,8 @@
                                                   "personal_center"
                                                 )}</span>
                                             </button>
+                                        </div>
+                                        <div class="game-mode-row">
                                             <button class="game-mode-btn" onclick="showGameInstructions()">
                                                 <span class="mode-icon">❓</span>
                                                 <span class="mode-text" data-i18n="game_instructions">${t(

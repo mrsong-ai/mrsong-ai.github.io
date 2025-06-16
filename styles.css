@@ -700,6 +700,7 @@ body {
   margin-bottom: 12px;
   display: flex;
   justify-content: center;
+  flex-direction: column;
 }
 
 .game-mode-btn {
@@ -709,17 +710,18 @@ body {
   border-radius: var(--radius-lg);
   color: var(--white);
   cursor: pointer;
-  flex: 1 1;
+  width: 100%;
+  max-width: 300px;
   flex-direction: row;
   font-size: var(--text-sm);
   font-weight: 500;
   gap: 6px;
-  max-width: 200px;
-  min-height: 42px;
-  padding: 8px 12px;
+  min-height: 50px;
+  padding: 12px 16px;
   transition: all 0.3s ease;
   display: flex;
   justify-content: center;
+  margin: 0 auto;
 }
 
 .game-mode-btn:hover:not(:disabled) {
@@ -743,6 +745,36 @@ body {
 .game-mode-btn.ai-mode:hover {
   background: #c77dff4d;
   box-shadow: 0 4px 16px #c77dff66;
+}
+
+.game-mode-btn.online-mode {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  border-color: #4CAF50;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-mode-btn.online-mode:hover {
+  background: linear-gradient(45deg, #45a049, #3d8b40);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+  transform: translateY(-2px);
+}
+
+.game-mode-btn.online-mode::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: rotate(45deg);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .mode-icon {
