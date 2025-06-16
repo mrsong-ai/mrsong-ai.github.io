@@ -363,6 +363,8 @@
           pi_login_failed: "Pi Network 登录失败",
           login_error: "登录过程中发生错误",
           pi_sdk_not_loaded: "Pi Network SDK未加载，无法使用支付功能",
+          pi_sdk_not_available: "Pi Network SDK不可用",
+          pi_sdk_required_message: "此游戏需要Pi Network环境才能正常运行。\n\n请在Pi浏览器中打开此游戏，或确保Pi Network SDK已正确加载。",
           create_payment_failed: "创建支付失败",
 
           // 游戏说明详细规则
@@ -874,6 +876,8 @@
           login_error: "Error occurred during login",
           pi_sdk_not_loaded:
             "Pi Network SDK not loaded, payment features unavailable",
+          pi_sdk_not_available: "Pi Network SDK not available",
+          pi_sdk_required_message: "This game requires Pi Network environment to run properly.\n\nPlease open this game in Pi Browser, or ensure Pi Network SDK is properly loaded.",
           create_payment_failed: "Failed to create payment",
 
           // 游戏说明详细规则
@@ -2913,17 +2917,12 @@
               showError(t("pi_login_failed"));
             }
           } else {
-            // 模拟登录（用于测试）- 减少等待时间
-            await simulateLogin();
+            // Pi SDK不可用，显示错误信息
+            showError(t("pi_sdk_not_available"));
           }
         } catch (error) {
           console.error("Sign in failed:", error);
-          // 如果Pi登录失败，自动切换到模拟登录
-          try {
-            await simulateLogin();
-          } catch (simError) {
-            showError(t("login_error") + ": " + error.message);
-          }
+          showError(t("login_error") + ": " + error.message);
         } finally {
           isLoading = false;
           loginBtn.disabled = false;
@@ -3166,47 +3165,12 @@
         }
       }
 
-      // 模拟登录功能（用于测试）
-      async function simulateLogin() {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            // 创建模拟用户
-            const userId = "test_user_" + Date.now();
-            currentUser = {
-              uid: userId,
-              piUserId: userId,
-              username: "测试玩家" + Math.floor(Math.random() * 1000),
-              accessToken: "mock_token_" + Date.now(),
-            };
-
-            // 保存登录状态到本地存储
-            saveLoginState(currentUser);
-
-            // 使用后端认证获取真实数据，如果失败则使用本地数据
-            authenticateWithBackend(currentUser.accessToken).then(() => {
-              // 更新主页按钮状态
-              updateMainPageButtonState();
-
-              // 确保用户数据被保存到本地存储
-              if (userStats) {
-                saveUserGameDataToSpecificStorage();
-                refreshLocalLeaderboardData();
-              }
-
-              // 触发数据刷新（延迟执行，确保后端数据已同步）
-              setTimeout(() => {
-                triggerDataRefresh();
-              }, 2000);
-
-              // 登录成功后保持在当前界面，不自动跳转到游戏
-              showCustomAlert(
-                t("login_success"),
-                t("welcome_user", currentUser.username)
-              );
-              resolve();
-            });
-          }, 300); // 减少模拟网络延迟到300ms
-        });
+      // Pi SDK不可用时的处理
+      function handlePiSdkUnavailable() {
+        showCustomAlert(
+          t("error_title"),
+          t("pi_sdk_required_message")
+        );
       }
 
       // 处理未完成的支付
@@ -3505,15 +3469,15 @@
         }
       }
 
-      // 获取真实用户排行榜数据（无模拟用户）
+      // 获取真实Pi Network用户排行榜数据（无模拟用户）
       function getLocalLeaderboard(limit = 100) {
         try {
           const allUsers = [];
           const userIdSet = new Set(); // 用于去重
 
-          console.log("[排行榜] 开始收集真实用户数据...");
+          console.log("[排行榜] 开始收集真实Pi Network用户数据...");
 
-          // 1. 收集localStorage中的所有真实用户数据，智能去重
+          // 1. 收集localStorage中的所有真实Pi Network用户数据，过滤掉测试用户
           const userDataMap = new Map(); // userId -> 最佳用户数据
 
           for (let i = 0; i < localStorage.length; i++) {
@@ -3526,7 +3490,8 @@
                 if (userData && userData.gameStats && userData.gameStats.totalGames > 0) {
                   const userId = userData.userId;
 
-                  if (userId) {
+                  // 过滤掉测试用户和模拟用户
+                  if (userId && !userId.startsWith('test_user_') && !userId.startsWith('mock_') && !userData.accessToken?.startsWith('mock_token_')) {
                     const userEntry = {
                       userId: userId,
                       username: userData.username || userData.gameStats.username || "Pi用户",
@@ -3548,14 +3513,16 @@
                           (userEntry.totalGames === existingEntry.totalGames &&
                            userEntry.lastUpdated > existingEntry.lastUpdated)) {
                         userDataMap.set(userId, userEntry);
-                        console.log(`[排行榜] 更新用户数据: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
+                        console.log(`[排行榜] 更新Pi用户数据: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
                       } else {
-                        console.log(`[排行榜] 保留现有用户数据: ${userId} - 总局数: ${existingEntry.totalGames} >= ${userEntry.totalGames}`);
+                        console.log(`[排行榜] 保留现有Pi用户数据: ${userId} - 总局数: ${existingEntry.totalGames} >= ${userEntry.totalGames}`);
                       }
                     } else {
                       userDataMap.set(userId, userEntry);
-                      console.log(`[排行榜] 添加新用户: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
+                      console.log(`[排行榜] 添加新Pi用户: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
                     }
+                  } else {
+                    console.log(`[排行榜] 跳过测试用户: ${userId}`);
                   }
                 }
               } catch (parseError) {
@@ -3582,10 +3549,14 @@
             userIdSet.add(userEntry.userId);
           });
 
-          // 2. 如果当前用户有数据但不在localStorage专属存储中，添加当前用户
+          // 2. 如果当前用户有数据但不在localStorage专属存储中，且是真实Pi用户，添加当前用户
           if (currentUser && userStats && userStats.totalGames > 0) {
             const currentUserId = currentUser.piUserId || currentUser.uid;
-            if (currentUserId && !userIdSet.has(currentUserId)) {
+            // 只添加真实Pi Network用户，过滤掉测试用户
+            if (currentUserId && !userIdSet.has(currentUserId) &&
+                !currentUserId.startsWith('test_user_') &&
+                !currentUserId.startsWith('mock_') &&
+                !currentUser.accessToken?.startsWith('mock_token_')) {
               userIdSet.add(currentUserId);
               allUsers.push({
                 userId: currentUserId,
@@ -3597,7 +3568,9 @@
                 winRate: userStats.winRate || 0,
                 isCurrentUser: true
               });
-              console.log(`[排行榜] 添加当前用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
+              console.log(`[排行榜] 添加当前Pi用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
+            } else if (currentUserId?.startsWith('test_user_') || currentUserId?.startsWith('mock_') || currentUser.accessToken?.startsWith('mock_token_')) {
+              console.log(`[排行榜] 跳过当前测试用户: ${currentUserId}`);
             }
           }
 
@@ -10334,17 +10307,12 @@
               showError(t("pi_login_failed"));
             }
           } else {
-            // 模拟登录（用于测试）- 减少等待时间
-            await simulateLogin();
+            // Pi SDK不可用，显示错误信息
+            showError(t("pi_sdk_not_available"));
           }
         } catch (error) {
           console.error("Sign in failed:", error);
-          // 如果Pi登录失败，自动切换到模拟登录
-          try {
-            await simulateLogin();
-          } catch (simError) {
-            showError(t("login_error") + ": " + error.message);
-          }
+          showError(t("login_error") + ": " + error.message);
         } finally {
           isLoading = false;
           loginBtn.disabled = false;
@@ -10587,47 +10555,12 @@
         }
       }
 
-      // 模拟登录功能（用于测试）
-      async function simulateLogin() {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            // 创建模拟用户
-            const userId = "test_user_" + Date.now();
-            currentUser = {
-              uid: userId,
-              piUserId: userId,
-              username: "测试玩家" + Math.floor(Math.random() * 1000),
-              accessToken: "mock_token_" + Date.now(),
-            };
-
-            // 保存登录状态到本地存储
-            saveLoginState(currentUser);
-
-            // 使用后端认证获取真实数据，如果失败则使用本地数据
-            authenticateWithBackend(currentUser.accessToken).then(() => {
-              // 更新主页按钮状态
-              updateMainPageButtonState();
-
-              // 确保用户数据被保存到本地存储
-              if (userStats) {
-                saveUserGameDataToSpecificStorage();
-                refreshLocalLeaderboardData();
-              }
-
-              // 触发数据刷新（延迟执行，确保后端数据已同步）
-              setTimeout(() => {
-                triggerDataRefresh();
-              }, 2000);
-
-              // 登录成功后保持在当前界面，不自动跳转到游戏
-              showCustomAlert(
-                t("login_success"),
-                t("welcome_user", currentUser.username)
-              );
-              resolve();
-            });
-          }, 300); // 减少模拟网络延迟到300ms
-        });
+      // Pi SDK不可用时的处理
+      function handlePiSdkUnavailable() {
+        showCustomAlert(
+          t("error_title"),
+          t("pi_sdk_required_message")
+        );
       }
 
       // 处理未完成的支付
@@ -10916,15 +10849,15 @@
         }
       }
 
-      // 获取真实用户排行榜数据（无模拟用户）
+      // 获取真实Pi Network用户排行榜数据（无模拟用户）
       function getLocalLeaderboard(limit = 100) {
         try {
           const allUsers = [];
           const userIdSet = new Set(); // 用于去重
 
-          console.log("[排行榜] 开始收集真实用户数据...");
+          console.log("[排行榜] 开始收集真实Pi Network用户数据...");
 
-          // 1. 收集localStorage中的所有真实用户数据，智能去重
+          // 1. 收集localStorage中的所有真实Pi Network用户数据，过滤掉测试用户
           const userDataMap = new Map(); // userId -> 最佳用户数据
 
           for (let i = 0; i < localStorage.length; i++) {
@@ -10937,7 +10870,8 @@
                 if (userData && userData.gameStats && userData.gameStats.totalGames > 0) {
                   const userId = userData.userId;
 
-                  if (userId) {
+                  // 过滤掉测试用户和模拟用户
+                  if (userId && !userId.startsWith('test_user_') && !userId.startsWith('mock_') && !userData.accessToken?.startsWith('mock_token_')) {
                     const userEntry = {
                       userId: userId,
                       username: userData.username || userData.gameStats.username || "Pi用户",
@@ -10959,14 +10893,16 @@
                           (userEntry.totalGames === existingEntry.totalGames &&
                            userEntry.lastUpdated > existingEntry.lastUpdated)) {
                         userDataMap.set(userId, userEntry);
-                        console.log(`[排行榜] 更新用户数据: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
+                        console.log(`[排行榜] 更新Pi用户数据: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
                       } else {
-                        console.log(`[排行榜] 保留现有用户数据: ${userId} - 总局数: ${existingEntry.totalGames} >= ${userEntry.totalGames}`);
+                        console.log(`[排行榜] 保留现有Pi用户数据: ${userId} - 总局数: ${existingEntry.totalGames} >= ${userEntry.totalGames}`);
                       }
                     } else {
                       userDataMap.set(userId, userEntry);
-                      console.log(`[排行榜] 添加新用户: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
+                      console.log(`[排行榜] 添加新Pi用户: ${userId} (${userEntry.username}) - 总局数: ${userEntry.totalGames} (${key})`);
                     }
+                  } else {
+                    console.log(`[排行榜] 跳过测试用户: ${userId}`);
                   }
                 }
               } catch (parseError) {
@@ -10993,10 +10929,14 @@
             userIdSet.add(userEntry.userId);
           });
 
-          // 2. 如果当前用户有数据但不在localStorage专属存储中，添加当前用户
+          // 2. 如果当前用户有数据但不在localStorage专属存储中，且是真实Pi用户，添加当前用户
           if (currentUser && userStats && userStats.totalGames > 0) {
             const currentUserId = currentUser.piUserId || currentUser.uid;
-            if (currentUserId && !userIdSet.has(currentUserId)) {
+            // 只添加真实Pi Network用户，过滤掉测试用户
+            if (currentUserId && !userIdSet.has(currentUserId) &&
+                !currentUserId.startsWith('test_user_') &&
+                !currentUserId.startsWith('mock_') &&
+                !currentUser.accessToken?.startsWith('mock_token_')) {
               userIdSet.add(currentUserId);
               allUsers.push({
                 userId: currentUserId,
@@ -11008,7 +10948,9 @@
                 winRate: userStats.winRate || 0,
                 isCurrentUser: true
               });
-              console.log(`[排行榜] 添加当前用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
+              console.log(`[排行榜] 添加当前Pi用户数据: ${currentUserId} (${getCurrentDisplayUsername()})`);
+            } else if (currentUserId?.startsWith('test_user_') || currentUserId?.startsWith('mock_') || currentUser.accessToken?.startsWith('mock_token_')) {
+              console.log(`[排行榜] 跳过当前测试用户: ${currentUserId}`);
             }
           }
 
