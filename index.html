@@ -5465,11 +5465,24 @@
 
         return new Promise((resolve, reject) => {
           try {
-            const wsUrl = 'ws://47.79.240.129:3001';
+            // 根据当前页面协议选择WebSocket协议
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//47.79.240.129:3001`;
+
+            console.log('尝试连接WebSocket:', wsUrl);
             gameWebSocket = new WebSocket(wsUrl);
 
+            // 设置连接超时
+            const connectionTimeout = setTimeout(() => {
+              if (gameWebSocket.readyState === WebSocket.CONNECTING) {
+                gameWebSocket.close();
+                reject(new Error('WebSocket连接超时'));
+              }
+            }, 10000); // 10秒超时
+
             gameWebSocket.onopen = () => {
-              console.log('WebSocket连接成功');
+              console.log('WebSocket连接成功:', wsUrl);
+              clearTimeout(connectionTimeout);
               isConnectedToGameServer = true;
 
               // 发送用户连接信息
@@ -5496,16 +5509,20 @@
               }
             };
 
-            gameWebSocket.onclose = () => {
-              console.log('WebSocket连接关闭');
+            gameWebSocket.onclose = (event) => {
+              console.log('WebSocket连接关闭:', event.code, event.reason);
+              clearTimeout(connectionTimeout);
               isConnectedToGameServer = false;
               gameWebSocket = null;
             };
 
             gameWebSocket.onerror = (error) => {
               console.error('WebSocket错误:', error);
+              console.error('连接URL:', wsUrl);
+              console.error('当前协议:', window.location.protocol);
+              clearTimeout(connectionTimeout);
               isConnectedToGameServer = false;
-              reject(error);
+              reject(new Error(`WebSocket连接失败: ${wsUrl}`));
             };
 
           } catch (error) {
