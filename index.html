@@ -580,6 +580,22 @@
           people_suffix: "人",
           match_description: "系统将为您匹配实力相近的对手",
           estimated_wait: "预计等待时间：30-60秒",
+          match_found: "找到对手！",
+          opponent_label: "对手：",
+          your_color: "您的棋子",
+          your_turn: "轮到您了",
+          opponent_turn: "对手回合",
+          not_your_turn: "还没轮到您",
+          game_not_ready: "游戏未准备就绪",
+          waiting_for_game: "等待游戏开始...",
+          connection_failed: "连接服务器失败",
+          please_login_first: "请先登录",
+          surrender: "投降",
+          surrender_confirm_title: "确认投降",
+          surrender_confirm_message: "您确定要投降吗？",
+          opponent_surrendered: "🎉 对手投降，您获胜！",
+          you_surrendered: "😔 您已投降",
+          opponent_disconnected: "对手已断开连接",
           cancel_match: "取消匹配",
           match_found: "✅ 找到对手！",
           opponent_label: "对手：",
@@ -670,6 +686,27 @@
           game_instructions: "Game Instructions",
 
           // Online match related
+          searching_opponent: "Searching for opponent...",
+          online_players: "Online players",
+          people_suffix: "people",
+          match_description: "System will match you with players of similar skill",
+          estimated_wait: "Estimated wait time: 30-60 seconds",
+          match_found: "Match found!",
+          opponent_label: "Opponent: ",
+          your_color: "Your pieces",
+          your_turn: "Your turn",
+          opponent_turn: "Opponent's turn",
+          not_your_turn: "Not your turn",
+          game_not_ready: "Game not ready",
+          waiting_for_game: "Waiting for game to start...",
+          connection_failed: "Failed to connect to server",
+          please_login_first: "Please login first",
+          surrender: "Surrender",
+          surrender_confirm_title: "Confirm Surrender",
+          surrender_confirm_message: "Are you sure you want to surrender?",
+          opponent_surrendered: "🎉 Opponent surrendered, you win!",
+          you_surrendered: "😔 You surrendered",
+          opponent_disconnected: "Opponent disconnected",
           cancel_match_confirm: "Are you sure you want to cancel current matching?",
           cancel_match_title: "Cancel Match",
           cancel_match_options: "You can choose:",
@@ -5413,14 +5450,134 @@
         );
       }
 
+      // WebSocket连接管理
+      let gameWebSocket = null;
+      let isConnectedToGameServer = false;
+      let currentGameId = null;
+      let currentOpponent = null;
+      let myColor = null;
+
+      // 连接到游戏服务器
+      function connectToGameServer() {
+        if (gameWebSocket && gameWebSocket.readyState === WebSocket.OPEN) {
+          return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+          try {
+            const wsUrl = 'ws://47.79.240.129:3001';
+            gameWebSocket = new WebSocket(wsUrl);
+
+            gameWebSocket.onopen = () => {
+              console.log('WebSocket连接成功');
+              isConnectedToGameServer = true;
+
+              // 发送用户连接信息
+              if (currentUser) {
+                gameWebSocket.send(JSON.stringify({
+                  type: 'user_connect',
+                  payload: {
+                    userId: currentUser.piUserId || currentUser.uid,
+                    username: currentUser.username,
+                    accessToken: currentUser.accessToken
+                  }
+                }));
+              }
+
+              resolve();
+            };
+
+            gameWebSocket.onmessage = (event) => {
+              try {
+                const data = JSON.parse(event.data);
+                handleGameServerMessage(data);
+              } catch (error) {
+                console.error('解析WebSocket消息失败:', error);
+              }
+            };
+
+            gameWebSocket.onclose = () => {
+              console.log('WebSocket连接关闭');
+              isConnectedToGameServer = false;
+              gameWebSocket = null;
+            };
+
+            gameWebSocket.onerror = (error) => {
+              console.error('WebSocket错误:', error);
+              isConnectedToGameServer = false;
+              reject(error);
+            };
+
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+
+      // 处理游戏服务器消息
+      function handleGameServerMessage(data) {
+        const { type, payload } = data;
+
+        switch (type) {
+          case 'connected':
+            console.log('已连接到游戏服务器:', payload);
+            updateOnlineCount(payload.onlineUsers);
+            break;
+
+          case 'online_count_update':
+            updateOnlineCount(payload.onlineUsers);
+            break;
+
+          case 'matching_started':
+            console.log('匹配开始:', payload);
+            break;
+
+          case 'game_started':
+            handleGameStarted(payload);
+            break;
+
+          case 'game_move':
+            handleOpponentMove(payload);
+            break;
+
+          case 'game_ended':
+            handleGameEnded(payload);
+            break;
+
+          case 'opponent_disconnected':
+            handleOpponentDisconnected(payload);
+            break;
+
+          case 'error':
+            console.error('游戏服务器错误:', payload);
+            showError(payload.message || '服务器错误');
+            break;
+        }
+      }
+
       // 显示在线匹配界面
-      function showOnlineMatchScreen() {
+      async function showOnlineMatchScreen() {
+        // 检查用户是否已登录
+        if (!currentUser) {
+          showError(t("please_login_first"));
+          return;
+        }
+
+        try {
+          // 连接到游戏服务器
+          await connectToGameServer();
+        } catch (error) {
+          console.error('连接游戏服务器失败:', error);
+          showError(t("connection_failed"));
+          return;
+        }
+
         const root = document.getElementById("root");
         root.innerHTML = `
           <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; position: relative;">
             <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; width: 100%; border: 2px solid rgba(255, 255, 255, 0.2);">
               <!-- 返回按钮 -->
-              <button onclick="showMainScreen()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">
+              <button onclick="cancelMatchAndReturn()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">
                 ←
               </button>
 
@@ -5439,7 +5596,7 @@
 
               <!-- 在线玩家数 -->
               <div style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px;">
-                <span data-i18n="online_players">${t("online_players")}</span>：<span id="onlineCount">42</span> <span data-i18n="people_suffix">${t("people_suffix")}</span>
+                <span data-i18n="online_players">${t("online_players")}</span>：<span id="onlineCount">-</span> <span data-i18n="people_suffix">${t("people_suffix")}</span>
               </div>
 
               <!-- 匹配说明 -->
@@ -5449,7 +5606,7 @@
               </div>
 
               <!-- 取消匹配按钮 -->
-              <button onclick="cancelMatch()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; transition: all 0.3s;" data-i18n="cancel_match">
+              <button onclick="cancelRealMatch()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; transition: all 0.3s;" data-i18n="cancel_match">
                 ${t("cancel_match")}
               </button>
             </div>
@@ -5463,34 +5620,101 @@
           </style>
         `;
 
-        // 模拟匹配过程
-        setTimeout(() => {
-          showMatchFoundDialog();
-        }, 3000);
+        // 开始真实匹配
+        startRealMatching();
       }
 
-      // 显示匹配成功对话框
-      function showMatchFoundDialog() {
+      // 开始真实匹配
+      function startRealMatching() {
+        if (!gameWebSocket || !isConnectedToGameServer) {
+          showError(t("connection_failed"));
+          return;
+        }
+
+        // 发送开始匹配请求
+        gameWebSocket.send(JSON.stringify({
+          type: 'start_matching',
+          payload: {
+            userId: currentUser.piUserId || currentUser.uid
+          }
+        }));
+
+        console.log('已发送匹配请求');
+      }
+
+      // 取消真实匹配
+      function cancelRealMatch() {
+        if (gameWebSocket && isConnectedToGameServer) {
+          gameWebSocket.send(JSON.stringify({
+            type: 'cancel_matching',
+            payload: {
+              userId: currentUser.piUserId || currentUser.uid
+            }
+          }));
+        }
+
+        showMainScreen();
+      }
+
+      // 取消匹配并返回主界面
+      function cancelMatchAndReturn() {
+        cancelRealMatch();
+      }
+
+      // 更新在线用户数
+      function updateOnlineCount(count) {
+        const onlineCountElement = document.getElementById("onlineCount");
+        if (onlineCountElement) {
+          onlineCountElement.textContent = count;
+        }
+      }
+
+      // 处理游戏开始
+      function handleGameStarted(payload) {
+        const { gameId, opponent, yourColor, currentPlayer, board } = payload;
+
+        currentGameId = gameId;
+        currentOpponent = opponent;
+        myColor = yourColor;
+
+        console.log(`游戏开始! 对手: ${opponent.username}, 我的颜色: ${yourColor}`);
+
+        // 显示游戏开始对话框
+        showGameStartDialog(opponent, yourColor, currentPlayer);
+      }
+
+      // 显示游戏开始对话框
+      function showGameStartDialog(opponent, yourColor, currentPlayer) {
         const matchStatus = document.getElementById("matchStatus");
         if (matchStatus) {
+          const isMyTurn = currentPlayer === yourColor;
           matchStatus.innerHTML = `
             <div style="color: #4CAF50; font-size: 18px; margin-bottom: 20px;">
-              ${t("match_found")}
+              🎉 ${t("match_found")}
             </div>
             <div style="color: white; margin-bottom: 20px;">
-              ${t("opponent_label")}<strong>玩家${Math.floor(Math.random() * 1000)}</strong><br>
-              ${t("level_label")}
+              ${t("opponent_label")}<strong>${opponent.username}</strong><br>
+              ${t("your_color")}: ${yourColor === 'black' ? '⚫ 黑子' : '⚪ 白子'}<br>
+              ${isMyTurn ? '🎯 ' + t("your_turn") : '⏳ ' + t("opponent_turn")}
             </div>
             <div style="display: flex; flex-direction: row; gap: 10px; justify-content: center; align-items: center; width: 100%; flex-wrap: nowrap;">
-              <button onclick="startOnlineGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 10px 20px; color: white; font-size: 14px; cursor: pointer; flex: 1; min-width: 80px; max-width: 140px; transition: all 0.3s; white-space: nowrap;">
+              <button onclick="startRealOnlineGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 10px 20px; color: white; font-size: 14px; cursor: pointer; flex: 1; min-width: 80px; max-width: 140px; transition: all 0.3s; white-space: nowrap;">
                 ${t("start_game")}
-              </button>
-              <button onclick="showOnlineMatchScreen()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 10px 20px; color: white; font-size: 14px; cursor: pointer; flex: 1; min-width: 80px; max-width: 140px; transition: all 0.3s; white-space: nowrap;">
-                ${t("rematch")}
               </button>
             </div>
           `;
         }
+      }
+
+      // 开始真实在线游戏
+      function startRealOnlineGame() {
+        if (!currentGameId || !currentOpponent) {
+          showError(t("game_not_ready"));
+          return;
+        }
+
+        // 显示在线游戏界面
+        showOnlineGameScreen();
       }
 
       // 显示自定义确认对话框
@@ -5556,7 +5780,262 @@
         }
       }
 
-      // 开始在线游戏
+      // 显示在线游戏界面
+      function showOnlineGameScreen() {
+        if (!currentOpponent || !myColor) {
+          showError(t("game_not_ready"));
+          return;
+        }
+
+        const root = document.getElementById("root");
+        root.innerHTML = `
+          <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; padding: 2px; box-sizing: border-box; overflow: hidden;" class="game-container">
+            <!-- 游戏头部 -->
+            <header style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px; padding: 0 10px;">
+              <button onclick="surrenderOnlineGame()" class="btn btn-outline btn-sm" style="height: auto; min-height: auto; padding: 4px 8px; line-height: 1.2; font-size: 14px;">
+                ${t("surrender")}
+              </button>
+              <div style="color: white; font-size: 14px; text-align: center;">
+                🌐 ${t("online_match")}
+              </div>
+              <button onclick="showMainScreen()" class="btn btn-outline btn-sm" style="height: auto; min-height: auto; padding: 4px 8px; line-height: 1.2; font-size: 14px;">
+                ${t("return_to_menu")}
+              </button>
+            </header>
+
+            <!-- 玩家信息 -->
+            <div style="text-align: center; margin-bottom: 0; color: white;">
+              <div style="display: flex; justify-content: center; align-items: center; gap: clamp(10px, 3vw, 15px); margin-bottom: 0;">
+                <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3);">
+                  <div class="stone ${myColor}" style="width: 20px; height: 20px; margin: 0;"></div>
+                  <strong style="font-size: clamp(14px, 3vw, 16px);">${getCurrentDisplayUsername()}</strong>
+                </div>
+                <div style="color: white; font-size: clamp(16px, 3vw, 18px); font-weight: 600;">${t("vs_label")}</div>
+                <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3);">
+                  <div class="stone ${myColor === 'black' ? 'white' : 'black'}" style="width: 20px; height: 20px; margin: 0;"></div>
+                  <strong style="font-size: clamp(14px, 3vw, 16px);">${currentOpponent.username}</strong>
+                </div>
+              </div>
+              <div style="font-size: clamp(16px, 3.5vw, 20px); font-weight: 600; margin-top: 2px; margin-bottom: 0;" id="online-current-player-display">
+                ${t("waiting_for_game")}
+              </div>
+            </div>
+
+            <!-- 棋盘容器 -->
+            <div class="game-board" style="display: flex; align-items: flex-start; justify-content: center; margin: 0; padding-top: 2px;">
+              <div class="board-container">
+                <div class="board-grid responsive-board" id="online-game-board">
+                  <!-- 15x15 棋盘格子将通过JavaScript生成 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // 初始化在线游戏棋盘
+        initOnlineGameBoard();
+      }
+
+      // 初始化在线游戏棋盘
+      function initOnlineGameBoard() {
+        const board = document.getElementById("online-game-board");
+        board.innerHTML = "";
+
+        // 设置响应式棋盘尺寸
+        setupResponsiveBoard();
+
+        // 创建15x15棋盘
+        for (let row = 0; row < 15; row++) {
+          for (let col = 0; col < 15; col++) {
+            const cell = document.createElement("div");
+            cell.className = "board-cell";
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            cell.addEventListener("click", () => makeOnlineMove(row, col));
+            board.appendChild(cell);
+          }
+        }
+
+        // 初始化游戏状态
+        onlineGameBoard = Array(15).fill().map(() => Array(15).fill(null));
+        onlineCurrentPlayer = 'black'; // 黑子先手
+        onlineGameActive = true;
+
+        updateOnlineGameStatus();
+        console.log('在线游戏棋盘初始化完成');
+      }
+
+      // 在线游戏相关变量
+      let onlineGameBoard = Array(15).fill().map(() => Array(15).fill(null));
+      let onlineCurrentPlayer = "black";
+      let onlineGameActive = true;
+
+      // 在线游戏移动处理
+      function makeOnlineMove(row, col) {
+        if (!onlineGameActive || !currentGameId) {
+          return;
+        }
+
+        // 检查是否是我的回合
+        if (onlineCurrentPlayer !== myColor) {
+          showError(t("not_your_turn"));
+          return;
+        }
+
+        // 检查位置是否有效
+        if (onlineGameBoard[row][col] !== null) {
+          return;
+        }
+
+        // 发送移动到服务器
+        if (gameWebSocket && isConnectedToGameServer) {
+          gameWebSocket.send(JSON.stringify({
+            type: 'game_move',
+            payload: {
+              gameId: currentGameId,
+              userId: currentUser.piUserId || currentUser.uid,
+              row,
+              col
+            }
+          }));
+        }
+      }
+
+      // 处理对手移动
+      function handleOpponentMove(payload) {
+        const { row, col, color, currentPlayer, board } = payload;
+
+        // 更新棋盘状态
+        onlineGameBoard = board;
+        onlineCurrentPlayer = currentPlayer;
+
+        // 更新UI
+        updateOnlineBoardDisplay();
+        updateOnlineGameStatus();
+
+        console.log(`对手移动: (${row}, ${col}), 当前玩家: ${currentPlayer}`);
+      }
+
+      // 更新在线游戏棋盘显示
+      function updateOnlineBoardDisplay() {
+        for (let row = 0; row < 15; row++) {
+          for (let col = 0; col < 15; col++) {
+            const cell = document.querySelector(`#online-game-board [data-row="${row}"][data-col="${col}"]`);
+            if (cell) {
+              cell.innerHTML = '';
+              if (onlineGameBoard[row][col]) {
+                const stone = document.createElement('div');
+                stone.className = `stone ${onlineGameBoard[row][col]}`;
+                cell.appendChild(stone);
+              }
+            }
+          }
+        }
+      }
+
+      // 更新在线游戏状态显示
+      function updateOnlineGameStatus() {
+        const statusDisplay = document.getElementById("online-current-player-display");
+        if (statusDisplay) {
+          const isMyTurn = onlineCurrentPlayer === myColor;
+          if (isMyTurn) {
+            statusDisplay.textContent = t("your_turn");
+            statusDisplay.style.color = "#4CAF50";
+          } else {
+            statusDisplay.textContent = t("opponent_turn");
+            statusDisplay.style.color = "#FFC107";
+          }
+        }
+      }
+
+      // 处理游戏结束
+      function handleGameEnded(payload) {
+        const { winner, surrendered, board, moves } = payload;
+
+        onlineGameActive = false;
+        onlineGameBoard = board;
+
+        // 更新棋盘显示
+        updateOnlineBoardDisplay();
+
+        // 确定结果
+        let resultMessage;
+        if (surrendered) {
+          if (winner === myColor) {
+            resultMessage = t("opponent_surrendered");
+          } else {
+            resultMessage = t("you_surrendered");
+          }
+        } else {
+          if (winner === myColor) {
+            resultMessage = t("you_win");
+          } else {
+            resultMessage = t("you_lose");
+          }
+        }
+
+        // 显示游戏结果
+        setTimeout(() => {
+          showCustomAlert(
+            t("game_over"),
+            resultMessage,
+            () => {
+              // 重置游戏状态
+              currentGameId = null;
+              currentOpponent = null;
+              myColor = null;
+              showMainScreen();
+            }
+          );
+        }, 1000);
+
+        console.log(`游戏结束: ${winner} 获胜, 投降: ${surrendered}`);
+      }
+
+      // 处理对手断开连接
+      function handleOpponentDisconnected(payload) {
+        onlineGameActive = false;
+
+        showCustomAlert(
+          t("game_over"),
+          t("opponent_disconnected"),
+          () => {
+            currentGameId = null;
+            currentOpponent = null;
+            myColor = null;
+            showMainScreen();
+          }
+        );
+      }
+
+      // 投降在线游戏
+      function surrenderOnlineGame() {
+        if (!currentGameId || !onlineGameActive) {
+          return;
+        }
+
+        showCustomConfirm(
+          t("surrender_confirm_title"),
+          t("surrender_confirm_message"),
+          () => {
+            // 发送投降请求
+            if (gameWebSocket && isConnectedToGameServer) {
+              gameWebSocket.send(JSON.stringify({
+                type: 'game_surrender',
+                payload: {
+                  gameId: currentGameId,
+                  userId: currentUser.piUserId || currentUser.uid
+                }
+              }));
+            }
+          },
+          () => {
+            // 取消投降
+          }
+        );
+      }
+
+      // 开始在线游戏（旧版本，保持兼容性）
       async function startOnlineGame() {
         await showCustomConfirm(
           "🌐 " + t("online_match"),
