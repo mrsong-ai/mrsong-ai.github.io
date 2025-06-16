@@ -573,6 +573,21 @@
           personal_center: "个人中心",
           game_instructions: "游戏说明",
 
+          // 在线匹配相关
+          searching_opponent: "正在寻找对手...",
+          online_players: "当前在线玩家",
+          people_suffix: "人",
+          match_description: "系统将为您匹配实力相近的对手",
+          estimated_wait: "预计等待时间：30-60秒",
+          cancel_match: "取消匹配",
+          match_found: "✅ 找到对手！",
+          opponent_label: "对手：",
+          level_label: "等级：⭐⭐⭐",
+          start_game: "开始游戏",
+          rematch: "重新匹配",
+          cancel_match_confirm: "确定要取消匹配吗？\n\n取消后将返回主界面。",
+          online_game_info: "🌐 在线对战功能说明\n\n在线匹配需要后端服务器支持以下功能：\n• WebSocket实时通信\n• 玩家匹配算法\n• 游戏房间管理\n• 实时棋局同步\n\n后端代码已准备就绪，正在部署服务器中...\n\n目前您可以体验AI对战模式！",
+
           // 连接错误
           connection_failed: "连接失败",
           connection_error_detail: "无法连接到Pi Network，请检查网络连接后重试",
@@ -647,6 +662,10 @@
           ai_battle: "AI Battle",
           personal_center: "Personal Center",
           game_instructions: "Game Instructions",
+
+          // Online match related
+          cancel_match_confirm: "Are you sure you want to cancel matching?\n\nYou will return to the main interface after canceling.",
+          online_game_info: "🌐 Online Battle Feature Description\n\nOnline matching requires backend server support for:\n• WebSocket real-time communication\n• Player matching algorithm\n• Game room management\n• Real-time game synchronization\n\nBackend code is ready, server deployment in progress...\n\nYou can currently experience AI battle mode!",
           error_message: "❌ Error Message",
           login_with_pi: "Login with Pi Network",
           login_note:
@@ -5404,10 +5423,10 @@
       function showOnlineMatchScreen() {
         const root = document.getElementById("root");
         root.innerHTML = `
-          <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+          <div style="height: 100vh; background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-secondary) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; position: relative;">
             <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; width: 100%; border: 2px solid rgba(255, 255, 255, 0.2);">
               <!-- 返回按钮 -->
-              <button onclick="showMainScreen()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+              <button onclick="cancelMatch()" style="position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">
                 ←
               </button>
 
@@ -5418,26 +5437,26 @@
 
               <!-- 匹配状态 -->
               <div id="matchStatus" style="margin-bottom: 30px;">
-                <div style="color: white; font-size: 18px; margin-bottom: 20px;">
-                  正在寻找对手...
+                <div style="color: white; font-size: 18px; margin-bottom: 20px;" data-i18n="searching_opponent">
+                  ${t("searching_opponent")}
                 </div>
                 <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
               </div>
 
               <!-- 在线玩家数 -->
               <div style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px;">
-                当前在线玩家：<span id="onlineCount">42</span> 人
+                <span data-i18n="online_players">${t("online_players")}</span>：<span id="onlineCount">42</span> <span data-i18n="people_suffix">${t("people_suffix")}</span>
               </div>
 
               <!-- 匹配说明 -->
               <div style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-bottom: 30px;">
-                系统将为您匹配实力相近的对手<br>
-                预计等待时间：30-60秒
+                <span data-i18n="match_description">${t("match_description")}</span><br>
+                <span data-i18n="estimated_wait">${t("estimated_wait")}</span>
               </div>
 
               <!-- 取消匹配按钮 -->
-              <button onclick="cancelMatch()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; transition: all 0.3s;">
-                取消匹配
+              <button onclick="cancelMatch()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; transition: all 0.3s;" data-i18n="cancel_match">
+                ${t("cancel_match")}
               </button>
             </div>
           </div>
@@ -5462,17 +5481,17 @@
         if (matchStatus) {
           matchStatus.innerHTML = `
             <div style="color: #4CAF50; font-size: 18px; margin-bottom: 20px;">
-              ✅ 找到对手！
+              ${t("match_found")}
             </div>
             <div style="color: white; margin-bottom: 20px;">
-              对手：<strong>玩家${Math.floor(Math.random() * 1000)}</strong><br>
-              等级：⭐⭐⭐
+              ${t("opponent_label")}<strong>玩家${Math.floor(Math.random() * 1000)}</strong><br>
+              ${t("level_label")}
             </div>
             <button onclick="startOnlineGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer; margin-right: 10px;">
-              开始游戏
+              ${t("start_game")}
             </button>
             <button onclick="showOnlineMatchScreen()" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 25px; padding: 12px 30px; color: white; font-size: 16px; cursor: pointer;">
-              重新匹配
+              ${t("rematch")}
             </button>
           `;
         }
@@ -5480,12 +5499,15 @@
 
       // 取消匹配
       function cancelMatch() {
-        showMainScreen();
+        const confirmed = confirm(t("cancel_match_confirm"));
+        if (confirmed) {
+          showMainScreen();
+        }
       }
 
       // 开始在线游戏
       function startOnlineGame() {
-        alert("在线对战功能正在开发中，敬请期待！\n\n目前您可以体验AI对战模式。");
+        alert(t("online_game_info"));
         showMainScreen();
       }
 

@@ -748,33 +748,15 @@ body {
 }
 
 .game-mode-btn.online-mode {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
-  border-color: #4CAF50;
-  position: relative;
-  overflow: hidden;
+  background: #ffffff1a;
+  border-color: #fff3;
 }
 
 .game-mode-btn.online-mode:hover {
-  background: linear-gradient(45deg, #45a049, #3d8b40);
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+  background: #fff3;
+  border-color: var(--pi-accent);
+  box-shadow: 0 4px 12px #c77dff4d;
   transform: translateY(-2px);
-}
-
-.game-mode-btn.online-mode::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-  transform: rotate(45deg);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .mode-icon {
