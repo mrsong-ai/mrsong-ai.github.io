@@ -581,6 +581,9 @@
           match_description: "系统将为您匹配实力相近的对手",
           estimated_wait: "预计等待时间：30-60秒",
           match_found: "找到对手！",
+          ai_opponent_name: "AI智能对手",
+          black_stone: "黑子",
+          white_stone: "白子",
           opponent_label: "对手：",
           your_color: "您的棋子",
           your_turn: "轮到您了",
@@ -692,6 +695,9 @@
           match_description: "System will match you with players of similar skill",
           estimated_wait: "Estimated wait time: 30-60 seconds",
           match_found: "Match found!",
+          ai_opponent_name: "AI Smart Opponent",
+          black_stone: "Black",
+          white_stone: "White",
           opponent_label: "Opponent: ",
           your_color: "Your pieces",
           your_turn: "Your turn",
@@ -1699,6 +1705,17 @@
           benefit_pi_service: "• 💰 Pi 코인 부가가치 서비스",
           benefit_monthly_rewards: "• 🎁 월간 보상 활동",
           rank_position: "#{0}위",
+
+          // 온라인 매칭 관련
+          searching_opponent: "상대방을 찾는 중...",
+          online_players: "현재 온라인 플레이어",
+          people_suffix: "명",
+          match_description: "시스템이 실력이 비슷한 상대방을 매칭해드립니다",
+          estimated_wait: "예상 대기 시간: 30-60초",
+          match_found: "상대방을 찾았습니다!",
+          ai_opponent_name: "AI 스마트 상대",
+          black_stone: "흑돌",
+          white_stone: "백돌",
         },
 
         ja: {
@@ -2161,6 +2178,17 @@
           benefit_pi_service: "• 💰 Piコイン付加価値サービス",
           benefit_monthly_rewards: "• 🎁 月間報酬活動",
           rank_position: "#{0}位",
+
+          // オンラインマッチ関連
+          searching_opponent: "対戦相手を検索中...",
+          online_players: "現在のオンラインプレイヤー",
+          people_suffix: "人",
+          match_description: "システムが同レベルの対戦相手をマッチングします",
+          estimated_wait: "予想待機時間：30-60秒",
+          match_found: "対戦相手が見つかりました！",
+          ai_opponent_name: "AIスマート対戦相手",
+          black_stone: "黒石",
+          white_stone: "白石",
         },
 
         vi: {
@@ -2635,6 +2663,17 @@
           benefit_pi_service: "• 💰 Dịch vụ giá trị gia tăng Pi coin",
           benefit_monthly_rewards: "• 🎁 Hoạt động thưởng hàng tháng",
           rank_position: "#{0}",
+
+          // Liên quan đến ghép đôi trực tuyến
+          searching_opponent: "Đang tìm đối thủ...",
+          online_players: "Người chơi trực tuyến hiện tại",
+          people_suffix: "người",
+          match_description: "Hệ thống sẽ ghép đôi bạn với đối thủ có trình độ tương đương",
+          estimated_wait: "Thời gian chờ dự kiến: 30-60 giây",
+          match_found: "Đã tìm thấy đối thủ!",
+          ai_opponent_name: "Đối Thủ AI Thông Minh",
+          black_stone: "Quân Đen",
+          white_stone: "Quân Trắng",
         },
       };
 
@@ -2883,21 +2922,20 @@
         const loginBtn = document.getElementById("login-btn");
         loginBtn.disabled = true;
 
-        // 添加加载状态
-        const loadingWrapper = document.createElement("div");
-        loadingWrapper.className = "loading-wrapper";
-
         // 检查是否在Pi Browser中来显示不同的提示
         const isInPiBrowser = isPiAvailable();
         const loadingText = isInPiBrowser
           ? t("connecting_pi_network")
           : t("entering_game");
 
-        loadingWrapper.innerHTML = `
-                <div class="spinner"></div>
-                <span>${loadingText}</span>
+        // 完全替换按钮内容为连接状态，隐藏原有的登录文本
+        loginBtn.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>${loadingText}</span>
+                </div>
             `;
-        loginBtn.appendChild(loadingWrapper);
+        loginBtn.classList.add('loading');
 
         try {
           hideError();
@@ -2963,8 +3001,14 @@
         } finally {
           isLoading = false;
           loginBtn.disabled = false;
-          if (loadingWrapper.parentNode) {
-            loadingWrapper.parentNode.removeChild(loadingWrapper);
+          loginBtn.classList.remove('loading');
+
+          // 恢复按钮原始状态
+          if (!currentUser) {
+            loginBtn.innerHTML = `
+              <span class="pi-icon">π</span>
+              <span data-i18n="login_with_pi">${t("login_with_pi")}</span>
+            `;
           }
         }
       }
@@ -5580,14 +5624,7 @@
           return;
         }
 
-        try {
-          // 连接到游戏服务器
-          await connectToGameServer();
-        } catch (error) {
-          console.error('连接游戏服务器失败:', error);
-          showError(t("connection_failed"));
-          return;
-        }
+        // 由于后端服务暂未部署，直接显示匹配界面并模拟匹配AI
 
         const root = document.getElementById("root");
         root.innerHTML = `
@@ -5637,39 +5674,92 @@
           </style>
         `;
 
-        // 开始真实匹配
-        startRealMatching();
+        // 开始AI匹配模拟
+        startAIMatching();
       }
 
-      // 开始真实匹配
-      function startRealMatching() {
-        if (!gameWebSocket || !isConnectedToGameServer) {
-          showError(t("connection_failed"));
+      // 开始AI匹配模拟
+      function startAIMatching() {
+        console.log('开始AI匹配模拟');
+
+        // 更新在线用户数显示（模拟）
+        updateOnlineCount(Math.floor(Math.random() * 50) + 10); // 10-59人在线
+
+        // 模拟匹配过程，2-4秒后匹配成功
+        const matchTime = Math.random() * 2000 + 2000; // 2-4秒
+
+        setTimeout(() => {
+          // 模拟匹配到AI对手
+          const aiOpponent = {
+            username: t("ai_opponent_name"),
+            uid: "ai_opponent_" + Date.now(),
+            isAI: true
+          };
+
+          // 随机分配颜色
+          const myColor = Math.random() < 0.5 ? 'black' : 'white';
+          const currentPlayer = 'black'; // 黑子先手
+
+          // 模拟游戏开始
+          handleAIGameStarted({
+            gameId: "ai_game_" + Date.now(),
+            opponent: aiOpponent,
+            yourColor: myColor,
+            currentPlayer: currentPlayer
+          });
+        }, matchTime);
+      }
+
+      // 处理AI游戏开始
+      function handleAIGameStarted(payload) {
+        const { gameId, opponent, yourColor, currentPlayer } = payload;
+
+        currentGameId = gameId;
+        currentOpponent = opponent;
+        myColor = yourColor;
+
+        console.log(`AI游戏开始! 对手: ${opponent.username}, 我的颜色: ${yourColor}`);
+
+        // 显示游戏开始对话框
+        showAIGameStartDialog(opponent, yourColor, currentPlayer);
+      }
+
+      // 显示AI游戏开始对话框
+      function showAIGameStartDialog(opponent, yourColor, currentPlayer) {
+        const matchStatus = document.getElementById("matchStatus");
+        if (matchStatus) {
+          const isMyTurn = currentPlayer === yourColor;
+          matchStatus.innerHTML = `
+            <div style="color: #4CAF50; font-size: 18px; margin-bottom: 20px;">
+              🎉 ${t("match_found")}
+            </div>
+            <div style="color: white; margin-bottom: 20px;">
+              ${t("opponent_label")}<strong>${opponent.username}</strong><br>
+              ${t("your_color")}: ${yourColor === 'black' ? '⚫ ' + t("black_stone") : '⚪ ' + t("white_stone")}<br>
+              ${isMyTurn ? '🎯 ' + t("your_turn") : '⏳ ' + t("opponent_turn")}
+            </div>
+            <div style="display: flex; flex-direction: row; gap: 10px; justify-content: center; align-items: center; width: 100%; flex-wrap: nowrap;">
+              <button onclick="startAIGame()" style="background: #4CAF50; border: none; border-radius: 25px; padding: 10px 20px; color: white; font-size: 14px; cursor: pointer; flex: 1; min-width: 80px; max-width: 140px; transition: all 0.3s; white-space: nowrap;">
+                ${t("start_game")}
+              </button>
+            </div>
+          `;
+        }
+      }
+
+      // 开始AI游戏
+      function startAIGame() {
+        if (!currentGameId || !currentOpponent) {
+          showError(t("game_not_ready"));
           return;
         }
 
-        // 发送开始匹配请求
-        gameWebSocket.send(JSON.stringify({
-          type: 'start_matching',
-          payload: {
-            userId: currentUser.piUserId || currentUser.uid
-          }
-        }));
-
-        console.log('已发送匹配请求');
+        // 直接启动AI对战游戏
+        showSimpleGameScreen();
       }
 
-      // 取消真实匹配
+      // 取消匹配
       function cancelRealMatch() {
-        if (gameWebSocket && isConnectedToGameServer) {
-          gameWebSocket.send(JSON.stringify({
-            type: 'cancel_matching',
-            payload: {
-              userId: currentUser.piUserId || currentUser.uid
-            }
-          }));
-        }
-
         showMainScreen();
       }
 
@@ -5711,7 +5801,7 @@
             </div>
             <div style="color: white; margin-bottom: 20px;">
               ${t("opponent_label")}<strong>${opponent.username}</strong><br>
-              ${t("your_color")}: ${yourColor === 'black' ? '⚫ 黑子' : '⚪ 白子'}<br>
+              ${t("your_color")}: ${yourColor === 'black' ? '⚫ ' + t("black_stone") : '⚪ ' + t("white_stone")}<br>
               ${isMyTurn ? '🎯 ' + t("your_turn") : '⏳ ' + t("opponent_turn")}
             </div>
             <div style="display: flex; flex-direction: row; gap: 10px; justify-content: center; align-items: center; width: 100%; flex-wrap: nowrap;">
@@ -6160,28 +6250,28 @@
         }
 
         initSounds() {
-          // 预加载您的音效文件
+          // 预加载您的音效文件，设置不同音效的音量
           const soundFiles = {
-            gameStart: "./public/sounds/game-start.mp3",
-            move: "./public/sounds/move.mp3",
-            victory: "./public/sounds/victory.mp3",
+            gameStart: { src: "./public/sounds/game-start.mp3", volume: 0.5 },
+            move: { src: "./public/sounds/move.mp3", volume: 0.8 }, // 提高落子音效音量
+            victory: { src: "./public/sounds/victory.mp3", volume: 0.5 },
           };
 
           // 创建Audio对象并预加载
-          for (const [key, src] of Object.entries(soundFiles)) {
+          for (const [key, config] of Object.entries(soundFiles)) {
             try {
-              const audio = new Audio(src);
-              audio.volume = this.volume;
+              const audio = new Audio(config.src);
+              audio.volume = config.volume;
               audio.preload = "auto";
 
               // 添加错误处理
               audio.addEventListener("error", (e) => {
-                console.log(`音效文件加载失败: ${src}`, e);
+                console.log(`音效文件加载失败: ${config.src}`, e);
               });
 
               // 添加加载成功事件
               audio.addEventListener("canplaythrough", () => {
-                console.log(`音效文件加载成功: ${src}`);
+                console.log(`音效文件加载成功: ${config.src}`);
               });
 
               this.sounds[key] = audio;
@@ -6230,8 +6320,16 @@
         // 设置音量
         setVolume(volume) {
           this.volume = Math.max(0, Math.min(1, volume));
-          for (const audio of Object.values(this.sounds)) {
-            audio.volume = this.volume;
+          // 保持不同音效的相对音量比例
+          const volumeRatios = {
+            gameStart: 0.5,
+            move: 0.8,
+            victory: 0.5
+          };
+
+          for (const [key, audio] of Object.entries(this.sounds)) {
+            const ratio = volumeRatios[key] || 0.5;
+            audio.volume = this.volume * ratio;
           }
         }
 
@@ -7228,99 +7326,14 @@
         }
       }
 
-      // 悔棋功能
+      // 悔棋功能 - 临时移除扣币逻辑
       async function undoAIMove() {
         if (aiGameHistory.length < 2 || !aiGameActive) {
           return;
         }
 
-        // 检查是否需要支付
-        if (currentUser && userStats) {
-          // 登录用户必须支付
-          try {
-            // 先检查余额
-            const balanceResponse = await fetch(
-              `${API_BASE_URL}/api/payment/balance?userId=${currentUser.uid}`
-            );
-            const balanceData = await balanceResponse.json();
-
-            if (balanceData.success && balanceData.balance.current >= 0.1) {
-              // 余额充足，显示确认对话框
-              showCustomConfirm(
-                t("undo_confirm"),
-                t(
-                  "undo_confirm_message",
-                  balanceData.balance.current.toFixed(2)
-                ),
-                async () => {
-                  // 确认悔棋，扣费并执行
-                  const consumeResponse = await fetch(
-                    `${API_BASE_URL}/api/payment/consume`,
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        userId: currentUser.uid,
-                        amount: 0.1,
-                        purpose: "undo",
-                        gameData: {
-                          moveCount: aiGameHistory.length,
-                          gameMode: "ai",
-                        },
-                      }),
-                    }
-                  );
-
-                  const consumeData = await consumeResponse.json();
-                  if (consumeData.success) {
-                    // 扣费成功，执行悔棋
-                    performUndo();
-                    showCustomAlert(
-                      t("undo_success_title"),
-                      t(
-                        "undo_success_detail",
-                        consumeData.newBalance.toFixed(2)
-                      )
-                    );
-                  } else {
-                    showCustomAlert(
-                      t("undo_failed_title"),
-                      consumeData.message || t("undo_failed_message")
-                    );
-                  }
-                },
-                () => {
-                  // 取消悔棋
-                }
-              );
-            } else {
-              // 余额不足，提示用户选择是否充值
-              const currentBalance = balanceData.success
-                ? balanceData.balance.current.toFixed(2)
-                : "0.00";
-              showCustomConfirm(
-                t("insufficient_balance_title"),
-                t("insufficient_balance_undo", currentBalance),
-                () => {
-                  // 用户选择充值
-                  showRechargeDialog(t("recharge_prompt"));
-                },
-                () => {
-                  // 用户选择不充值，继续游戏但不能使用悔棋
-                  showCustomAlert(t("hint"), t("continue_game_tip"));
-                }
-              );
-            }
-          } catch (error) {
-            console.error("悔棋支付检查失败:", error);
-            showCustomAlert(t("error_title"), t("network_error_retry"));
-          }
-        } else {
-          // 未登录用户，免费悔棋（但不参与排行榜）
-          performUndo();
-        }
+        // 由于后端服务暂未部署，直接执行悔棋
+        performUndo();
       }
 
       // 执行悔棋操作
@@ -10732,21 +10745,20 @@
         const loginBtn = document.getElementById("login-btn");
         loginBtn.disabled = true;
 
-        // 添加加载状态
-        const loadingWrapper = document.createElement("div");
-        loadingWrapper.className = "loading-wrapper";
-
         // 检查是否在Pi Browser中来显示不同的提示
         const isInPiBrowser = isPiAvailable();
         const loadingText = isInPiBrowser
           ? t("connecting_pi_network")
           : t("entering_game");
 
-        loadingWrapper.innerHTML = `
-                <div class="spinner"></div>
-                <span>${loadingText}</span>
+        // 完全替换按钮内容为连接状态，隐藏原有的登录文本
+        loginBtn.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>${loadingText}</span>
+                </div>
             `;
-        loginBtn.appendChild(loadingWrapper);
+        loginBtn.classList.add('loading');
 
         try {
           hideError();
@@ -10812,8 +10824,14 @@
         } finally {
           isLoading = false;
           loginBtn.disabled = false;
-          if (loadingWrapper.parentNode) {
-            loadingWrapper.parentNode.removeChild(loadingWrapper);
+          loginBtn.classList.remove('loading');
+
+          // 恢复按钮原始状态
+          if (!currentUser) {
+            loginBtn.innerHTML = `
+              <span class="pi-icon">π</span>
+              <span data-i18n="login_with_pi">${t("login_with_pi")}</span>
+            `;
           }
         }
       }
@@ -13147,28 +13165,28 @@
         }
 
         initSounds() {
-          // 预加载您的音效文件
+          // 预加载您的音效文件，设置不同音效的音量
           const soundFiles = {
-            gameStart: "./public/sounds/game-start.mp3",
-            move: "./public/sounds/move.mp3",
-            victory: "./public/sounds/victory.mp3",
+            gameStart: { src: "./public/sounds/game-start.mp3", volume: 0.5 },
+            move: { src: "./public/sounds/move.mp3", volume: 0.8 }, // 提高落子音效音量
+            victory: { src: "./public/sounds/victory.mp3", volume: 0.5 },
           };
 
           // 创建Audio对象并预加载
-          for (const [key, src] of Object.entries(soundFiles)) {
+          for (const [key, config] of Object.entries(soundFiles)) {
             try {
-              const audio = new Audio(src);
-              audio.volume = this.volume;
+              const audio = new Audio(config.src);
+              audio.volume = config.volume;
               audio.preload = "auto";
 
               // 添加错误处理
               audio.addEventListener("error", (e) => {
-                console.log(`音效文件加载失败: ${src}`, e);
+                console.log(`音效文件加载失败: ${config.src}`, e);
               });
 
               // 添加加载成功事件
               audio.addEventListener("canplaythrough", () => {
-                console.log(`音效文件加载成功: ${src}`);
+                console.log(`音效文件加载成功: ${config.src}`);
               });
 
               this.sounds[key] = audio;
@@ -13217,8 +13235,16 @@
         // 设置音量
         setVolume(volume) {
           this.volume = Math.max(0, Math.min(1, volume));
-          for (const audio of Object.values(this.sounds)) {
-            audio.volume = this.volume;
+          // 保持不同音效的相对音量比例
+          const volumeRatios = {
+            gameStart: 0.5,
+            move: 0.8,
+            victory: 0.5
+          };
+
+          for (const [key, audio] of Object.entries(this.sounds)) {
+            const ratio = volumeRatios[key] || 0.5;
+            audio.volume = this.volume * ratio;
           }
         }
 
@@ -14215,99 +14241,14 @@
         }
       }
 
-      // 悔棋功能
+      // 悔棋功能 - 临时移除扣币逻辑
       async function undoAIMove() {
         if (aiGameHistory.length < 2 || !aiGameActive) {
           return;
         }
 
-        // 检查是否需要支付
-        if (currentUser && userStats) {
-          // 登录用户必须支付
-          try {
-            // 先检查余额
-            const balanceResponse = await fetch(
-              `${API_BASE_URL}/api/payment/balance?userId=${currentUser.uid}`
-            );
-            const balanceData = await balanceResponse.json();
-
-            if (balanceData.success && balanceData.balance.current >= 0.1) {
-              // 余额充足，显示确认对话框
-              showCustomConfirm(
-                t("undo_confirm"),
-                t(
-                  "undo_confirm_message",
-                  balanceData.balance.current.toFixed(2)
-                ),
-                async () => {
-                  // 确认悔棋，扣费并执行
-                  const consumeResponse = await fetch(
-                    `${API_BASE_URL}/api/payment/consume`,
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        userId: currentUser.uid,
-                        amount: 0.1,
-                        purpose: "undo",
-                        gameData: {
-                          moveCount: aiGameHistory.length,
-                          gameMode: "ai",
-                        },
-                      }),
-                    }
-                  );
-
-                  const consumeData = await consumeResponse.json();
-                  if (consumeData.success) {
-                    // 扣费成功，执行悔棋
-                    performUndo();
-                    showCustomAlert(
-                      t("undo_success_title"),
-                      t(
-                        "undo_success_detail",
-                        consumeData.newBalance.toFixed(2)
-                      )
-                    );
-                  } else {
-                    showCustomAlert(
-                      t("undo_failed_title"),
-                      consumeData.message || t("undo_failed_message")
-                    );
-                  }
-                },
-                () => {
-                  // 取消悔棋
-                }
-              );
-            } else {
-              // 余额不足，提示用户选择是否充值
-              const currentBalance = balanceData.success
-                ? balanceData.balance.current.toFixed(2)
-                : "0.00";
-              showCustomConfirm(
-                t("insufficient_balance_title"),
-                t("insufficient_balance_undo", currentBalance),
-                () => {
-                  // 用户选择充值
-                  showRechargeDialog(t("recharge_prompt"));
-                },
-                () => {
-                  // 用户选择不充值，继续游戏但不能使用悔棋
-                  showCustomAlert(t("hint"), t("continue_game_tip"));
-                }
-              );
-            }
-          } catch (error) {
-            console.error("悔棋支付检查失败:", error);
-            showCustomAlert(t("error_title"), t("network_error_retry"));
-          }
-        } else {
-          // 未登录用户，免费悔棋（但不参与排行榜）
-          performUndo();
-        }
+        // 由于后端服务暂未部署，直接执行悔棋
+        performUndo();
       }
 
       // 执行悔棋操作

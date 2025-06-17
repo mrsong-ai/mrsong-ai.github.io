@@ -500,24 +500,28 @@ body {
   }
 
   .board-container {
-    padding: 0;
-    border-radius: 0;
+    padding: 4px;
+    border-radius: 8px;
     width: fit-content;
     box-sizing: border-box;
-    border: none;
-    background: transparent;
+    border: 2px solid #8b4513;
+    background: var(--board-bg);
     box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.2),
-      inset -1px -1px 2px rgba(139, 69, 19, 0.3);
+      inset -1px -1px 2px rgba(139, 69, 19, 0.3),
+      0 2px 6px rgba(0, 0, 0, 0.2);
   }
 
   .board-grid {
-    border: none !important;
-    border-radius: 0 !important;
+    border: 3px solid #8b6914 !important;
+    border-radius: 4px !important;
     background: var(--board-line);
     gap: 1px;
     display: grid;
     width: fit-content !important;
     height: fit-content !important;
+    box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.2),
+      inset -1px -1px 2px rgba(139, 105, 20, 0.4),
+      0 2px 4px rgba(139, 69, 19, 0.2) !important;
   }
 
   /* 手机端游戏容器优化 */
@@ -587,13 +591,21 @@ body {
 
   /* 特别保留棋盘的立体边线效果 */
   .board-container {
+    border: 2px solid #8b4513 !important;
+    border-radius: 8px !important;
+    background: var(--board-bg) !important;
+    padding: 4px !important;
     box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.2),
-      inset -1px -1px 2px rgba(139, 69, 19, 0.3) !important;
+      inset -1px -1px 2px rgba(139, 69, 19, 0.3),
+      0 2px 6px rgba(0, 0, 0, 0.2) !important;
   }
 
   .board-grid {
+    border: 3px solid #8b6914 !important;
+    border-radius: 4px !important;
     box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.2),
-      inset -1px -1px 2px rgba(0, 0, 0, 0.3) !important;
+      inset -1px -1px 2px rgba(139, 105, 20, 0.4),
+      0 2px 4px rgba(139, 69, 19, 0.2) !important;
   }
 }
 
@@ -797,14 +809,29 @@ body {
 .pi-login-btn.loading {
   min-width: 200px;
   position: relative;
+  pointer-events: none;
+}
+
+.pi-login-btn.loading .loading {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
 }
 
 .pi-login-btn.loading .spinner {
   border: 2px solid #ffffff4d;
   border-top-color: #fff;
   height: 16px;
-  margin-right: 8px;
   width: 16px;
+  animation: spin 1s linear infinite;
+}
+
+.pi-login-btn.loading .loading span {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* 错误消息 */
