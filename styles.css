@@ -99,7 +99,7 @@ body {
     max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important; /* 移除内边距，让卡片完全填满 */
+    padding: 8px !important; /* 保留少量内边距，避免内容贴边 */
     box-sizing: border-box !important;
   }
 }
@@ -634,12 +634,12 @@ body {
 /* 移动端登录界面优化 - 去除白边，确保内容不需要滚动 */
 @media (max-width: 768px) {
   .login-screen {
-    padding: 0 !important; /* 完全移除padding */
+    padding: 8px !important; /* 保留少量padding避免内容贴边 */
     margin: 0 !important;
     min-height: 100vh !important;
     min-height: 100dvh !important; /* 动态视口高度 */
-    align-items: stretch !important;
-    justify-content: stretch !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
     box-sizing: border-box !important;
     width: 100% !important;
   }
@@ -1127,18 +1127,18 @@ body {
   }
 }
 
+@media (max-width: 768px) {
   .login-card.card {
-    flex: 1 !important; /* 让卡片占据剩余空间 */
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important; /* 内容在顶部和底部分布 */
     margin: 0 !important; /* 移除所有外边距 */
     width: 100% !important;
     box-sizing: border-box !important;
-    min-height: 100vh !important; /* 确保填满整个视口 */
-    min-height: 100dvh !important; /* 动态视口高度 */
-    overflow: hidden !important; /* 防止滚动 */
-    border-radius: 0 !important; /* 移除圆角，完全填满屏幕 */
+    min-height: calc(100vh - 16px) !important; /* 减去padding的高度 */
+    min-height: calc(100dvh - 16px) !important; /* 动态视口高度 */
+    overflow: visible !important; /* 允许内容正常显示 */
+    border-radius: var(--radius-lg) !important; /* 保持圆角 */
   }
 
   /* 确保卡片内容区域紧凑分布 */
@@ -1246,7 +1246,7 @@ body {
 /* 横屏模式下的优化 */
 @media (max-width: 768px) and (orientation: landscape) {
   .login-screen {
-    padding: 0 !important; /* 横屏时完全移除间距 */
+    padding: 4px !important; /* 横屏时保留少量间距 */
   }
 
   .login-content {
