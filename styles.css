@@ -236,8 +236,9 @@ body {
   border-top: 1px solid #fff3;
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-xl); /* 增加游戏说明和登录按钮之间的距离 */
+  padding-top: var(--spacing-lg); /* 增加顶部padding */
+  padding-bottom: var(--spacing-md); /* 增加底部padding确保与屏幕底部距离一致 */
   text-align: center;
 }
 
@@ -615,7 +616,7 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 1% 1%;
+  padding: 1% 1% 2% 1%; /* 增加底部padding确保卡片与屏幕底部有一致距离 */
   box-sizing: border-box;
 }
 
@@ -704,7 +705,7 @@ body {
 
 /* 游戏模式按钮 */
 .game-modes {
-  margin: 16px 0;
+  margin: 16px 0 24px 0; /* 增加底部边距，为登录区域留出更多空间 */
 }
 
 .game-mode-row {
@@ -846,7 +847,8 @@ body {
 
 .login-note {
   font-size: var(--text-sm);
-  margin-top: 8px;
+  margin-top: 12px; /* 增加登录按钮和提示文字之间的距离 */
+  margin-bottom: 8px; /* 增加底部边距 */
   opacity: 0.7;
   text-align: center;
 }
@@ -1022,7 +1024,7 @@ body {
 
   /* 手机端登录屏幕边距优化 - 确保所有设备一致的紧凑边距 */
   .login-screen {
-    padding: 1% 1% !important;
+    padding: 1% 1% 3% 1% !important; /* 增加底部padding确保卡片与屏幕底部有足够距离 */
     box-sizing: border-box !important;
   }
 
@@ -1061,22 +1063,54 @@ body {
 /* 针对不同屏幕尺寸的额外优化 - 统一使用百分比确保一致性 */
 @media (max-width: 480px) {
   .login-screen {
-    padding: 1% 1% !important;
+    padding: 1% 1% 4% 1% !important; /* 小屏设备增加更多底部间距 */
     box-sizing: border-box !important;
   }
 }
 
 @media (max-width: 375px) {
   .login-screen {
-    padding: 1% 1% !important;
+    padding: 1% 1% 4% 1% !important; /* 确保iPhone等设备有足够底部间距 */
     box-sizing: border-box !important;
   }
 }
 
 @media (max-width: 320px) {
   .login-screen {
-    padding: 1% 1% !important;
+    padding: 1% 1% 5% 1% !important; /* 最小屏设备增加最多底部间距 */
     box-sizing: border-box !important;
+  }
+}
+
+/* 确保所有移动设备上卡片都能合理填满屏幕高度 */
+@media (max-width: 768px) {
+  .login-screen {
+    align-items: stretch !important; /* 让内容拉伸填满可用空间 */
+    min-height: 100vh !important;
+    min-height: 100dvh !important; /* 使用动态视口高度，适配移动设备 */
+  }
+
+  .login-content,
+  .login-content-fixed {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100% !important;
+  }
+
+  .login-card.card {
+    flex: 1 !important; /* 让卡片占据剩余空间 */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important; /* 内容分布在顶部和底部 */
+    margin-bottom: 0 !important; /* 移除卡片底部外边距，让padding控制间距 */
+  }
+
+  /* 确保卡片内容区域合理分布 */
+  .card-content {
+    flex: 1 !important; /* 让内容区域占据中间空间 */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
   }
 }
 
@@ -1095,6 +1129,98 @@ body {
     padding-left: 20px !important;
     padding-right: 20px !important;
     box-sizing: border-box !important;
+  }
+
+  /* 移动设备上增加卡片底部的间距 */
+  .card-footer {
+    padding-bottom: var(--spacing-lg) !important; /* 确保底部有足够间距 */
+    margin-bottom: var(--spacing-md) !important; /* 增加底部外边距 */
+  }
+
+  /* 移动设备上隐私政策和服务条款链接的间距优化 */
+  .legal-links {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* 移动设备上游戏模式区域的间距优化 */
+  .game-modes {
+    margin-bottom: 32px !important; /* 增加游戏模式和登录区域之间的距离 */
+  }
+
+  /* 移动设备上Pi登录按钮的间距优化 */
+  .pi-login-btn {
+    margin-bottom: 16px !important; /* 增加登录按钮底部间距 */
+  }
+}
+
+/* 针对高度较小的移动设备进行特殊优化 */
+@media (max-width: 768px) and (max-height: 700px) {
+  .login-screen {
+    padding: 1% 1% 2% 1% !important; /* 小高度设备减少底部padding */
+  }
+
+  .card-footer {
+    margin-top: var(--spacing-md) !important; /* 减少顶部间距 */
+    padding-top: var(--spacing-md) !important;
+  }
+
+  .game-modes {
+    margin-bottom: 20px !important; /* 减少游戏模式底部间距 */
+  }
+}
+
+/* 针对高度较大的移动设备进行优化 */
+@media (max-width: 768px) and (min-height: 800px) {
+  .login-screen {
+    padding: 2% 1% 4% 1% !important; /* 大高度设备增加更多间距 */
+  }
+
+  .card-footer {
+    margin-top: var(--spacing-xl) !important; /* 增加顶部间距 */
+    padding-top: var(--spacing-xl) !important;
+    padding-bottom: var(--spacing-xl) !important;
+  }
+
+  .game-modes {
+    margin-bottom: 40px !important; /* 增加游戏模式底部间距 */
+  }
+}
+
+/* 确保在所有移动设备上底部间距一致 - 使用CSS环境变量 */
+@media (max-width: 768px) {
+  .login-screen {
+    /* 使用安全区域变量确保在有刘海屏或底部指示器的设备上正确显示 */
+    padding-bottom: max(3%, env(safe-area-inset-bottom, 0px) + 20px) !important;
+  }
+
+  .card-footer {
+    /* 确保底部内容不会被设备UI遮挡 */
+    padding-bottom: max(var(--spacing-lg), env(safe-area-inset-bottom, 0px) + 10px) !important;
+  }
+}
+
+/* iPhone X 系列及类似设备的特殊优化 */
+@media (max-width: 768px) and (orientation: portrait) and (-webkit-device-pixel-ratio: 3) {
+  .login-screen {
+    padding-bottom: max(4%, env(safe-area-inset-bottom, 0px) + 25px) !important;
+  }
+}
+
+/* 横屏模式下的优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+  .login-screen {
+    padding: 1% 1% 2% 1% !important; /* 横屏时减少垂直间距 */
+  }
+
+  .card-footer {
+    margin-top: var(--spacing-sm) !important;
+    padding-top: var(--spacing-sm) !important;
+  }
+
+  .game-modes {
+    margin-bottom: 16px !important;
   }
 }
 
