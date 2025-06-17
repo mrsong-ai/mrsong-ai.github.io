@@ -152,9 +152,9 @@
 
                 <!-- 隐私政策和服务条款链接 -->
                 <div class="legal-links" style="margin-top: 20px; text-align: center;">
-                  <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">隐私政策</a>
+                  <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">${t("privacy_policy")}</a>
                   <span style="color: #ffffff80;">|</span>
-                  <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">服务条款</a>
+                  <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">${t("terms_of_service")}</a>
                 </div>
               </div>
             </div>
@@ -713,6 +713,8 @@
           opponent_surrendered: "🎉 Opponent surrendered, you win!",
           you_surrendered: "😔 You surrendered",
           opponent_disconnected: "Opponent disconnected",
+          cancel_match: "Cancel Match",
+          start_game: "Start Game",
           cancel_match_confirm: "Are you sure you want to cancel current matching?",
           cancel_match_title: "Cancel Match",
           cancel_match_options: "You can choose:",
@@ -1641,6 +1643,8 @@
           login_with_pi: "Pi 계정으로 로그인",
           login_benefits_note:
             "로그인 후 완전한 게임 기능과 Pi 코인 보상을 즐기세요",
+          privacy_policy: "개인정보 보호정책",
+          terms_of_service: "서비스 약관",
 
           // 충전 대화상자
           recharge_amount_selection: "충전 금액 선택",
@@ -1712,6 +1716,8 @@
           people_suffix: "명",
           match_description: "시스템이 실력이 비슷한 상대방을 매칭해드립니다",
           estimated_wait: "예상 대기 시간: 30-60초",
+          cancel_match: "매칭 취소",
+          start_game: "게임 시작",
           match_found: "상대방을 찾았습니다!",
           ai_opponent_name: "AI 스마트 상대",
           black_stone: "흑돌",
@@ -1733,6 +1739,8 @@
           login_with_pi: "Pi Networkでログイン",
           login_note:
             "ログインをクリックすると、Pi Networkアカウントを使用した認証に同意したことになります",
+          privacy_policy: "プライバシーポリシー",
+          terms_of_service: "利用規約",
 
           // 言語オプション
           lang_zh: "中文",
@@ -2185,6 +2193,8 @@
           people_suffix: "人",
           match_description: "システムが同レベルの対戦相手をマッチングします",
           estimated_wait: "予想待機時間：30-60秒",
+          cancel_match: "マッチングキャンセル",
+          start_game: "ゲーム開始",
           match_found: "対戦相手が見つかりました！",
           ai_opponent_name: "AIスマート対戦相手",
           black_stone: "黒石",
@@ -2205,6 +2215,8 @@
           login_with_pi: "Đăng nhập bằng Pi Network",
           login_note:
             "Bằng cách nhấp đăng nhập, bạn đồng ý sử dụng tài khoản Pi Network để xác thực",
+          privacy_policy: "Chính Sách Bảo Mật",
+          terms_of_service: "Điều Khoản Dịch Vụ",
 
           // Tùy chọn ngôn ngữ
           lang_zh: "中文",
@@ -2670,6 +2682,8 @@
           people_suffix: "người",
           match_description: "Hệ thống sẽ ghép đôi bạn với đối thủ có trình độ tương đương",
           estimated_wait: "Thời gian chờ dự kiến: 30-60 giây",
+          cancel_match: "Hủy Ghép Đôi",
+          start_game: "Bắt Đầu Trò Chơi",
           match_found: "Đã tìm thấy đối thủ!",
           ai_opponent_name: "Đối Thủ AI Thông Minh",
           black_stone: "Quân Đen",
@@ -5637,7 +5651,7 @@
 
               <!-- 标题 -->
               <h2 style="color: white; margin-bottom: 30px; font-size: 24px;">
-                🌐 <span data-i18n="online_match">在线匹配</span>
+                🌐 <span data-i18n="online_match">${t("online_match")}</span>
               </h2>
 
               <!-- 匹配状态 -->
@@ -7716,9 +7730,9 @@
 
                                     <!-- 隐私政策和服务条款链接 -->
                                     <div class="legal-links" style="margin-top: 20px; text-align: center;">
-                                        <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">隐私政策</a>
+                                        <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">${t("privacy_policy")}</a>
                                         <span style="color: #ffffff80;">|</span>
-                                        <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">服务条款</a>
+                                        <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">${t("terms_of_service")}</a>
                                     </div>
                                 </div>
                             </div>
@@ -14626,9 +14640,9 @@
 
                                     <!-- 隐私政策和服务条款链接 -->
                                     <div class="legal-links" style="margin-top: 20px; text-align: center;">
-                                        <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">隐私政策</a>
+                                        <a href="public/privacy-policy.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="privacy_policy">${t("privacy_policy")}</a>
                                         <span style="color: #ffffff80;">|</span>
-                                        <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">服务条款</a>
+                                        <a href="public/terms-of-service.html" target="_blank" style="color: #c77dff; text-decoration: none; margin: 0 10px; font-size: 14px;" data-i18n="terms_of_service">${t("terms_of_service")}</a>
                                     </div>
                                 </div>
                             </div>
