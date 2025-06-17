@@ -99,7 +99,7 @@ body {
     max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 8px !important; /* 保留少量内边距，避免内容贴边 */
+    padding: 0 !important; /* 完全移除padding，让卡片填满屏幕 */
     box-sizing: border-box !important;
   }
 }
@@ -634,12 +634,12 @@ body {
 /* 移动端登录界面优化 - 去除白边，确保内容不需要滚动 */
 @media (max-width: 768px) {
   .login-screen {
-    padding: 8px !important; /* 保留少量padding避免内容贴边 */
+    padding: 0 !important; /* 完全移除padding */
     margin: 0 !important;
     min-height: 100vh !important;
     min-height: 100dvh !important; /* 动态视口高度 */
-    align-items: flex-start !important;
-    justify-content: center !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
     box-sizing: border-box !important;
     width: 100% !important;
   }
@@ -1053,7 +1053,7 @@ body {
     max-width: none !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 8px !important; /* 添加少量内边距避免完全贴边 */
+    padding: 0 !important; /* 完全移除padding */
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1101,21 +1101,31 @@ body {
   }
 }
 
-/* 移动端整体布局优化 - 避免滚动，去除白边 */
+/* 移动端整体布局优化 - 避免滚动，彻底去除白边 */
 @media (max-width: 768px) {
   /* 确保页面不需要滚动就能看到所有内容 */
   html, body {
     overflow-x: hidden !important; /* 防止水平滚动 */
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   /* 根元素优化 */
   #root {
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 强制所有元素不超出屏幕宽度 */
+  * {
+    max-width: 100% !important;
     box-sizing: border-box !important;
   }
 
@@ -1129,16 +1139,18 @@ body {
 
 @media (max-width: 768px) {
   .login-card.card {
+    flex: 1 !important; /* 让卡片占据剩余空间 */
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important; /* 内容在顶部和底部分布 */
     margin: 0 !important; /* 移除所有外边距 */
     width: 100% !important;
     box-sizing: border-box !important;
-    min-height: calc(100vh - 16px) !important; /* 减去padding的高度 */
-    min-height: calc(100dvh - 16px) !important; /* 动态视口高度 */
-    overflow: visible !important; /* 允许内容正常显示 */
+    min-height: 100vh !important; /* 确保填满整个视口 */
+    min-height: 100dvh !important; /* 动态视口高度 */
+    overflow: hidden !important; /* 防止滚动 */
     border-radius: var(--radius-lg) !important; /* 保持圆角 */
+    padding: 20px !important; /* 恢复原来的内边距 */
   }
 
   /* 确保卡片内容区域紧凑分布 */
@@ -1147,42 +1159,53 @@ body {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important; /* 内容居中分布 */
-    padding: 12px 20px !important; /* 减少内边距 */
+    margin-bottom: var(--spacing-md) !important; /* 恢复原来的边距 */
     overflow-y: auto !important; /* 如果内容过多，允许滚动 */
   }
 }
 
-/* 移动端卡片内容间距优化 - 紧凑布局 */
+/* 移动端卡片内容间距优化 - 恢复原来的布局 */
 @media (max-width: 768px) {
   /* 卡片头部优化 */
   .card-header {
-    padding: 16px 20px 12px 20px !important;
-    margin-bottom: 8px !important;
+    border-bottom: 1px solid #fff3 !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
     box-sizing: border-box !important;
   }
 
   /* 卡片底部优化 */
   .card-footer {
-    padding: 12px 20px 16px 20px !important;
-    margin: 0 !important; /* 移除外边距 */
+    align-items: center !important;
+    border-top: 1px solid #fff3 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin-top: var(--spacing-xl) !important; /* 恢复原来的间距 */
+    padding-top: var(--spacing-lg) !important; /* 恢复原来的padding */
+    padding-bottom: var(--spacing-md) !important; /* 恢复原来的padding */
+    text-align: center !important;
     box-sizing: border-box !important;
   }
 
-  /* 游戏模式区域紧凑化 */
+  /* 游戏模式区域恢复原来的间距 */
   .game-modes {
-    margin-bottom: 12px !important; /* 进一步减少间距 */
+    margin: 16px 0 24px 0 !important; /* 恢复原来的间距 */
   }
 
-  /* 游戏模式按钮优化 */
+  /* 游戏模式按钮恢复原来的样式 */
   .game-mode-row {
-    margin-bottom: 6px !important; /* 进一步减少按钮间距 */
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    justify-content: center !important;
+    flex-direction: column !important;
   }
 
   .game-mode-btn {
-    min-height: 44px !important; /* 进一步减少按钮高度 */
-    padding: 8px 14px !important; /* 进一步减少内边距 */
-    font-size: 14px !important; /* 稍微减小字体 */
-    border-radius: 8px !important; /* 减小圆角 */
+    min-height: 50px !important; /* 恢复原来的按钮高度 */
+    padding: 12px 16px !important; /* 恢复原来的内边距 */
+    font-size: var(--text-sm) !important; /* 恢复原来的字体大小 */
+    border-radius: var(--radius-lg) !important; /* 恢复原来的圆角 */
   }
 
   /* 按钮图标和文字优化 */
