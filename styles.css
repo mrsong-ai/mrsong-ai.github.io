@@ -1145,11 +1145,13 @@ body {
     justify-content: space-between !important; /* 内容在顶部和底部分布 */
     margin: 0 !important; /* 移除所有外边距 */
     width: 100% !important;
+    max-width: none !important; /* 移除最大宽度限制 */
     box-sizing: border-box !important;
     min-height: 100vh !important; /* 确保填满整个视口 */
     min-height: 100dvh !important; /* 动态视口高度 */
     overflow: hidden !important; /* 防止滚动 */
-    border-radius: var(--radius-lg) !important; /* 保持圆角 */
+    border-radius: 0 !important; /* 移除圆角，确保完全填满 */
+    border: none !important; /* 移除边框 */
     padding: 20px !important; /* 恢复原来的内边距 */
   }
 
