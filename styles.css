@@ -1,5 +1,94 @@
 /* Pi Network 五子棋游戏样式 */
 
+/* 移动端白边修复 - 全局重置 */
+@media (max-width: 768px) {
+  /* 强制所有元素使用视口宽度，防止白边 */
+  html, body, #root, .login-screen, .container, .login-content, .login-content-fixed, .login-card {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 防止任何元素超出视口宽度 */
+  * {
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 强制移除所有可能导致白边的样式 */
+  body {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+  }
+
+  /* 确保没有任何元素有负边距或定位导致白边 */
+  * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  /* Pi浏览器iframe环境特殊修复 */
+  iframe,
+  iframe body,
+  iframe html,
+  iframe #root {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 如果页面在iframe中，强制填满父容器 */
+  body[data-pi-browser="true"],
+  .pi-browser {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translateX(0) !important;
+  }
+}
+
+/* Pi浏览器专用修复 - 最高优先级 */
+.pi-browser-fix {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: translateX(0) !important;
+}
+
+.pi-browser-fix .login-card {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  border-radius: 0 !important;
+  border: none !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
 /* CSS变量定义 */
 :root {
   --pi-primary: #7b2cbf;
@@ -56,6 +145,9 @@ html {
   padding: 0;
   font-size: 16px;
   line-height: 1.5;
+  /* 防止移动端白边 */
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -68,6 +160,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   min-height: 100vh;
+  /* 防止移动端白边 */
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* 滚动条样式 */
@@ -93,14 +188,15 @@ body {
   padding: 0;
 }
 
-/* 移动端容器优化 - 去除白边 */
+/* 移动端容器优化 - 彻底去除白边 */
 @media (max-width: 768px) {
   .container {
-    max-width: 100% !important;
-    width: 100% !important;
+    max-width: 100vw !important; /* 使用视口宽度 */
+    width: 100vw !important; /* 使用视口宽度 */
     margin: 0 !important;
     padding: 0 !important; /* 完全移除padding，让卡片填满屏幕 */
     box-sizing: border-box !important;
+    overflow-x: hidden !important; /* 防止水平滚动 */
   }
 }
 .flex {
@@ -631,7 +727,7 @@ body {
   box-sizing: border-box;
 }
 
-/* 移动端登录界面优化 - 去除白边，确保内容不需要滚动 */
+/* 移动端登录界面优化 - 彻底去除白边，确保内容不需要滚动 */
 @media (max-width: 768px) {
   .login-screen {
     padding: 0 !important; /* 完全移除padding */
@@ -641,7 +737,9 @@ body {
     align-items: stretch !important;
     justify-content: stretch !important;
     box-sizing: border-box !important;
-    width: 100% !important;
+    width: 100vw !important; /* 使用视口宽度 */
+    max-width: 100vw !important; /* 限制最大宽度为视口宽度 */
+    overflow-x: hidden !important; /* 防止水平滚动 */
   }
 }
 
@@ -1025,6 +1123,74 @@ body {
   }
 }
 
+/* Pi浏览器专用白边修复 */
+@media (max-width: 768px) {
+  /* 检测Pi浏览器环境并强制修复 */
+  body[data-pi-browser="true"],
+  .pi-browser,
+  .pi-app,
+  body.pi-network-iframe {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translateX(0) !important;
+  }
+
+  /* Pi浏览器容器修复 */
+  body[data-pi-browser="true"] #root,
+  .pi-browser #root,
+  .pi-app #root,
+  body.pi-network-iframe #root {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* Pi浏览器登录界面修复 */
+  body[data-pi-browser="true"] .login-screen,
+  .pi-browser .login-screen,
+  .pi-app .login-screen,
+  body.pi-network-iframe .login-screen {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Pi浏览器卡片修复 */
+  body[data-pi-browser="true"] .login-card,
+  .pi-browser .login-card,
+  .pi-app .login-card,
+  body.pi-network-iframe .login-card {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    box-sizing: border-box !important;
+    padding: 20px !important;
+  }
+}
+
 /* 所有移动设备统一样式 - 确保一致的显示效果 */
 @media (max-width: 768px) {
   .language-selector {
@@ -1047,17 +1213,18 @@ body {
     animation: globe-rotate 6s linear infinite;
   }
 
-  /* 手机端登录内容优化 - 去除白边，优化布局 */
+  /* 手机端登录内容优化 - 彻底去除白边，优化布局 */
   .login-content,
   .login-content-fixed {
-    max-width: none !important;
-    width: 100% !important;
+    max-width: 100vw !important; /* 使用视口宽度 */
+    width: 100vw !important; /* 使用视口宽度 */
     margin: 0 !important;
     padding: 0 !important; /* 完全移除padding */
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     min-height: 100% !important;
+    overflow-x: hidden !important; /* 防止水平滚动 */
   }
 
   /* 手机端游戏模式按钮 - 单列布局 */
@@ -1106,8 +1273,8 @@ body {
   /* 确保页面不需要滚动就能看到所有内容 */
   html, body {
     overflow-x: hidden !important; /* 防止水平滚动 */
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 100vw !important; /* 使用视口宽度 */
+    max-width: 100vw !important; /* 限制最大宽度为视口宽度 */
     margin: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
@@ -1115,8 +1282,8 @@ body {
 
   /* 根元素优化 */
   #root {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 100vw !important; /* 使用视口宽度 */
+    max-width: 100vw !important; /* 限制最大宽度为视口宽度 */
     margin: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
@@ -1125,7 +1292,7 @@ body {
 
   /* 强制所有元素不超出屏幕宽度 */
   * {
-    max-width: 100% !important;
+    max-width: 100vw !important; /* 使用视口宽度 */
     box-sizing: border-box !important;
   }
 
@@ -1144,12 +1311,12 @@ body {
     flex-direction: column !important;
     justify-content: space-between !important; /* 内容在顶部和底部分布 */
     margin: 0 !important; /* 移除所有外边距 */
-    width: 100% !important;
-    max-width: none !important; /* 移除最大宽度限制 */
+    width: 100vw !important; /* 使用视口宽度 */
+    max-width: 100vw !important; /* 限制最大宽度为视口宽度 */
     box-sizing: border-box !important;
     min-height: 100vh !important; /* 确保填满整个视口 */
     min-height: 100dvh !important; /* 动态视口高度 */
-    overflow: hidden !important; /* 防止滚动 */
+    overflow-x: hidden !important; /* 防止水平滚动 */
     border-radius: 0 !important; /* 移除圆角，确保完全填满 */
     border: none !important; /* 移除边框 */
     padding: 20px !important; /* 恢复原来的内边距 */
@@ -1163,6 +1330,7 @@ body {
     justify-content: center !important; /* 内容居中分布 */
     margin-bottom: var(--spacing-md) !important; /* 恢复原来的边距 */
     overflow-y: auto !important; /* 如果内容过多，允许滚动 */
+    overflow-x: hidden !important; /* 防止水平滚动 */
   }
 }
 

@@ -2,9 +2,14 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="Pi Network五子棋Web3游戏" />
+    <!-- 移动端优化 -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <!-- Pi Browser 兼容性配置 -->
     <meta name="pi-network-app" content="true" />
     <meta name="pi-browser-compatible" content="true" />
@@ -27,7 +32,237 @@
 
     <style>
       /* 游戏界面特定样式 - 只保留必要的额外样式 */
+
+      /* 移动端白边修复 - 内联样式确保优先级 */
+      @media (max-width: 768px) {
+        html, body {
+          width: 100vw !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          position: relative !important;
+        }
+
+        #root {
+          width: 100vw !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        .login-screen {
+          width: 100vw !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        .login-card {
+          width: 100vw !important;
+          max-width: 100vw !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+          border: none !important;
+        }
+      }
     </style>
+
+    <script>
+      // Pi浏览器检测和白边修复
+      function detectPiBrowser() {
+        // 检测Pi浏览器的多种方式
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isPiBrowser =
+          userAgent.includes('pi browser') ||
+          userAgent.includes('pi network') ||
+          window.Pi !== undefined ||
+          document.querySelector('meta[name="pi-network-app"]') !== null ||
+          window.location.href.includes('pi://') ||
+          window.parent !== window; // 可能在iframe中
+
+        if (isPiBrowser) {
+          document.body.setAttribute('data-pi-browser', 'true');
+          document.body.classList.add('pi-browser');
+
+          // 为关键元素添加Pi浏览器修复类
+          const elementsToFix = ['html', 'body', '#root', '.login-screen'];
+          elementsToFix.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+              element.classList.add('pi-browser-fix');
+            }
+          });
+        }
+
+        return isPiBrowser;
+      }
+
+      // 移动端白边修复 - JavaScript动态处理
+      function fixMobileWhiteSpace() {
+        if (window.innerWidth <= 768) {
+          const isPiBrowser = detectPiBrowser();
+          const viewportWidth = window.innerWidth;
+
+          // Pi浏览器专用修复
+          if (isPiBrowser) {
+            console.log('Pi浏览器检测到，应用专用修复');
+
+            // 强制重置所有可能的容器样式
+            const style = document.createElement('style');
+            style.textContent = `
+              html, body, #root, .login-screen, .login-card, .container {
+                width: 100vw !important;
+                max-width: 100vw !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow-x: hidden !important;
+                position: relative !important;
+                left: 0 !important;
+                right: 0 !important;
+                transform: translateX(0) !important;
+                box-sizing: border-box !important;
+              }
+
+              .login-card {
+                padding: 20px !important;
+                border-radius: 0 !important;
+                border: none !important;
+              }
+
+              /* 强制移除Pi浏览器可能添加的样式 */
+              * {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+              }
+            `;
+            document.head.appendChild(style);
+          }
+
+          // 强制设置关键元素的宽度
+          const elements = ['html', 'body', '#root', '.login-screen', '.login-card', '.container'];
+          elements.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+              element.style.width = '100vw';
+              element.style.maxWidth = '100vw';
+              element.style.overflowX = 'hidden';
+              element.style.margin = '0';
+              element.style.padding = selector === '.login-card' ? '20px' : '0';
+              element.style.boxSizing = 'border-box';
+              element.style.position = 'relative';
+              element.style.left = '0';
+              element.style.right = '0';
+              element.style.transform = 'translateX(0)';
+
+              if (selector === '.login-card') {
+                element.style.borderRadius = '0';
+                element.style.border = 'none';
+              }
+            }
+          });
+
+          // 防止任何元素超出视口
+          document.querySelectorAll('*').forEach(el => {
+            if (el.offsetWidth > viewportWidth) {
+              el.style.maxWidth = '100vw';
+              el.style.overflowX = 'hidden';
+              el.style.boxSizing = 'border-box';
+            }
+          });
+
+          // Pi浏览器额外处理
+          if (isPiBrowser) {
+            // 强制移除可能的iframe边距
+            if (window.parent !== window) {
+              try {
+                window.parent.postMessage({
+                  type: 'pi-browser-fix-margins',
+                  width: viewportWidth
+                }, '*');
+              } catch (e) {
+                console.log('无法与父窗口通信');
+              }
+            }
+
+            // 延迟再次修复，确保Pi浏览器的样式被覆盖
+            setTimeout(() => {
+              elements.forEach(selector => {
+                const element = document.querySelector(selector);
+                if (element) {
+                  element.style.width = '100vw';
+                  element.style.maxWidth = '100vw';
+                  element.style.margin = '0';
+                  element.style.padding = selector === '.login-card' ? '20px' : '0';
+                }
+              });
+            }, 500);
+          }
+        }
+      }
+
+      // 调试信息显示（仅在开发模式下）
+      function showDebugInfo() {
+        if (window.location.search.includes('debug=true')) {
+          const debugInfo = document.createElement('div');
+          debugInfo.style.cssText = `
+            position: fixed;
+            top: 50px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+            z-index: 9999;
+            border-radius: 5px;
+            max-width: 300px;
+          `;
+
+          const isPiBrowser = detectPiBrowser();
+          debugInfo.innerHTML = `
+            <strong>调试信息:</strong><br>
+            浏览器: ${navigator.userAgent}<br>
+            视口宽度: ${window.innerWidth}px<br>
+            视口高度: ${window.innerHeight}px<br>
+            Pi浏览器: ${isPiBrowser ? '是' : '否'}<br>
+            body宽度: ${document.body.offsetWidth}px<br>
+            是否在iframe: ${window.parent !== window ? '是' : '否'}<br>
+            Pi SDK: ${typeof window.Pi !== 'undefined' ? '已加载' : '未加载'}
+          `;
+
+          document.body.appendChild(debugInfo);
+
+          // 5秒后自动隐藏
+          setTimeout(() => {
+            debugInfo.style.display = 'none';
+          }, 5000);
+        }
+      }
+
+      // 页面加载完成后执行
+      document.addEventListener('DOMContentLoaded', () => {
+        detectPiBrowser();
+        fixMobileWhiteSpace();
+        showDebugInfo();
+      });
+
+      // 窗口大小改变时执行
+      window.addEventListener('resize', fixMobileWhiteSpace);
+
+      // 设备方向改变时执行
+      window.addEventListener('orientationchange', () => {
+        setTimeout(fixMobileWhiteSpace, 100);
+      });
+
+      // Pi浏览器可能的延迟加载处理
+      if (window.Pi) {
+        window.Pi.onload = function() {
+          setTimeout(fixMobileWhiteSpace, 200);
+        };
+      }
+    </script>
   </head>
   <body>
     <noscript data-i18n="noscript"
